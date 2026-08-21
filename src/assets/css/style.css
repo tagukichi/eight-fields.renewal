@@ -260,7 +260,7 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 
 .ef-logo { display: flex; align-items: center; gap: 12px; flex: none; }
-.ef-logo__mark { width: 42px; height: 42px; flex: none; }
+.ef-logo__mark { width: 46px; height: auto; flex: none; }
 .ef-logo__text { display: flex; flex-direction: column; line-height: 1.15; }
 .ef-logo__type {
   font-family: var(--ef-font-en); font-size: 19px; font-weight: 700;
@@ -380,11 +380,13 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .ef-hero__media { position: absolute; inset: 0; z-index: -2; }
 .ef-hero__media img { width: 100%; height: 100%; object-fit: cover; }
+.ef-hero__media img { opacity: .5; }
 .ef-hero__media::after {
   content: ""; position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(11,46,66,.72) 0%, rgba(11,46,66,.34) 38%, rgba(11,46,66,.86) 100%),
-    linear-gradient(90deg, rgba(11,46,66,.7) 0%, rgba(11,46,66,0) 62%);
+    linear-gradient(180deg, rgba(11,46,66,.9) 0%, rgba(11,46,66,.74) 40%, rgba(11,46,66,.96) 100%),
+    /* keep the headline column clean; let the photo read only on the right */
+    linear-gradient(90deg, rgba(11,46,66,.97) 0%, rgba(11,46,66,.93) 34%, rgba(11,46,66,.45) 72%);
 }
 .ef-hero__glow {
   position: absolute; z-index: -1; right: -8%; top: -12%;

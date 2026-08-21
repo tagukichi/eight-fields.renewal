@@ -34,7 +34,7 @@ get_header();
 
 			<div class="ef-hero__visual" aria-hidden="true">
 				<?php
-				$ef_hero_shots = array( 'solar.jpg', 'battery.jpg', 'ev.jpg' );
+				$ef_hero_shots = array( 'solar.jpg', 'battery.jpg', 'ev_charge.jpg' );
 				$ef_letters    = array( 'a', 'b', 'c' );
 				foreach ( $ef_hero_shots as $ef_k => $ef_shot ) :
 					?>
