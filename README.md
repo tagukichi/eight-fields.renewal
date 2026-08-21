@@ -5,7 +5,7 @@
 
 | | |
 |---|---|
-| **デザイン案プレビュー** | https://tagukichi.github.io/eight-fields.renewal/ |
+| **デザイン案プレビュー** | https://tagukichi.github.io/eight-fields.renewal/ ※下記の初回設定が必要 |
 | **WordPress テーマ** | [`theme/eight-fields/`](theme/eight-fields/) |
 | 作業ブランチ | `claude/eight-fields-redesign-9c64yk` |
 
@@ -51,6 +51,20 @@
 | お知らせ（一覧） | `/news/` | `index.php` |
 | お知らせ（詳細） | `/news/<slug>/` | `single.php` |
 | お問い合わせ | `/contact/` | `page.php` |
+
+## 2-b. GitHub Pages の初回設定（1回だけ必要）
+
+デプロイ用の GitHub Actions ワークフローは設定済みですが、**Pages の初回有効化だけは
+リポジトリ設定から行う必要があります**（GitHub の仕様上、ワークフローの `GITHUB_TOKEN` では
+Pages サイトを新規作成できないため）。
+
+1. リポジトリの **Settings → Pages** を開く
+2. **Build and deployment → Source** を **GitHub Actions** に変更
+3. **Actions → Deploy design proposal to GitHub Pages → Run workflow** で再実行
+
+以降は `claude/eight-fields-redesign-9c64yk` への push で自動デプロイされます。
+
+> リポジトリが Private の場合、GitHub Pages の公開には有料プラン（Pro / Team 以上）が必要です。
 
 ## 3. リポジトリ構成
 

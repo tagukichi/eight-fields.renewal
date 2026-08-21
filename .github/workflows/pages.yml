@@ -28,18 +28,27 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Requires Pages to be switched on once, in
+      #   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+      # `enablement: true` re-enables it automatically on later runs, but the
+      # very first creation needs that manual step: GITHUB_TOKEN is not allowed
+      # to create a Pages site from scratch.
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
         with:
-          # Turn Pages on (source: GitHub Actions) the first time this runs,
-          # so the repository needs no manual setup in Settings.
           enablement: true
 
       - name: Build static site
-        # base_path is "/<repo>" for a project site and "" for a user/org site,
-        # so this works either way.
-        run: python3 tools/build.py --base "${{ steps.pages.outputs.base_path }}/"
+        # base_path is "/<repo>" for a project site and "" for a user/org site.
+        # The fallback keeps the build correct if the output is ever unset.
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          base="${BASE_PATH:-/$REPO_NAME}"
+          echo "building with base: $base/"
+          python3 tools/build.py --base "$base/"
 
       - name: Verify build output
         run: |
