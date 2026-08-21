@@ -37,39 +37,14 @@ desc: エイトフィールズ株式会社の会社概要。商号・設立・�
         この体制が「営業会社＝施工会社」を実現し、安心と適正価格につながっています。
       </p>
     </div>
-    <div class="ef-grid ef-grid--2" data-reveal data-reveal-delay="1">
-      <div class="ef-feature" style="text-align:center;">
-        <h3 class="ef-feature__title">
-          <img src="{{BASE}}assets/img/logo-lockup.png" alt="{{NAME}}" width="895" height="160"
-               style="width:min(280px,88%);height:auto;margin:6px auto 4px;" loading="lazy" decoding="async">
-        </h3>
-        <p class="ef-feature__text" style="margin-top:18px;">
-          ヒアリング・シミュレーション・ご提案・各種申請・アフターサポート。<br>
-          お客様の窓口を一本化します。
-        </p>
-      </div>
-      <div class="ef-feature">
-        <h3 class="ef-feature__title">{{GROUP}}</h3>
-        <p class="ef-feature__text" style="margin-top:8px;">東京都知事登録 第290199号</p>
-        <div style="margin-top:22px;">
-          <p style="font-size:13px;font-weight:700;color:var(--ef-primary);letter-spacing:.08em;margin-bottom:10px;">新エネルギー工事</p>
-          <ul class="ef-checks" style="gap:8px;font-size:14px;">
-            <li style="padding-left:30px;">太陽光発電システム販売工事</li>
-            <li style="padding-left:30px;">オール電化販売工事</li>
-            <li style="padding-left:30px;">蓄電池・HEMS販売工事</li>
-            <li style="padding-left:30px;">オフグリッド設計／LED工事</li>
-          </ul>
-          <p style="font-size:13px;font-weight:700;color:var(--ef-primary);letter-spacing:.08em;margin:22px 0 10px;">電気・水道工事</p>
-          <ul class="ef-checks" style="gap:8px;font-size:14px;">
-            <li style="padding-left:30px;">一般電気工事（住宅設備）</li>
-            <li style="padding-left:30px;">一般水道工事（住宅・水廻り）</li>
-            <li style="padding-left:30px;">エアコン工事／給排水工事</li>
-            <li style="padding-left:30px;">給湯器販売交換工事</li>
-            <li style="padding-left:30px;">ドローンによる家屋・設備調査、点検</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <figure class="ef-partners" data-reveal data-reveal-delay="1">
+      <picture>
+        <source media="(max-width: 700px)" srcset="{{BASE}}assets/img/slide-partners-sp.jpg">
+        <img src="{{BASE}}assets/img/slide-partners.jpg"
+             alt="エイトフィールズ株式会社 × 有限会社 金山製作所" width="1920" height="762"
+             loading="lazy" decoding="async">
+      </picture>
+    </figure>
   </div>
 </section>
 
@@ -107,7 +82,16 @@ desc: エイトフィールズ株式会社の会社概要。商号・設立・�
           <td>今回のご提案以外でも、ご自宅で気になる箇所、メンテナンス等すべて対応可能です。<br>
               その理由は、営業会社＝施工会社のため。営業から施工まで一括で行うために、安心で安いとご好評頂いております。</td>
         </tr>
-        <tr><th scope="row">グループ会社</th><td>{{GROUP}}（東京都知事登録 第290199号）</td></tr>
+        <tr>
+          <th scope="row">グループ会社</th>
+          <td>
+            {{GROUP}}（東京都知事登録 第290199号）
+            <span style="display:block;margin-top:10px;font-size:14px;color:var(--ef-body);">
+              新エネルギー工事：太陽光発電システム販売工事／オール電化販売工事／蓄電池・HEMS販売工事／オフグリッド設計／LED工事<br>
+              電気・水道工事：一般電気工事（住宅設備）／一般水道工事（住宅・水廻り）／エアコン工事／給排水工事／給湯器販売交換工事／ドローンによる家屋・設備調査、点検
+            </span>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

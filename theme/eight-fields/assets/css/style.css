@@ -672,6 +672,15 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: .16em; color: var(--ef-solar);
 }
 
+/* Two-company banner (same artwork as the first-view slider) */
+.ef-partners {
+  margin: 0; border-radius: var(--ef-radius-lg); overflow: hidden;
+  border: 1px solid var(--ef-line-soft);
+  box-shadow: var(--ef-shadow-sm);
+  background: #fff;
+}
+.ef-partners img { display: block; width: 100%; height: auto; }
+
 /* Feature card */
 .ef-feature {
   padding: 36px 32px; border-radius: var(--ef-radius-lg);
