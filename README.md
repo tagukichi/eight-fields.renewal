@@ -140,7 +140,10 @@ WordPress 最新版 + PHP 8.4 で、全テンプレート（トップ／固定�
 | `diagram_battery.jpg` / `diagram_cycle.jpg` / `blackout.jpg` | 蓄電池ページの図版 | 元データ |
 | （新規） | トップページ・下層ページのヒーロー用 | 幅1920px以上 |
 
-`src/assets/img/` と `theme/eight-fields/assets/img/` の同名ファイルを置き換えれば反映されます。
+**アップロード先:** [`assets-original/`](assets-original/) にそのまま置いてください。
+必要なファイル名と推奨サイズは [`assets-original/README.md`](assets-original/README.md) に記載しています。
+
+（開発者向け）`src/assets/img/` と `theme/eight-fields/assets/img/` の同名ファイルを置き換えれば反映されます。
 
 ## 6. 掲載テキストについて
 
