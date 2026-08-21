@@ -44,6 +44,22 @@
     });
 
     drawer.addEventListener('click', function (e) {
+      var toggle = e.target.closest('[data-drawer-toggle]');
+      if (toggle) {
+        var panel = doc.getElementById(toggle.getAttribute('aria-controls'));
+        if (!panel) return;
+        var expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        panel.hidden = expanded;
+        // the panel animates via grid-template-rows, so it must be visible
+        // before the class lands or the first frame is skipped
+        if (!expanded) {
+          requestAnimationFrame(function () { panel.classList.add('is-open'); });
+        } else {
+          panel.classList.remove('is-open');
+        }
+        return;
+      }
       if (e.target.closest('a')) setOpen(false);
     });
 
@@ -266,22 +282,16 @@
 
   /* ------------------------------------------------ floating CTA / to-top */
   function initFloating() {
-    var bar = doc.querySelector('[data-fixedbar]');
     var top = doc.querySelector('[data-totop]');
-    if (!bar && !top) return;
+    if (!top) return;
 
-    var footer = doc.querySelector('[data-footer]');
     function onScroll() {
-      var past = window.scrollY > 480;
-      // Hide the bar once the real footer CTA is on screen.
-      var atFoot = footer && footer.getBoundingClientRect().top < window.innerHeight - 40;
-      if (bar) bar.classList.toggle('is-shown', past && !atFoot);
-      if (top) top.classList.toggle('is-shown', past);
+      top.classList.toggle('is-shown', window.scrollY > 480);
     }
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    if (top) {
+    {
       top.addEventListener('click', function (e) {
         e.preventDefault();
         window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
