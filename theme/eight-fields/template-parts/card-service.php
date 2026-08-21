@@ -19,12 +19,6 @@ $ef_lag = ( $ef_no % 3 ) + 1;
 			<?php endif; ?>
 		</div>
 		<div class="ef-card__body">
-			<?php
-			$ef_icon = ef_service_icon( get_post_field( 'post_name', get_the_ID() ) );
-			if ( $ef_icon ) :
-				?>
-				<span class="ef-scard__icon"><?php echo $ef_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?></span>
-			<?php endif; ?>
 			<?php if ( $ef_no ) : ?>
 				<span class="ef-scard__no"><?php echo esc_html( sprintf( '%02d', $ef_no ) ); ?></span>
 			<?php endif; ?>

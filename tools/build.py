@@ -380,7 +380,10 @@ def document(base, meta, body, preview_note=True):
 <meta property="og:title" content="{full_title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:site_name" content="{SITE['name']}">
-<link rel="icon" href="{base}assets/img/logo-mark.png">
+<link rel="icon" href="{base}assets/img/favicon.ico" sizes="32x32">
+<link rel="icon" href="{base}assets/img/favicon.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="{base}assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#0B2E42">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -496,7 +499,6 @@ def service_cards(base, exclude=None, limit=None):
               <span class="ef-card__badge">{s['en']}</span>
             </div>
             <div class="ef-card__body">
-              <span class="ef-scard__icon">{ICONS[s['icon']]}</span>
               <span class="ef-scard__no">0{SERVICES.index(s) + 1}</span>
               <h3 class="ef-card__title">{s.get('title_long', s['title'])}</h3>
               <p class="ef-card__text">{s['lead']}</p>

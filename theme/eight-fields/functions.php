@@ -97,6 +97,24 @@ function ef_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'ef_enqueue_assets' );
 
 /**
+ * Favicons, unless a Site Icon has been set in the Customizer.
+ *
+ * The bundled files are square so browsers never squash the wide logo mark.
+ */
+function ef_favicons() {
+	if ( has_site_icon() ) {
+		return;
+	}
+	?>
+	<link rel="icon" href="<?php echo esc_url( get_theme_file_uri( '/assets/img/favicon.ico' ) ); ?>" sizes="32x32">
+	<link rel="icon" href="<?php echo esc_url( get_theme_file_uri( '/assets/img/favicon.png' ) ); ?>" type="image/png" sizes="512x512">
+	<link rel="apple-touch-icon" href="<?php echo esc_url( get_theme_file_uri( '/assets/img/apple-touch-icon.png' ) ); ?>">
+	<meta name="theme-color" content="#0B2E42">
+	<?php
+}
+add_action( 'wp_head', 'ef_favicons', 5 );
+
+/**
  * Preconnect to the Google Fonts hosts.
  *
  * @param array  $urls           URLs to print.

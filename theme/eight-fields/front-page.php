@@ -46,22 +46,20 @@ get_header();
 		</div>
 
 		<dl class="ef-hero__meta">
-			<div class="ef-hero__stat">
-				<dt><?php esc_html_e( '施工実績', 'eight-fields' ); ?></dt>
-				<dd><span class="ef-num" data-count="10000">10000</span><span><?php esc_html_e( '棟以上', 'eight-fields' ); ?></span></dd>
-			</div>
-			<div class="ef-hero__stat">
-				<dt><?php esc_html_e( '対応エリア', 'eight-fields' ); ?></dt>
-				<dd><span class="ef-num" data-count="7">7</span><span><?php esc_html_e( '都県', 'eight-fields' ); ?></span></dd>
-			</div>
-			<div class="ef-hero__stat">
-				<dt><?php esc_html_e( '取扱サービス', 'eight-fields' ); ?></dt>
-				<dd><span class="ef-num" data-count="6">6</span><span><?php esc_html_e( '分野', 'eight-fields' ); ?></span></dd>
-			</div>
-			<div class="ef-hero__stat">
-				<dt><?php esc_html_e( '営業＝施工', 'eight-fields' ); ?></dt>
-				<dd><?php esc_html_e( '自社一貫', 'eight-fields' ); ?><span><?php esc_html_e( '体制', 'eight-fields' ); ?></span></dd>
-			</div>
+			<?php
+			$ef_hero_stats = array(
+				array( __( '施工実績', 'eight-fields' ), '<span class="ef-num" data-count="10000">10000</span>', __( '棟以上', 'eight-fields' ) ),
+				array( __( '対応エリア', 'eight-fields' ), '<span class="ef-num" data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
+				array( __( '取扱サービス', 'eight-fields' ), '<span class="ef-num" data-count="6">6</span>', __( '分野', 'eight-fields' ) ),
+				array( __( '営業＝施工', 'eight-fields' ), esc_html__( '自社一貫', 'eight-fields' ), __( '体制', 'eight-fields' ) ),
+			);
+			foreach ( $ef_hero_stats as $ef_stat ) :
+				?>
+				<div class="ef-hero__stat">
+					<dt><?php echo esc_html( $ef_stat[0] ); ?></dt>
+					<dd><?php echo $ef_stat[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php echo esc_html( $ef_stat[2] ); ?></span></dd>
+				</div>
+			<?php endforeach; ?>
 		</dl>
 	</div>
 	<span class="ef-hero__scroll">SCROLL</span>
@@ -143,29 +141,28 @@ get_header();
 </section>
 
 <!-- NUMBERS -->
-<section class="ef-section ef-section--tight ef-section--deep">
+<section class="ef-section ef-section--tight ef-section--deep ef-numbers">
 	<div class="ef-container">
 		<div class="ef-head ef-head--center" data-reveal>
 			<span class="ef-eyebrow">Numbers</span>
 			<h2 class="ef-h2"><?php esc_html_e( '数字で見るエイトフィールズ', 'eight-fields' ); ?></h2>
 		</div>
 		<div class="ef-stats" data-reveal data-reveal-delay="1">
-			<div class="ef-stats__item">
-				<p class="ef-stats__label"><?php esc_html_e( '施工実績', 'eight-fields' ); ?></p>
-				<p class="ef-stats__value"><span data-count="10000">10000</span><span><?php esc_html_e( '棟以上', 'eight-fields' ); ?></span></p>
-			</div>
-			<div class="ef-stats__item">
-				<p class="ef-stats__label"><?php esc_html_e( '対応エリア', 'eight-fields' ); ?></p>
-				<p class="ef-stats__value"><span data-count="7">7</span><span><?php esc_html_e( '都県', 'eight-fields' ); ?></span></p>
-			</div>
-			<div class="ef-stats__item">
-				<p class="ef-stats__label"><?php esc_html_e( 'スタッフ数', 'eight-fields' ); ?></p>
-				<p class="ef-stats__value"><span data-count="28">28</span><span><?php esc_html_e( '名', 'eight-fields' ); ?></span></p>
-			</div>
-			<div class="ef-stats__item">
-				<p class="ef-stats__label"><?php esc_html_e( '設立', 'eight-fields' ); ?></p>
-				<p class="ef-stats__value"><span class="ef-num">2023</span><span><?php esc_html_e( '年', 'eight-fields' ); ?></span></p>
-			</div>
+			<?php
+			$ef_numbers = array(
+				array( '01', __( '施工実績', 'eight-fields' ), '<span data-count="10000">10000</span>', __( '棟以上', 'eight-fields' ) ),
+				array( '02', __( '対応エリア', 'eight-fields' ), '<span data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
+				array( '03', __( 'スタッフ数', 'eight-fields' ), '<span data-count="28">28</span>', __( '名', 'eight-fields' ) ),
+				array( '04', __( '設立', 'eight-fields' ), '<span class="ef-num">2023</span>', __( '年', 'eight-fields' ) ),
+			);
+			foreach ( $ef_numbers as $ef_n ) :
+				?>
+				<div class="ef-stats__item">
+					<span class="ef-stats__no"><?php echo esc_html( $ef_n[0] ); ?></span>
+					<p class="ef-stats__label"><?php echo esc_html( $ef_n[1] ); ?></p>
+					<p class="ef-stats__value"><?php echo $ef_n[2]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php echo esc_html( $ef_n[3] ); ?></span></p>
+				</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 </section>
