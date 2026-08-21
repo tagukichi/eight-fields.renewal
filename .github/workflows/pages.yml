@@ -31,6 +31,10 @@ jobs:
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          # Turn Pages on (source: GitHub Actions) the first time this runs,
+          # so the repository needs no manual setup in Settings.
+          enablement: true
 
       - name: Build static site
         # base_path is "/<repo>" for a project site and "" for a user/org site,
