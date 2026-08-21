@@ -140,6 +140,70 @@
     });
   }
 
+  /* ------------------------------------------------------------- slider */
+  function initSlider() {
+    var root = doc.querySelector('[data-slider]');
+    if (!root) return;
+
+    var slides = root.querySelectorAll('[data-slide]');
+    var dots = root.querySelectorAll('[data-slide-to]');
+    if (slides.length < 2) return;
+
+    var index = 0;
+    var timer = null;
+    var DELAY = 6000;
+
+    function show(n) {
+      index = (n + slides.length) % slides.length;
+      Array.prototype.forEach.call(slides, function (s, k) {
+        s.classList.toggle('is-active', k === index);
+      });
+      Array.prototype.forEach.call(dots, function (d, k) {
+        d.setAttribute('aria-selected', String(k === index));
+      });
+    }
+
+    function stop() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+    function play() {
+      stop();
+      // auto-advance is motion the visitor did not ask for
+      if (!reduceMotion) timer = setInterval(function () { show(index + 1); }, DELAY);
+    }
+
+    Array.prototype.forEach.call(dots, function (d) {
+      d.addEventListener('click', function () {
+        show(parseInt(d.getAttribute('data-slide-to'), 10) || 0);
+        play();
+      });
+    });
+
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', play);
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', play);
+    doc.addEventListener('visibilitychange', function () {
+      if (doc.hidden) { stop(); } else { play(); }
+    });
+
+    var startX = null;
+    root.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      stop();
+    }, { passive: true });
+    root.addEventListener('touchend', function (e) {
+      if (startX === null) return;
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1));
+      startX = null;
+      play();
+    }, { passive: true });
+
+    show(0);
+    play();
+  }
+
   /* --------------------------------------------------------- hero motion */
   function initHeroMotion() {
     var hero = doc.querySelector('.ef-hero');
@@ -147,37 +211,18 @@
 
     var gsap = window.gsap;
 
-    var tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } });
-
-    tl.from('.ef-hero__tag', { y: 18, opacity: 0, duration: 0.6 })
-      .from('.ef-hero__title', { y: 32, opacity: 0 }, '-=0.30')
+    gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } })
+      .from('.ef-slider', { opacity: 0, duration: 1.1 })
+      .from('.ef-hero__tag', { y: 16, opacity: 0, duration: 0.6 }, '-=0.55')
+      .from('.ef-hero__title', { y: 28, opacity: 0 }, '-=0.35')
       // the amber underline sweeps in behind the headline
       .fromTo('.ef-hero__title .ef-mark',
         { '--ef-mark': 0 },
         { '--ef-mark': 1, duration: 0.7, ease: 'power2.inOut' }, '-=0.45')
-      .from('.ef-hero__text', { y: 20, opacity: 0, duration: 0.7 }, '-=0.60')
-      .from('.ef-hero__cta > *', { y: 18, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.45')
-      .from('.ef-hero__shot', {
-        y: 48, opacity: 0, scale: 0.94, stagger: 0.12, duration: 1.1, clearProps: 'scale'
-      }, '-=1.05')
-      .from('.ef-hero__stat', { y: 16, opacity: 0, stagger: 0.08, duration: 0.6 }, '-=0.65');
-
-    // Depth on scroll — desktop only, where the tiles are absolutely placed.
-    window.ScrollTrigger.matchMedia({
-      '(min-width: 1001px)': function () {
-        [['.ef-hero__shot--a', -13], ['.ef-hero__shot--b', 6], ['.ef-hero__shot--c', -22]]
-          .forEach(function (pair) {
-            gsap.to(pair[0], {
-              yPercent: pair[1], ease: 'none',
-              scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 }
-            });
-          });
-        gsap.to('.ef-hero__media img', {
-          yPercent: 8, ease: 'none',
-          scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 }
-        });
-      }
-    });
+      .from('.ef-hero__text', { y: 18, opacity: 0, duration: 0.7 }, '-=0.60')
+      .from('.ef-hero__cta > *', { y: 16, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.45')
+      .from('.ef-hero__note', { opacity: 0, duration: 0.5 }, '-=0.35')
+      .from('.ef-hero__stat', { y: 16, opacity: 0, stagger: 0.08, duration: 0.6 }, '-=0.45');
   }
 
   /* ---------------------------------------------------- sub-page hero fade */
@@ -317,6 +362,7 @@
     initHeader();
     initDrawer();
     initReveal();
+    initSlider();
     initHeroMotion();
     initPageHeroMotion();
     initCounters();

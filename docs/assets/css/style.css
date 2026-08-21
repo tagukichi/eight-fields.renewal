@@ -367,7 +367,6 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-drawer__toggle {
   flex: none; width: 58px;
   display: grid; place-items: center;
-  border-left: 1px solid var(--ef-line-soft);
 }
 .ef-drawer__caret {
   position: relative; flex: none; width: 16px; height: 16px;
@@ -399,8 +398,7 @@ input, select, textarea { font: inherit; color: inherit; }
    7. Hero (front page)
    -------------------------------------------------------------------------- */
 .ef-hero {
-  position: relative; min-height: min(92vh, 880px);
-  display: flex; align-items: flex-end;
+  position: relative;
   padding-top: calc(var(--ef-header-h) + var(--ef-bar-h, 0px));
   background: linear-gradient(168deg, #FFFFFF 0%, #F5FAFD 40%, #E7F3FA 100%);
   color: var(--ef-body);
@@ -409,26 +407,16 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 /* soft brand wash in the lower-left, balancing the amber glow top-right */
 .ef-hero::before {
-  content: ""; position: absolute; z-index: -1; left: -12%; bottom: -28%;
+  content: ""; position: absolute; z-index: -1; left: -12%; bottom: -20%;
   width: 58vw; height: 58vw; max-width: 760px; max-height: 760px;
   border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(67,172,220,.26) 0%, rgba(67,172,220,0) 70%);
-}
-.ef-hero__media { position: absolute; inset: 0; z-index: -2; }
-.ef-hero__media img { width: 100%; height: 100%; object-fit: cover; }
-.ef-hero__media img { opacity: .55; }
-.ef-hero__media::after {
-  content: ""; position: absolute; inset: 0;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.66) 44%, rgba(255,255,255,.96) 100%),
-    /* keep the headline column clean; let the photo read only past the tiles */
-    linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,.98) 38%, rgba(255,255,255,.72) 56%, rgba(255,255,255,.34) 82%);
+  background: radial-gradient(circle, rgba(67,172,220,.22) 0%, rgba(67,172,220,0) 70%);
 }
 .ef-hero__glow {
-  position: absolute; z-index: -1; right: -8%; top: -12%;
-  width: 62vw; height: 62vw; max-width: 820px; max-height: 820px;
+  position: absolute; z-index: -1; right: -8%; top: 18%;
+  width: 52vw; height: 52vw; max-width: 700px; max-height: 700px;
   border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255,188,44,.42) 0%, rgba(255,188,44,0) 68%);
+  background: radial-gradient(circle, rgba(255,188,44,.34) 0%, rgba(255,188,44,0) 68%);
   animation: ef-breathe 9s ease-in-out infinite;
 }
 @keyframes ef-breathe {
@@ -436,72 +424,70 @@ input, select, textarea { font: inherit; color: inherit; }
   50%      { transform: scale(1.12); opacity: 1; }
 }
 
-.ef-hero__inner { width: 100%; padding-block: clamp(56px, 7vw, 88px); }
-.ef-hero__grid {
-  display: grid; grid-template-columns: minmax(0, 1.06fr) minmax(0, .94fr);
-  gap: clamp(32px, 5vw, 72px); align-items: center;
+/* Background photograph behind the copy block; the slider covers it. */
+.ef-hero__media { position: absolute; inset: 0; z-index: -2; }
+.ef-hero__media img { width: 100%; height: 100%; object-fit: cover; opacity: .5; }
+.ef-hero__media::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.72) 44%, rgba(255,255,255,.96) 100%),
+    linear-gradient(90deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.8) 45%, rgba(255,255,255,.55) 100%);
 }
-.ef-hero__copy { max-width: 720px; color: var(--ef-body); }
 
-.ef-hero__visual { position: relative; aspect-ratio: 1 / 1.04; }
-.ef-hero__shot {
-  position: absolute; margin: 0; overflow: hidden;
-  border-radius: 20px; border: 1px solid rgba(255,255,255,.9);
-  box-shadow: 0 24px 54px rgba(11,46,66,.18), 0 3px 10px rgba(11,46,66,.06);
+/* ---- slider ---- */
+.ef-slider { position: relative; overflow: hidden; background: var(--ef-sand); }
+.ef-slider__track {
+  position: relative; width: 100%;
+  aspect-ratio: 2040 / 810;
+  max-height: 62vh; max-height: 62svh;
 }
-.ef-hero__shot img { width: 100%; height: 100%; object-fit: cover; }
-.ef-hero__shot--a { left: 0;   top: 0;    width: 66%; height: 56%; }
-.ef-hero__shot--b { right: 0;  top: 26%;  width: 58%; height: 54%; }
-.ef-hero__shot--c { left: 6%;  bottom: 0; width: 42%; height: 30%; }
-/* Free-consultation seal, overlapping the photo collage */
-.ef-hero__badge {
-  position: absolute; z-index: 3;
-  left: 2%; bottom: 30%;
-  display: grid; place-items: center; align-content: center; gap: 2px;
-  width: 116px; height: 116px; border-radius: 50%;
-  background: var(--ef-solar); color: var(--ef-deep); text-align: center;
-  box-shadow: 0 14px 30px rgba(255,188,44,.42);
+.ef-slider__slide {
+  position: absolute; inset: 0;
+  opacity: 0; visibility: hidden;
+  transition: opacity .9s var(--ef-ease), visibility .9s var(--ef-ease);
 }
-.ef-hero__badge b { font-size: 26px; font-weight: 700; line-height: 1.1; letter-spacing: .04em; }
-.ef-hero__badge span { font-size: 10.5px; font-weight: 700; letter-spacing: .02em; }
+.ef-slider__slide.is-active { opacity: 1; visibility: visible; }
+.ef-slider__slide > picture { display: block; width: 100%; height: 100%; }
+.ef-slider__slide > picture img { width: 100%; height: 100%; object-fit: cover; }
 
-.ef-hero__visual::before {
-  content: ""; position: absolute; right: 6%; bottom: 2%; z-index: -1;
-  width: 46%; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,188,44,.34) 0%, rgba(255,188,44,0) 70%);
+/* message slide, rebuilt from the supplied artwork so the copy stays editable */
+.ef-slide--message { display: flex; align-items: center; background: var(--ef-primary-l); }
+.ef-slide__inner { position: relative; z-index: 2; width: 100%; }
+.ef-slide__copy { display: grid; justify-items: start; gap: .55em; margin: 0; max-width: 60%; }
+.ef-slide__line {
+  font-size: clamp(19px, 2.9vw, 42px); font-weight: 700; line-height: 1.45;
+  color: #fff; letter-spacing: .02em; word-break: auto-phrase;
+  padding-bottom: .16em; border-bottom: 3px solid var(--ef-solar);
+  text-shadow: 0 2px 14px rgba(11,46,66,.18);
 }
-@media (max-width: 1000px) {
-  .ef-hero { min-height: auto; }
-  .ef-hero__inner { padding-block: clamp(26px, 5vw, 48px) clamp(34px, 6vw, 56px); }
-  .ef-hero__grid { grid-template-columns: 1fr; gap: 26px; }
-  .ef-hero__copy { max-width: none; }
-  /* A staggered collage reads as composed, where an even 3-up strip reads as
-     a leftover row of thumbnails. */
-  .ef-hero__visual {
-    aspect-ratio: auto;
-    display: grid; grid-template-columns: 1.16fr 1fr; grid-template-rows: auto auto;
-    gap: 10px;
-  }
-  .ef-hero__shot { position: static; width: auto !important; height: auto !important; }
-  .ef-hero__shot--a { grid-row: 1 / span 2; aspect-ratio: 3 / 4.35; border-radius: 22px; }
-  .ef-hero__shot--b { aspect-ratio: 4 / 3.05; }
-  .ef-hero__shot--c { aspect-ratio: 4 / 3.05; display: block; }
-  .ef-hero__visual { position: relative; }
-  .ef-hero__visual::before { display: none; }
-  /* corner seal rather than the desktop's left-edge placement */
-  .ef-hero__badge { left: auto; right: -4px; bottom: -16px; width: 104px; height: 104px; }
-  .ef-hero__badge b { font-size: 23px; }
-  .ef-hero__badge span { font-size: 9.5px; }
+.ef-slide__line:nth-child(2) { margin-left: clamp(16px, 4vw, 88px); }
+.ef-slide__figure {
+  position: absolute; right: 0; bottom: 0; z-index: 1;
+  height: 100%; width: auto; max-width: 52%;
+  object-fit: contain; object-position: right bottom;
 }
-@media (max-width: 560px) {
-  .ef-hero__tag { margin-bottom: 18px; padding: 7px 15px; font-size: 12px; }
-  .ef-hero__text { margin-top: 20px; font-size: 14px; line-height: 1.92; }
-  .ef-hero__meta { margin-top: 34px; gap: 10px; }
-  .ef-hero__text { margin-bottom: 4px; }
+
+/* dots sit on a translucent pill so they read on both a pale and a blue slide */
+.ef-slider__dots {
+  position: absolute; left: 50%; bottom: 16px; z-index: 4;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 13px; border-radius: 999px;
+  background: rgba(11,46,66,.26);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
+.ef-slider__dots button {
+  width: 9px; height: 9px; border-radius: 999px; background: rgba(255,255,255,.62);
+  transition: width .35s var(--ef-ease), background-color .35s var(--ef-ease);
+}
+.ef-slider__dots button[aria-selected="true"] { width: 26px; background: var(--ef-solar); }
+
+/* ---- copy block under the slider ---- */
+.ef-hero__inner { width: 100%; padding-block: clamp(38px, 5vw, 68px); }
+.ef-hero__copy { max-width: 780px; margin-inline: auto; text-align: center; color: var(--ef-body); }
 .ef-hero__tag {
   display: inline-flex; align-items: center; gap: 10px;
-  padding: 8px 18px; margin-bottom: 26px;
+  padding: 8px 18px; margin-bottom: 22px;
   border: 1px solid rgba(11,46,66,.12); border-radius: 999px;
   background: rgba(255,255,255,.9);
   backdrop-filter: blur(6px);
@@ -515,12 +501,10 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-hero__title {
   color: var(--ef-ink);
   word-break: auto-phrase;
-  font-size: clamp(28px, 3.5vw, 50px);
-  font-weight: 700; line-height: 1.34; letter-spacing: .01em;
+  font-size: clamp(26px, 3.4vw, 46px);
+  font-weight: 700; line-height: 1.36; letter-spacing: .01em;
 }
-.ef-hero__title .ef-mark {
-  position: relative; display: inline-block; white-space: nowrap;
-}
+.ef-hero__title .ef-mark { position: relative; display: inline-block; white-space: nowrap; }
 .ef-hero__title .ef-mark::after {
   content: ""; position: absolute; left: -2px; right: -2px; bottom: .08em; height: .3em; z-index: -1;
   background: linear-gradient(90deg, rgba(255,188,44,.95), rgba(255,188,44,.45));
@@ -528,27 +512,16 @@ input, select, textarea { font: inherit; color: inherit; }
   transform: scaleX(var(--ef-mark, 1)); transform-origin: left center;
 }
 .ef-hero__text {
-  margin-top: 28px; max-width: 560px;
-  font-size: clamp(14.5px, 1.4vw, 17px); line-height: 2.05;
+  margin: 22px auto 0; max-width: 640px;
+  font-size: clamp(14.5px, 1.3vw, 16.5px); line-height: 2.02;
   color: var(--ef-body);
 }
-.ef-hero__cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
-/* keep both calls to action on one line rather than stacking them */
-@media (max-width: 560px) {
-  /* minmax(0,…) keeps both columns equal instead of letting the wider label win */
-  .ef-hero__cta { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 32px; }
-  .ef-hero__cta .ef-btn { padding: 14px 6px; min-height: 52px; font-size: 13px; gap: 6px; }
-  .ef-hero__cta .ef-btn > svg { width: 16px; height: 16px; }
-}
-/* narrow phones cannot fit the icon as well as the label */
-@media (max-width: 400px) {
-  .ef-hero__cta .ef-btn > svg { display: none; }
-  .ef-hero__cta .ef-btn { font-size: 12.5px; letter-spacing: 0; }
-}
+.ef-hero__cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 30px; }
+.ef-hero__note { margin-top: 16px; font-size: 12.5px; color: var(--ef-muted); }
 
 .ef-hero__meta {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-  margin-top: clamp(36px, 5vw, 56px);
+  margin-top: clamp(34px, 4vw, 52px);
 }
 .ef-hero__stat {
   position: relative; overflow: hidden;
@@ -563,41 +536,57 @@ input, select, textarea { font: inherit; color: inherit; }
   transition: transform .35s var(--ef-ease), box-shadow .35s var(--ef-ease);
 }
 .ef-hero__stat:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(11,46,66,.12); }
-/* hairline accent that picks up the brand gradient */
 .ef-hero__stat::before {
   content: ""; position: absolute; left: 22px; top: 0; width: 34px; height: 3px;
   border-radius: 0 0 3px 3px;
   background: linear-gradient(90deg, var(--ef-solar), var(--ef-primary-l));
 }
-.ef-hero__stat dt {
-  font-size: 11.5px; font-weight: 500; letter-spacing: .12em; color: var(--ef-muted);
-}
+.ef-hero__stat dt { font-size: 11.5px; font-weight: 500; letter-spacing: .12em; color: var(--ef-muted); }
 .ef-hero__stat dd {
   margin: 8px 0 0; font-family: var(--ef-font-en);
-  font-size: clamp(24px, 2.5vw, 32px); font-weight: 600; line-height: 1.15;
+  font-size: clamp(23px, 2.4vw, 31px); font-weight: 600; line-height: 1.15;
   letter-spacing: .01em; white-space: nowrap;
 }
 .ef-hero__stat dd > span:last-child {
   font-family: var(--ef-font); font-size: .46em; font-weight: 500;
   margin-left: 5px; color: var(--ef-body);
 }
+
 @media (max-width: 900px) { .ef-hero__meta { grid-template-columns: repeat(2, 1fr); } }
+
+/* On a phone the slider alone is the first view, sized to the visible area. */
+@media (max-width: 700px) {
+  .ef-slider__track {
+    aspect-ratio: auto;
+    height: calc(100vh - var(--ef-header-h) - var(--ef-bar-h, 0px));
+    height: calc(100svh - var(--ef-header-h) - var(--ef-bar-h, 0px));
+    min-height: 430px; max-height: none;
+  }
+  .ef-slide--message { align-items: flex-start; padding-top: clamp(26px, 7vw, 48px); }
+  .ef-slide__copy { max-width: none; justify-items: center; text-align: center; gap: .7em; }
+  .ef-slide__line:nth-child(2) { margin-left: 0; }
+  .ef-slide__figure {
+    height: auto; width: min(112%, 500px); max-width: none;
+    left: 50%; right: auto; transform: translateX(-50%);
+  }
+  .ef-slider__dots { bottom: 22px; }
+}
+@media (max-width: 560px) {
+  /* minmax(0,…) keeps both columns equal instead of letting the wider label win */
+  .ef-hero__cta { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+  .ef-hero__cta .ef-btn { padding: 14px 6px; min-height: 52px; font-size: 13px; gap: 6px; }
+  .ef-hero__cta .ef-btn > svg { width: 16px; height: 16px; }
+  .ef-hero__tag { margin-bottom: 18px; padding: 7px 15px; font-size: 12px; }
+  .ef-hero__text { margin-top: 18px; font-size: 14px; line-height: 1.92; }
+}
+@media (max-width: 400px) {
+  .ef-hero__cta .ef-btn > svg { display: none; }
+  .ef-hero__cta .ef-btn { font-size: 12.5px; letter-spacing: 0; }
+}
 @media (max-width: 420px) {
   .ef-hero__stat { padding: 16px 16px 18px; border-radius: 15px; }
   .ef-hero__stat::before { left: 16px; }
 }
-
-.ef-hero__scroll {
-  position: absolute; right: max(var(--ef-gutter), 4vw); bottom: 0; z-index: 2;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  font-family: var(--ef-font-en); font-size: 11px; letter-spacing: .2em;
-  color: var(--ef-muted); writing-mode: vertical-rl;
-}
-.ef-hero__scroll::after {
-  content: ""; width: 1px; height: 72px;
-  background: linear-gradient(180deg, var(--ef-line), rgba(0,0,0,0));
-}
-@media (max-width: 900px) { .ef-hero__scroll { display: none; } }
 
 /* --------------------------------------------------------------------------
    8. Page hero (sub pages)

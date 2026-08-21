@@ -9,44 +9,69 @@ get_header();
 ?>
 
 <section class="ef-hero">
+	<div class="ef-hero__media">
+		<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/hero.jpg' ) ); ?>" alt="" decoding="async" fetchpriority="high">
+	</div>
 	<div class="ef-hero__glow"></div>
-	<div class="ef-container ef-container--wide ef-hero__inner">
-		<div class="ef-hero__grid">
-			<div class="ef-hero__copy">
-				<span class="ef-hero__tag"><?php esc_html_e( '東京・関東一円／施工実績 一万棟以上', 'eight-fields' ); ?></span>
-				<h1 class="ef-hero__title">
-					<?php esc_html_e( '暮らしのエネルギーを、', 'eight-fields' ); ?><br>
-					<span class="ef-mark"><?php esc_html_e( 'まるごと', 'eight-fields' ); ?></span><?php esc_html_e( 'ひとつの窓口へ。', 'eight-fields' ); ?>
-				</h1>
-				<p class="ef-hero__text">
-					<?php esc_html_e( '光熱費の削減、家の修繕、電気自動車のご相談まで。', 'eight-fields' ); ?><br>
-					<?php esc_html_e( 'エイトフィールズは「出来ないことは無い」くらい幅広く、皆様に喜んでもらえる商材を扱っております。', 'eight-fields' ); ?>
-				</p>
-				<div class="ef-hero__cta">
-					<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
-						<?php ef_icon( 'mail' ); ?><span><?php esc_html_e( '無料相談・お見積り', 'eight-fields' ); ?></span>
-					</a>
-					<a class="ef-btn ef-btn--outline" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
-						<?php esc_html_e( 'サービスを見る', 'eight-fields' ); ?>
-					</a>
-				</div>
+
+	<div class="ef-slider" data-slider aria-roledescription="carousel"
+		aria-label="<?php esc_attr_e( 'メインビジュアル', 'eight-fields' ); ?>">
+		<div class="ef-slider__track">
+
+			<div class="ef-slider__slide is-active" data-slide>
+				<picture>
+					<source media="(max-width: 700px)"
+						srcset="<?php echo esc_url( get_theme_file_uri( '/assets/img/slide-partners-sp.jpg' ) ); ?>">
+					<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/slide-partners.jpg' ) ); ?>"
+						alt="<?php esc_attr_e( 'エイトフィールズ株式会社 × 有限会社 金山製作所', 'eight-fields' ); ?>"
+						fetchpriority="high" decoding="async">
+				</picture>
 			</div>
 
-			<div class="ef-hero__visual" aria-hidden="true">
-				<?php
-				$ef_hero_shots = array( 'solar.jpg', 'battery.jpg', 'ev_charge.jpg' );
-				$ef_letters    = array( 'a', 'b', 'c' );
-				foreach ( $ef_hero_shots as $ef_k => $ef_shot ) :
-					?>
-					<figure class="ef-hero__shot ef-hero__shot--<?php echo esc_attr( $ef_letters[ $ef_k ] ); ?>">
-						<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/' . $ef_shot ) ); ?>" alt="" decoding="async">
-					</figure>
-				<?php endforeach; ?>
-				<span class="ef-hero__badge">
-					<b><?php esc_html_e( '無料', 'eight-fields' ); ?></b>
-					<span><?php esc_html_e( '相談・お見積り', 'eight-fields' ); ?></span>
-				</span>
+			<div class="ef-slider__slide ef-slide--message" data-slide>
+				<div class="ef-container ef-container--wide ef-slide__inner">
+					<p class="ef-slide__copy">
+						<span class="ef-slide__line"><?php esc_html_e( 'つくる・ためる・かしこく使う', 'eight-fields' ); ?></span>
+						<span class="ef-slide__line"><?php esc_html_e( 'これからの暮らしへ。', 'eight-fields' ); ?></span>
+					</p>
+				</div>
+				<img class="ef-slide__figure"
+					src="<?php echo esc_url( get_theme_file_uri( '/assets/img/slide-family.webp' ) ); ?>"
+					alt="" loading="lazy" decoding="async">
 			</div>
+
+		</div>
+
+		<div class="ef-slider__dots" role="tablist"
+			aria-label="<?php esc_attr_e( 'メインビジュアルの切り替え', 'eight-fields' ); ?>">
+			<button type="button" role="tab" aria-selected="true" data-slide-to="0">
+				<span class="ef-sr"><?php esc_html_e( '1枚目を表示', 'eight-fields' ); ?></span>
+			</button>
+			<button type="button" role="tab" aria-selected="false" data-slide-to="1">
+				<span class="ef-sr"><?php esc_html_e( '2枚目を表示', 'eight-fields' ); ?></span>
+			</button>
+		</div>
+	</div>
+
+	<div class="ef-container ef-container--wide ef-hero__inner">
+		<div class="ef-hero__copy">
+			<span class="ef-hero__tag"><?php esc_html_e( '東京・関東一円／施工実績 一万棟以上', 'eight-fields' ); ?></span>
+			<h1 class="ef-hero__title">
+				<?php esc_html_e( '暮らしのエネルギーを、', 'eight-fields' ); ?><br>
+				<span class="ef-mark"><?php esc_html_e( 'まるごと', 'eight-fields' ); ?></span><?php esc_html_e( 'ひとつの窓口へ。', 'eight-fields' ); ?>
+			</h1>
+			<p class="ef-hero__text">
+				<?php esc_html_e( '光熱費の削減、家の修繕、電気自動車のご相談まで。エイトフィールズは「出来ないことは無い」くらい幅広く、皆様に喜んでもらえる商材を扱っております。', 'eight-fields' ); ?>
+			</p>
+			<div class="ef-hero__cta">
+				<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
+					<?php ef_icon( 'mail' ); ?><span><?php esc_html_e( '無料相談・お見積り', 'eight-fields' ); ?></span>
+				</a>
+				<a class="ef-btn ef-btn--outline" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
+					<?php esc_html_e( 'サービスを見る', 'eight-fields' ); ?>
+				</a>
+			</div>
+			<p class="ef-hero__note"><?php esc_html_e( 'ご相談・現地調査・お見積りは無料です。', 'eight-fields' ); ?></p>
 		</div>
 
 		<dl class="ef-hero__meta">
@@ -66,7 +91,6 @@ get_header();
 			<?php endforeach; ?>
 		</dl>
 	</div>
-	<span class="ef-hero__scroll">SCROLL</span>
 </section>
 
 <!-- ABOUT -->

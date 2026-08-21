@@ -11,56 +11,73 @@ desc: 光熱費の削減から家の修繕、電気自動車のご相談まで�
     <img src="{{BASE}}assets/img/hero.jpg" alt="" loading="eager" decoding="async" fetchpriority="high">
   </div>
   <div class="ef-hero__glow"></div>
+
+  <div class="ef-slider" data-slider aria-roledescription="carousel" aria-label="メインビジュアル">
+    <div class="ef-slider__track">
+
+      <div class="ef-slider__slide is-active" data-slide>
+        <picture>
+          <source media="(max-width: 700px)" srcset="{{BASE}}assets/img/slide-partners-sp.jpg">
+          <img src="{{BASE}}assets/img/slide-partners.jpg"
+               alt="エイトフィールズ株式会社 × 有限会社 金山製作所" fetchpriority="high" decoding="async">
+        </picture>
+      </div>
+
+      <div class="ef-slider__slide ef-slide--message" data-slide>
+        <div class="ef-container ef-container--wide ef-slide__inner">
+          <p class="ef-slide__copy">
+            <span class="ef-slide__line">つくる・ためる・かしこく使う</span>
+            <span class="ef-slide__line">これからの暮らしへ。</span>
+          </p>
+        </div>
+        <img class="ef-slide__figure" src="{{BASE}}assets/img/slide-family.webp" alt=""
+             loading="lazy" decoding="async">
+      </div>
+
+    </div>
+
+    <div class="ef-slider__dots" role="tablist" aria-label="メインビジュアルの切り替え">
+      <button type="button" role="tab" aria-selected="true" data-slide-to="0"><span class="ef-sr">1枚目を表示</span></button>
+      <button type="button" role="tab" aria-selected="false" data-slide-to="1"><span class="ef-sr">2枚目を表示</span></button>
+    </div>
+  </div>
+
   <div class="ef-container ef-container--wide ef-hero__inner">
-    <div class="ef-hero__grid">
     <div class="ef-hero__copy">
       <span class="ef-hero__tag">東京・関東一円／施工実績 一万棟以上</span>
       <h1 class="ef-hero__title">
         暮らしのエネルギーを、<br><span class="ef-mark">まるごと</span>ひとつの窓口へ。
       </h1>
       <p class="ef-hero__text">
-        光熱費の削減、家の修繕、電気自動車のご相談まで。<br>
-        エイトフィールズは「出来ないことは無い」くらい幅広く、
-        皆様に喜んでもらえる商材を扱っております。
+        光熱費の削減、家の修繕、電気自動車のご相談まで。
+        エイトフィールズは「出来ないことは無い」くらい幅広く、皆様に喜んでもらえる商材を扱っております。
       </p>
       <div class="ef-hero__cta">
         <a class="ef-btn ef-btn--primary" href="{{BASE}}contact/">{{ICON:mail}}<span>無料相談・お見積り</span></a>
         <a class="ef-btn ef-btn--outline" href="{{BASE}}service_/">サービスを見る</a>
       </div>
+      <p class="ef-hero__note">ご相談・現地調査・お見積りは無料です。</p>
     </div>
-    <div class="ef-hero__visual" aria-hidden="true">
-      <figure class="ef-hero__shot ef-hero__shot--a">
-        <img src="{{BASE}}assets/img/solar.jpg" alt="" loading="eager" decoding="async">
-      </figure>
-      <figure class="ef-hero__shot ef-hero__shot--b">
-        <img src="{{BASE}}assets/img/battery.jpg" alt="" loading="eager" decoding="async">
-      </figure>
-      <figure class="ef-hero__shot ef-hero__shot--c">
-        <img src="{{BASE}}assets/img/ev_charge.jpg" alt="" loading="eager" decoding="async">
-      </figure>
-      <span class="ef-hero__badge"><b>無料</b><span>相談・お見積り</span></span>
-    </div>
-    </div>
-      <dl class="ef-hero__meta">
-        <div class="ef-hero__stat">
-          <dt>施工実績</dt>
-          <dd><span class="ef-num" data-count="10000">10,000</span><span>棟以上</span></dd>
-        </div>
-        <div class="ef-hero__stat">
-          <dt>対応エリア</dt>
-          <dd><span class="ef-num" data-count="7">7</span><span>都県</span></dd>
-        </div>
-        <div class="ef-hero__stat">
-          <dt>取扱サービス</dt>
-          <dd><span class="ef-num" data-count="6">6</span><span>分野</span></dd>
-        </div>
-        <div class="ef-hero__stat">
-          <dt>営業＝施工</dt>
-          <dd>自社一貫<span>体制</span></dd>
-        </div>
-      </dl>
+
+    <dl class="ef-hero__meta">
+      <div class="ef-hero__stat">
+        <dt>施工実績</dt>
+        <dd><span class="ef-num" data-count="10000">10,000</span><span>棟以上</span></dd>
+      </div>
+      <div class="ef-hero__stat">
+        <dt>対応エリア</dt>
+        <dd><span class="ef-num" data-count="7">7</span><span>都県</span></dd>
+      </div>
+      <div class="ef-hero__stat">
+        <dt>取扱サービス</dt>
+        <dd><span class="ef-num" data-count="6">6</span><span>分野</span></dd>
+      </div>
+      <div class="ef-hero__stat">
+        <dt>営業＝施工</dt>
+        <dd>自社一貫<span>体制</span></dd>
+      </div>
+    </dl>
   </div>
-  <span class="ef-hero__scroll">SCROLL</span>
 </section>
 
 <!-- ============================================================ ABOUT -->
