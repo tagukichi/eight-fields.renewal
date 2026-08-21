@@ -3,6 +3,9 @@ name: Deploy design proposal to GitHub Pages
 on:
   push:
     branches:
+      # TEST is the repository's default branch, and the `github-pages`
+      # environment only accepts deployments from it.
+      - TEST
       - claude/eight-fields-redesign-9c64yk
   workflow_dispatch:
 
