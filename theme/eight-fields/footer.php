@@ -41,12 +41,8 @@
 			<div class="ef-footer__grid">
 				<div>
 					<a class="ef-logo ef-logo--footer" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-						<img class="ef-logo__mark" src="<?php echo esc_url( ef_logo_url() ); ?>"
-							alt="" width="376" height="214" loading="lazy" decoding="async">
-						<span class="ef-logo__text">
-							<span class="ef-logo__type">EIGHT FIELDS</span>
-							<span class="ef-logo__sub"><?php bloginfo( 'name' ); ?></span>
-						</span>
+						<img class="ef-logo__lockup" src="<?php echo esc_url( ef_logo_lockup_url( true ) ); ?>"
+							alt="<?php bloginfo( 'name' ); ?>" width="895" height="160" loading="lazy" decoding="async">
 					</a>
 					<address class="ef-footer__addr">
 						<b><?php bloginfo( 'name' ); ?></b>

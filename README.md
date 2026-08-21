@@ -71,7 +71,8 @@ Pages サイトを新規作成できないため）。
 ```
 ├── src/                     デザイン案のソース
 │   ├── assets/css/style.css デザインシステム本体（1ファイル）
-│   ├── assets/js/main.js    UI挙動（依存ライブラリなし）
+│   ├── assets/js/main.js    UI挙動・アニメーション
+│   ├── assets/js/vendor/    GSAP 3.15 + ScrollTrigger（同梱）
 │   ├── assets/img/          画像素材
 │   └── pages/*.html         各ページの本文フラグメント
 ├── tools/build.py           src/ → docs/ を生成するビルドスクリプト
@@ -80,6 +81,16 @@ Pages サイトを新規作成できないため）。
 ├── theme/eight-fields/      ★ WordPress テーマ
 └── .github/workflows/       GitHub Pages 自動デプロイ
 ```
+
+### アニメーションについて
+
+スクロール演出とトップページのファーストビューは [GSAP 3.15](https://gsap.com/) + ScrollTrigger で
+実装しています。CDN ではなくテーマに同梱しているため、外部サービスへの依存はありません
+（`assets/js/vendor/`）。GSAP は Standard "no charge" ライセンスで、コーポレートサイトでの利用は無償です。
+
+GSAP が読み込めない場合は IntersectionObserver によるシンプルなフェードインに、
+JavaScript が無効な場合は `<noscript>` で全要素を表示状態にフォールバックします。
+`prefers-reduced-motion: reduce` の環境ではアニメーションを行いません。
 
 ### デザイン案のビルド
 

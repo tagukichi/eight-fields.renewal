@@ -46,6 +46,31 @@ function ef_logo_url() {
 }
 
 /**
+ * The lockup logo (mark + company name).
+ *
+ * The footer sits on navy, so it needs the white-lettering variant. A custom
+ * logo set in the Customizer overrides the light version only — a dark
+ * background still needs an asset authored for it.
+ *
+ * @param bool $on_dark Whether the logo sits on a dark background.
+ * @return string
+ */
+function ef_logo_lockup_url( $on_dark = false ) {
+	if ( $on_dark ) {
+		return get_theme_file_uri( '/assets/img/logo-lockup-white.png' );
+	}
+
+	$id = get_theme_mod( 'custom_logo' );
+	if ( $id ) {
+		$src = wp_get_attachment_image_src( $id, 'full' );
+		if ( $src ) {
+			return $src[0];
+		}
+	}
+	return get_theme_file_uri( '/assets/img/logo-lockup.png' );
+}
+
+/**
  * Echo one of the theme's inline SVG icons.
  *
  * @param string $name Icon name.
@@ -60,6 +85,7 @@ function ef_icon( $name, $echo = true ) {
 		'arrow' => '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4.5 12.5 10 7 15.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		'up'    => '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 14.5V3.5M3.8 8.7 9 3.5l5.2 5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		'caret' => '<svg class="ef-caret" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+		'chat'  => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.4c0 4-4 7.2-9 7.2a10.7 10.7 0 0 1-2.6-.3L4.5 20.5l1-3.7A6.9 6.9 0 0 1 3 11.4C3 7.4 7 4.2 12 4.2s9 3.2 9 7.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11.4" r="1.15" fill="currentColor"/><circle cx="12" cy="11.4" r="1.15" fill="currentColor"/><circle cx="15.4" cy="11.4" r="1.15" fill="currentColor"/></svg>',
 		'check' => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#3B9C6D"/><path d="m7.5 12.3 3 3 6-6.6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 	);
 

@@ -26,7 +26,7 @@ get_header();
 					<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
 						<?php ef_icon( 'mail' ); ?><span><?php esc_html_e( '無料相談・お見積り', 'eight-fields' ); ?></span>
 					</a>
-					<a class="ef-btn ef-btn--ghost" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
+					<a class="ef-btn ef-btn--outline" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
 						<?php esc_html_e( 'サービスを見る', 'eight-fields' ); ?>
 					</a>
 				</div>

@@ -62,15 +62,18 @@
   }
 
   /* ------------------------------------------------------- scroll reveal */
-  function initReveal() {
-    var items = doc.querySelectorAll('[data-reveal]');
-    if (!items.length) return;
+  /* GSAP drives the motion when it is available; the IntersectionObserver
+     path below stays as the fallback so the site still reveals without it. */
 
+  function hasGsap() {
+    return !!(window.gsap && window.ScrollTrigger) && !reduceMotion;
+  }
+
+  function revealFallback(items) {
     if (reduceMotion || !('IntersectionObserver' in window)) {
       Array.prototype.forEach.call(items, function (el) { el.classList.add('is-visible'); });
       return;
     }
-
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
@@ -78,8 +81,99 @@
         io.unobserve(entry.target);
       });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-
     Array.prototype.forEach.call(items, function (el) { io.observe(el); });
+  }
+
+  function initReveal() {
+    var items = doc.querySelectorAll('[data-reveal]');
+    if (!items.length) return;
+
+    if (!hasGsap()) {
+      revealFallback(items);
+      return;
+    }
+
+    var gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+    doc.documentElement.classList.add('ef-gsap');
+
+    // The CSS transition would race GSAP's inline styles, so hand over cleanly.
+    Array.prototype.forEach.call(items, function (el) { el.style.transition = 'none'; });
+
+    var handled = [];
+
+    // Grids animate as one stagger rather than card-by-card on their own
+    // triggers — it reads as a deliberate sequence instead of a scatter.
+    gsap.utils.toArray('.ef-grid, .ef-steps, .ef-contactways').forEach(function (group) {
+      var kids = group.querySelectorAll('[data-reveal]');
+      if (!kids.length) return;
+      Array.prototype.push.apply(handled, kids);
+      gsap.to(kids, {
+        opacity: 1, y: 0, duration: 0.85, ease: 'power2.out', stagger: 0.1,
+        scrollTrigger: { trigger: group, start: 'top 85%', once: true }
+      });
+    });
+
+    Array.prototype.forEach.call(items, function (el) {
+      if (handled.indexOf(el) !== -1) return;
+      gsap.to(el, {
+        opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+        delay: (parseFloat(el.getAttribute('data-reveal-delay')) || 0) * 0.08,
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+      });
+    });
+  }
+
+  /* --------------------------------------------------------- hero motion */
+  function initHeroMotion() {
+    var hero = doc.querySelector('.ef-hero');
+    if (!hero || !hasGsap()) return;
+
+    var gsap = window.gsap;
+
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } });
+
+    tl.from('.ef-hero__tag', { y: 18, opacity: 0, duration: 0.6 })
+      .from('.ef-hero__title', { y: 32, opacity: 0 }, '-=0.30')
+      // the amber underline sweeps in behind the headline
+      .fromTo('.ef-hero__title .ef-mark',
+        { '--ef-mark': 0 },
+        { '--ef-mark': 1, duration: 0.7, ease: 'power2.inOut' }, '-=0.45')
+      .from('.ef-hero__text', { y: 20, opacity: 0, duration: 0.7 }, '-=0.60')
+      .from('.ef-hero__cta > *', { y: 18, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.45')
+      .from('.ef-hero__shot', {
+        y: 48, opacity: 0, scale: 0.94, stagger: 0.12, duration: 1.1, clearProps: 'scale'
+      }, '-=1.05')
+      .from('.ef-hero__stat', { y: 16, opacity: 0, stagger: 0.08, duration: 0.6 }, '-=0.65');
+
+    // Depth on scroll — desktop only, where the tiles are absolutely placed.
+    window.ScrollTrigger.matchMedia({
+      '(min-width: 1001px)': function () {
+        [['.ef-hero__shot--a', -13], ['.ef-hero__shot--b', 6], ['.ef-hero__shot--c', -22]]
+          .forEach(function (pair) {
+            gsap.to(pair[0], {
+              yPercent: pair[1], ease: 'none',
+              scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 }
+            });
+          });
+        gsap.to('.ef-hero__media img', {
+          yPercent: 8, ease: 'none',
+          scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 }
+        });
+      }
+    });
+  }
+
+  /* ---------------------------------------------------- sub-page hero fade */
+  function initPageHeroMotion() {
+    var hero = doc.querySelector('.ef-phero');
+    if (!hero || !hasGsap()) return;
+    var gsap = window.gsap;
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from(hero.querySelectorAll('.ef-phero__en, .ef-phero__title, .ef-phero__text'),
+        { y: 24, opacity: 0, duration: 0.8, stagger: 0.12 })
+      .from(hero.querySelectorAll('.ef-phero__media img'),
+        { scale: 1.08, duration: 1.6, ease: 'power2.out' }, 0);
   }
 
   /* ------------------------------------------------------ count-up stats */
@@ -213,6 +307,8 @@
     initHeader();
     initDrawer();
     initReveal();
+    initHeroMotion();
+    initPageHeroMotion();
     initCounters();
     initFaq();
     initTabs();

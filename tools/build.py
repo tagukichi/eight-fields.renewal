@@ -132,6 +132,7 @@ ICONS = {
     "painting": '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M4 12 16 3l12 9" stroke="#FFBC2C" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="14" width="14" height="7" rx="2" fill="#43ACDC"/><path d="M16 21v4.5" stroke="#43ACDC" stroke-width="2" stroke-linecap="round"/><rect x="13.4" y="25" width="5.2" height="5.5" rx="1.6" fill="#0B2E42"/></svg>',
     "ev": '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M3 20.5h20v5H3z" fill="#43ACDC"/><path d="m5.5 20.5 2.6-6.2A2 2 0 0 1 10 13h6.4a2 2 0 0 1 1.8 1.2l2.4 6.3" fill="#43ACDC"/><circle cx="8" cy="26" r="2.4" fill="#0B2E42"/><circle cx="18" cy="26" r="2.4" fill="#0B2E42"/><path d="M25 8v6.5a3.5 3.5 0 0 1-3.5 3.5" stroke="#FFBC2C" stroke-width="2" stroke-linecap="round"/><path d="M23 3.5V8M27 3.5V8" stroke="#FFBC2C" stroke-width="2" stroke-linecap="round"/></svg>',
     "maintenance": '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M20.2 4.6a6.6 6.6 0 0 0-8.4 8.4L4.4 20.4a2.6 2.6 0 0 0 0 3.7l3.5 3.5a2.6 2.6 0 0 0 3.7 0l7.4-7.4a6.6 6.6 0 0 0 8.4-8.4l-4 4-3.6-3.6 4-4Z" fill="#43ACDC"/><circle cx="9.6" cy="22.4" r="1.7" fill="#fff"/><path d="M24.5 21.5 28 25M22 24l3.5 3.5" stroke="#FFBC2C" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    "chat": '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.4c0 4-4 7.2-9 7.2a10.7 10.7 0 0 1-2.6-.3L4.5 20.5l1-3.7A6.9 6.9 0 0 1 3 11.4C3 7.4 7 4.2 12 4.2s9 3.2 9 7.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11.4" r="1.15" fill="currentColor"/><circle cx="12" cy="11.4" r="1.15" fill="currentColor"/><circle cx="15.4" cy="11.4" r="1.15" fill="currentColor"/></svg>',
     "check": '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#3B9C6D"/><path d="m7.5 12.3 3 3 6-6.6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     "phone": '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.3 3h3l1.5 3.8-2.3 1.4a12 12 0 0 0 5.3 5.3l1.4-2.3L19 12.7v3a2.3 2.3 0 0 1-2.5 2.3A15.5 15.5 0 0 1 4 5.5 2.3 2.3 0 0 1 6.3 3Z" fill="currentColor"/></svg>',
     "mail": '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m3.5 6.5 8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
@@ -171,14 +172,15 @@ def is_current(item, key):
 # ---------------------------------------------------------------- partials
 
 def logo(base, size="header"):
-    cls = "ef-logo" if size == "header" else "ef-logo ef-logo--footer"
+    """The supplied lockup asset; the footer sits on navy so it needs the
+    white-lettering variant."""
+    footer = size != "header"
+    cls = "ef-logo ef-logo--footer" if footer else "ef-logo"
+    src = "logo-lockup-white.png" if footer else "logo-lockup.png"
+    loading = ' loading="lazy"' if footer else ""
     return f"""<a class="{cls}" href="{base}">
-          <img class="ef-logo__mark" src="{base}assets/img/logo-mark.png"
-               alt="" width="376" height="214" decoding="async">
-          <span class="ef-logo__text">
-            <span class="ef-logo__type">EIGHT FIELDS</span>
-            <span class="ef-logo__sub">エイトフィールズ株式会社</span>
-          </span>
+          <img class="ef-logo__lockup" src="{base}assets/img/{src}"
+               alt="{SITE['name']}" width="895" height="160" decoding="async"{loading}>
         </a>"""
 
 
@@ -351,7 +353,10 @@ def document(base, meta, body, preview_note=True):
     title = meta["title"]
     full_title = title if meta.get("home") else f"{title}｜{SITE['name']}"
     desc = meta.get("desc", SITE["tagline"])
-    overlay = meta.get("home") == "1"
+    # The front page hero is light now, so the header keeps its normal
+    # light treatment rather than the white-on-dark overlay variant.
+    overlay = False
+    is_home = meta.get("home") == "1"
     key = meta.get("key", "")
 
     body_class = "ef-has-bar" if preview_note else ""
@@ -371,7 +376,7 @@ def document(base, meta, body, preview_note=True):
 <title>{full_title}</title>
 <meta name="description" content="{desc}">
 <meta name="format-detection" content="telephone=no">
-<meta property="og:type" content="{'website' if overlay else 'article'}">
+<meta property="og:type" content="{'website' if is_home else 'article'}">
 <meta property="og:title" content="{full_title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:site_name" content="{SITE['name']}">
@@ -380,6 +385,7 @@ def document(base, meta, body, preview_note=True):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{base}assets/css/style.css">
+<noscript><style>[data-reveal]{{opacity:1;transform:none}}</style></noscript>
 </head>
 <body id="top" class="{body_class}">
 {banner}
@@ -390,6 +396,8 @@ def document(base, meta, body, preview_note=True):
 {cta_band(base)}
 </main>
 {footer(base)}
+<script src="{base}assets/js/vendor/gsap.min.js" defer></script>
+<script src="{base}assets/js/vendor/ScrollTrigger.min.js" defer></script>
 <script src="{base}assets/js/main.js" defer></script>
 </body>
 </html>

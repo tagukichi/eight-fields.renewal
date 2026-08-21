@@ -13,22 +13,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="format-detection" content="telephone=no">
 <?php wp_head(); ?>
+<noscript><style>[data-reveal]{opacity:1;transform:none}</style></noscript>
 </head>
 <body id="top" <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
 <a class="ef-skip" href="#main"><?php esc_html_e( '本文へスキップ', 'eight-fields' ); ?></a>
 
-<header class="ef-header<?php echo is_front_page() ? ' ef-header--overlay' : ''; ?>" data-header>
+<header class="ef-header" data-header>
 	<div class="ef-header__inner">
 
 		<a class="ef-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<img class="ef-logo__mark" src="<?php echo esc_url( ef_logo_url() ); ?>"
-				alt="" width="376" height="214" decoding="async">
-			<span class="ef-logo__text">
-				<span class="ef-logo__type">EIGHT FIELDS</span>
-				<span class="ef-logo__sub"><?php bloginfo( 'name' ); ?></span>
-			</span>
+			<img class="ef-logo__lockup" src="<?php echo esc_url( ef_logo_lockup_url() ); ?>"
+				alt="<?php bloginfo( 'name' ); ?>" width="895" height="160" decoding="async">
 		</a>
 
 		<nav class="ef-nav" aria-label="<?php esc_attr_e( 'グローバルナビゲーション', 'eight-fields' ); ?>">

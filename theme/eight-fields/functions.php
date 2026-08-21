@@ -68,10 +68,28 @@ function ef_enqueue_assets() {
 		EF_THEME_VERSION
 	);
 
+	// GSAP is bundled with the theme rather than pulled from a CDN, so the site
+	// keeps working if the CDN is unreachable and no third party sees visitors.
+	wp_enqueue_script(
+		'gsap',
+		get_theme_file_uri( '/assets/js/vendor/gsap.min.js' ),
+		array(),
+		'3.15.0',
+		true
+	);
+
+	wp_enqueue_script(
+		'gsap-scrolltrigger',
+		get_theme_file_uri( '/assets/js/vendor/ScrollTrigger.min.js' ),
+		array( 'gsap' ),
+		'3.15.0',
+		true
+	);
+
 	wp_enqueue_script(
 		'ef-script',
 		get_theme_file_uri( '/assets/js/main.js' ),
-		array(),
+		array( 'gsap', 'gsap-scrolltrigger' ),
 		EF_THEME_VERSION,
 		true
 	);
