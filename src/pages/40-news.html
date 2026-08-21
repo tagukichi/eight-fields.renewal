@@ -1,0 +1,30 @@
+<!--
+title: お知らせ
+path: news
+key: news
+en: NEWS
+h1: お知らせ
+hero: maintenance.jpg
+crumbs: お知らせ
+lead: 休業日のご案内、補助金や制度の情報、施工事例などをお届けします。
+desc: エイトフィールズ株式会社からのお知らせ・施工事例・コラムの一覧です。
+-->
+
+<section class="ef-section">
+  <div class="ef-container">
+    <div class="ef-tabs" role="tablist" aria-label="カテゴリで絞り込む" data-tabs="#ef-newslist" data-reveal>{{NEWS_TABS}}</div>
+    <ul class="ef-news" id="ef-newslist" data-reveal data-reveal-delay="1">{{NEWS_FULL}}</ul>
+    <p class="ef-center ef-mt-32" data-tabs-empty hidden>該当するお知らせはありません。</p>
+
+    <nav class="ef-pager" aria-label="ページ送り" data-reveal>
+      <span class="ef-pager__item is-disabled" aria-hidden="true">前へ</span>
+      <a class="ef-pager__item is-current" href="#" aria-current="page">1</a>
+      <a class="ef-pager__item" href="#">2</a>
+      <a class="ef-pager__item" href="#">3</a>
+      <a class="ef-pager__item" href="#">次へ</a>
+    </nav>
+    <ul class="ef-notes ef-mt-32">
+      <li>掲載しているお知らせはデザイン確認用のサンプルです。本番では WordPress の投稿がそのまま表示されます。</li>
+    </ul>
+  </div>
+</section>

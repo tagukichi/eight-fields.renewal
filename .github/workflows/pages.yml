@@ -1,0 +1,60 @@
+name: Deploy design proposal to GitHub Pages
+
+on:
+  push:
+    branches:
+      - claude/eight-fields-redesign-9c64yk
+  workflow_dispatch:
+
+# GITHUB_TOKEN permissions needed by actions/deploy-pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish; queue at most one more.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static site
+        # base_path is "/<repo>" for a project site and "" for a user/org site,
+        # so this works either way.
+        run: python3 tools/build.py --base "${{ steps.pages.outputs.base_path }}/"
+
+      - name: Verify build output
+        run: |
+          test -f docs/index.html
+          echo "pages built:"
+          find docs -name 'index.html' | sort
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
