@@ -63,15 +63,6 @@ get_header();
 			<p class="ef-hero__text">
 				<?php esc_html_e( '光熱費の削減、家の修繕、電気自動車のご相談まで。エイトフィールズは「出来ないことは無い」くらい幅広く、皆様に喜んでもらえる商材を扱っております。', 'eight-fields' ); ?>
 			</p>
-			<div class="ef-hero__cta">
-				<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
-					<?php ef_icon( 'mail' ); ?><span><?php esc_html_e( '無料相談・お見積り', 'eight-fields' ); ?></span>
-				</a>
-				<a class="ef-btn ef-btn--outline" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
-					<?php esc_html_e( 'サービスを見る', 'eight-fields' ); ?>
-				</a>
-			</div>
-			<p class="ef-hero__note"><?php esc_html_e( 'ご相談・現地調査・お見積りは無料です。', 'eight-fields' ); ?></p>
 		</div>
 
 		<dl class="ef-hero__meta">
@@ -90,6 +81,18 @@ get_header();
 				</div>
 			<?php endforeach; ?>
 		</dl>
+
+		<div class="ef-hero__actions">
+			<div class="ef-hero__cta">
+				<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
+					<?php ef_icon( 'mail' ); ?><span><?php esc_html_e( '無料相談・お見積り', 'eight-fields' ); ?></span>
+				</a>
+				<a class="ef-btn ef-btn--outline" href="<?php echo esc_url( get_post_type_archive_link( 'service' ) ); ?>">
+					<?php esc_html_e( 'サービスを見る', 'eight-fields' ); ?>
+				</a>
+			</div>
+			<p class="ef-hero__note"><?php esc_html_e( 'ご相談・現地調査・お見積りは無料です。', 'eight-fields' ); ?></p>
+		</div>
 	</div>
 </section>
 

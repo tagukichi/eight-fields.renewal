@@ -371,14 +371,7 @@ def document(base, meta, body, preview_note=True):
     is_home = meta.get("home") == "1"
     key = meta.get("key", "")
 
-    body_class = "ef-has-bar" if preview_note else ""
-    banner = ""
-    if preview_note:
-        banner = ('<div class="ef-preview-bar">'
-                  '<b>デザイン案プレビュー</b>'
-                  '<span>エイトフィールズ株式会社 サイトリニューアル'
-                  '<span class="ef-preview-bar__long">／掲載中の写真は現行サイトから抽出した仮素材です</span>'
-                  '</span></div>')
+    body_class = ""
 
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -400,10 +393,63 @@ def document(base, meta, body, preview_note=True):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{base}assets/css/style.css">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  html.ef-locked {{ overflow: hidden; }}
+  html.ef-locked body > *:not(.ef-gate) {{ display: none !important; }}
+  .ef-gate {{ display: none; }}
+  html.ef-locked .ef-gate {{
+    display: grid; place-items: center;
+    position: fixed; inset: 0; z-index: 9999; padding: 24px;
+    background: linear-gradient(168deg, #FFFFFF 0%, #F5FAFD 40%, #E7F3FA 100%);
+  }}
+  .ef-gate__card {{
+    width: min(400px, 100%); padding: 38px 32px 34px;
+    background: #fff; border: 1px solid #EAF0F3; border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(11,46,66,.14); text-align: center;
+  }}
+  .ef-gate__card img {{ width: 210px; height: auto; margin: 0 auto 24px; }}
+  .ef-gate__card h1 {{ margin: 0; font-size: 19px; color: #12262F; }}
+  .ef-gate__lead {{ margin: 10px 0 26px; font-size: 13.5px; color: #7C8F98; line-height: 1.8; }}
+  .ef-gate__field {{ display: block; text-align: left; margin-bottom: 14px; }}
+  .ef-gate__field span {{ display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #46595E; letter-spacing: .06em; }}
+  .ef-gate__field input {{
+    width: 100%; padding: 13px 15px; font-size: 16px;
+    border: 1.5px solid #DCE4E9; border-radius: 10px; background: #fff; color: #12262F;
+  }}
+  .ef-gate__field input:focus {{ outline: none; border-color: #1C7FA8; box-shadow: 0 0 0 4px rgba(28,127,168,.1); }}
+  .ef-gate__btn {{
+    width: 100%; margin-top: 8px; padding: 15px; border-radius: 999px; border: 0; cursor: pointer;
+    background: #FFBC2C; color: #0B2E42; font-size: 15px; font-weight: 700;
+    box-shadow: 0 8px 22px rgba(255,188,44,.32);
+  }}
+  .ef-gate__err {{ margin: 16px 0 0; font-size: 13px; color: #D64545; }}
+</style>
+<script>
+  /* Preview gate: keeps the draft out of casual view and out of search results.
+     This is not server-side authentication, which GitHub Pages cannot provide. */
+  (function () {{
+    try {{ if (sessionStorage.getItem('ef-preview') === '1') return; }} catch (e) {{}}
+    document.documentElement.className += ' ef-locked';
+  }})();
+</script>
 <noscript><style>[data-reveal]{{opacity:1;transform:none}}</style></noscript>
 </head>
 <body id="top" class="{body_class}">
-{banner}
+<div class="ef-gate" role="dialog" aria-modal="true" aria-labelledby="ef-gate-title">
+  <form class="ef-gate__card" id="ef-gate-form" autocomplete="on">
+    <img src="{base}assets/img/logo-lockup.png" alt="エイトフィールズ株式会社" width="895" height="160">
+    <h1 id="ef-gate-title">デザイン案プレビュー</h1>
+    <p class="ef-gate__lead">閲覧には ID とパスワードが必要です。</p>
+    <label class="ef-gate__field"><span>ID</span>
+      <input type="text" id="ef-gate-id" name="username" autocomplete="username" autocapitalize="off" required></label>
+    <label class="ef-gate__field"><span>PASSWORD</span>
+      <input type="password" id="ef-gate-pw" name="password" autocomplete="current-password" required></label>
+    <button class="ef-gate__btn" type="submit">閲覧する</button>
+    <p class="ef-gate__err" id="ef-gate-err" hidden>ID またはパスワードが違います。</p>
+  </form>
+</div>
+
 <a class="ef-skip" href="#main">本文へスキップ</a>
 {header(base, key, overlay)}
 <main id="main">
@@ -414,6 +460,40 @@ def document(base, meta, body, preview_note=True):
 <script src="{base}assets/js/vendor/gsap.min.js" defer></script>
 <script src="{base}assets/js/vendor/ScrollTrigger.min.js" defer></script>
 <script src="{base}assets/js/main.js" defer></script>
+<script>
+  (function () {{
+    var form = document.getElementById('ef-gate-form');
+    if (!form) return;
+    var HASH = 'c195d2d8756234367242ba7616c5c60369bc25ced2dcb5b92808d31b58ef217a';
+
+    function sha256(text) {{
+      if (!(window.crypto && window.crypto.subtle)) return Promise.resolve(null);
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {{
+        return Array.prototype.map.call(new Uint8Array(buf), function (b) {{
+          return ('0' + b.toString(16)).slice(-2);
+        }}).join('');
+      }});
+    }}
+
+    form.addEventListener('submit', function (e) {{
+      e.preventDefault();
+      var id = document.getElementById('ef-gate-id').value.trim();
+      var pw = document.getElementById('ef-gate-pw').value;
+
+      Promise.all([sha256(id), sha256(pw)]).then(function (h) {{
+        var ok = (h[0] === null)
+          ? (id === 'eight' && pw === 'eight')   /* no SubtleCrypto outside a secure context */
+          : (h[0] === HASH && h[1] === HASH);
+        if (ok) {{
+          try {{ sessionStorage.setItem('ef-preview', '1'); }} catch (err) {{}}
+          document.documentElement.classList.remove('ef-locked');
+        }} else {{
+          document.getElementById('ef-gate-err').hidden = false;
+        }}
+      }});
+    }});
+  }})();
+</script>
 </body>
 </html>
 """
@@ -814,6 +894,8 @@ def build(base):
 
     shutil.copytree(SRC / "assets", OUT / "assets")
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
+    # the design proposal is not meant to be indexed
+    (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n", encoding="utf-8")
 
     pages = sorted((SRC / "pages").glob("*.html"))
     built = []

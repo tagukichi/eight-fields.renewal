@@ -220,9 +220,9 @@
         { '--ef-mark': 0 },
         { '--ef-mark': 1, duration: 0.7, ease: 'power2.inOut' }, '-=0.45')
       .from('.ef-hero__text', { y: 18, opacity: 0, duration: 0.7 }, '-=0.60')
-      .from('.ef-hero__cta > *', { y: 16, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.45')
-      .from('.ef-hero__note', { opacity: 0, duration: 0.5 }, '-=0.35')
-      .from('.ef-hero__stat', { y: 16, opacity: 0, stagger: 0.08, duration: 0.6 }, '-=0.45');
+      .from('.ef-hero__stat', { y: 16, opacity: 0, stagger: 0.08, duration: 0.6 }, '-=0.45')
+      .from('.ef-hero__cta > *', { y: 16, opacity: 0, stagger: 0.1, duration: 0.6 }, '-=0.35')
+      .from('.ef-hero__note', { opacity: 0, duration: 0.5 }, '-=0.3');
   }
 
   /* ---------------------------------------------------- sub-page hero fade */
