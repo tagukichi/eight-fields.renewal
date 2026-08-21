@@ -211,22 +211,23 @@ def header(base, key, overlay):
     drawer = []
     for it in items:
         if it.get("children"):
-            # Tapping the row opens the accordion instead of navigating; the
-            # index page is offered as the first item inside it.
             panel_id = "ef-dsub-" + it["key"]
-            subs = f"""<li><a class="ef-drawer__sublink" href="{it['url']}">
-              <span class="ef-ico">{ICONS['arrow']}</span>{it['label']}一覧</a></li>"""
-            subs += "".join(
+            subs = "".join(
                 f"""<li><a class="ef-drawer__sublink" href="{c['url']}">
                   <span class="ef-ico">{ICONS[c['icon']]}</span>{c['label']}</a></li>"""
                 for c in it["children"]
             )
             drawer.append(f"""<li>
-              <button class="ef-drawer__link ef-drawer__link--toggle" type="button"
-                      data-drawer-toggle aria-expanded="false" aria-controls="{panel_id}">
-                <span>{it['label']}<small>{it['en']}</small></span>
-                <span class="ef-drawer__caret"></span>
-              </button>
+              <div class="ef-drawer__row">
+                <a class="ef-drawer__link" href="{it['url']}">
+                  <span>{it['label']}<small>{it['en']}</small></span>
+                </a>
+                <button class="ef-drawer__toggle" type="button" data-drawer-toggle
+                        aria-expanded="false" aria-controls="{panel_id}">
+                  <span class="ef-drawer__caret"></span>
+                  <span class="ef-sr">{it['label']}のサブメニューを開閉</span>
+                </button>
+              </div>
               <div class="ef-drawer__sub" id="{panel_id}" hidden>
                 <div><ul class="ef-drawer__sublist">{subs}</ul></div>
               </div>
@@ -357,10 +358,6 @@ def footer(base):
       </div>
     </footer>
 
-    <div class="ef-fixedbar" data-fixedbar>
-      <a href="tel:{tel_digits}">{ICONS['phone']}<span>電話する</span></a>
-      <a href="{base}contact/">{ICONS['mail']}<span>無料見積り</span></a>
-    </div>
     <a class="ef-totop" href="#top" data-totop aria-label="ページの先頭へ戻る">{ICONS['up']}</a>"""
 
 

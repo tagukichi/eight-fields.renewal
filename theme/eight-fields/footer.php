@@ -126,10 +126,6 @@
 	</div>
 </footer>
 
-<div class="ef-fixedbar" data-fixedbar>
-	<a href="tel:<?php echo esc_attr( ef_tel_digits() ); ?>"><?php ef_icon( 'phone' ); ?><span>電話する</span></a>
-	<a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php ef_icon( 'mail' ); ?><span>無料見積り</span></a>
-</div>
 <a class="ef-totop" href="#top" data-totop aria-label="<?php esc_attr_e( 'ページの先頭へ戻る', 'eight-fields' ); ?>"><?php ef_icon( 'up' ); ?></a>
 
 <?php wp_footer(); ?>

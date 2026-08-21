@@ -131,12 +131,18 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 		if ( $this->has_children ) {
 			$this->panel_open = true;
 			$panel            = 'ef-dsub-' . $item->ID;
-			$output .= '<li>'
-				. '<button class="ef-drawer__link ef-drawer__link--toggle" type="button" data-drawer-toggle'
+			/* translators: %s: menu item label */
+			$toggle_label = sprintf( __( '%sのサブメニューを開閉', 'eight-fields' ), $title );
+			$output      .= '<li>'
+				. '<div class="ef-drawer__row">'
+				. '<a class="ef-drawer__link" href="' . esc_url( $url ) . '">'
+				. '<span>' . esc_html( $title ) . $en . '</span></a>'
+				. '<button class="ef-drawer__toggle" type="button" data-drawer-toggle'
 				. ' aria-expanded="false" aria-controls="' . esc_attr( $panel ) . '">'
-				. '<span>' . esc_html( $title ) . $en . '</span>'
 				. '<span class="ef-drawer__caret"></span>'
+				. '<span class="ef-sr">' . esc_html( $toggle_label ) . '</span>'
 				. '</button>'
+				. '</div>'
 				. '<div class="ef-drawer__sub" id="' . esc_attr( $panel ) . '" hidden>';
 			return;
 		}
@@ -198,14 +204,15 @@ function ef_nav_fallback( $args ) {
 		}
 
 		if ( $is_service && $services ) {
-			echo '<li>'
-				. '<button class="ef-drawer__link ef-drawer__link--toggle" type="button" data-drawer-toggle'
+			echo '<li><div class="ef-drawer__row">'
+				. '<a class="ef-drawer__link" href="' . esc_url( $item[1] ) . '"><span>'
+				. esc_html( $item[0] ) . '<small>' . esc_html( $item[2] ) . '</small></span></a>'
+				. '<button class="ef-drawer__toggle" type="button" data-drawer-toggle'
 				. ' aria-expanded="false" aria-controls="ef-dsub-service">'
-				. '<span>' . esc_html( $item[0] ) . '<small>' . esc_html( $item[2] ) . '</small></span>'
-				. '<span class="ef-drawer__caret"></span></button>'
-				. '<div class="ef-drawer__sub" id="ef-dsub-service" hidden><div><ul class="ef-drawer__sublist">'
-				. '<li><a class="ef-drawer__sublink" href="' . esc_url( $item[1] ) . '">'
-				. esc_html__( 'サービス一覧', 'eight-fields' ) . '</a></li>';
+				. '<span class="ef-drawer__caret"></span>'
+				. '<span class="ef-sr">' . esc_html__( 'サービスのサブメニューを開閉', 'eight-fields' ) . '</span>'
+				. '</button></div>'
+				. '<div class="ef-drawer__sub" id="ef-dsub-service" hidden><div><ul class="ef-drawer__sublist">';
 			foreach ( $services as $service ) {
 				echo '<li><a class="ef-drawer__sublink" href="' . esc_url( get_permalink( $service ) ) . '">'
 					. esc_html( get_the_title( $service ) ) . '</a></li>';

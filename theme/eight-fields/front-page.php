@@ -42,13 +42,17 @@ get_header();
 						<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/' . $ef_shot ) ); ?>" alt="" decoding="async">
 					</figure>
 				<?php endforeach; ?>
+				<span class="ef-hero__badge">
+					<b><?php esc_html_e( '無料', 'eight-fields' ); ?></b>
+					<span><?php esc_html_e( '相談・お見積り', 'eight-fields' ); ?></span>
+				</span>
 			</div>
 		</div>
 
 		<dl class="ef-hero__meta">
 			<?php
 			$ef_hero_stats = array(
-				array( __( '施工実績', 'eight-fields' ), '<span class="ef-num" data-count="10000">10000</span>', __( '棟以上', 'eight-fields' ) ),
+				array( __( '施工実績', 'eight-fields' ), '<span class="ef-num" data-count="10000">10,000</span>', __( '棟以上', 'eight-fields' ) ),
 				array( __( '対応エリア', 'eight-fields' ), '<span class="ef-num" data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
 				array( __( '取扱サービス', 'eight-fields' ), '<span class="ef-num" data-count="6">6</span>', __( '分野', 'eight-fields' ) ),
 				array( __( '営業＝施工', 'eight-fields' ), esc_html__( '自社一貫', 'eight-fields' ), __( '体制', 'eight-fields' ) ),
@@ -150,7 +154,7 @@ get_header();
 		<div class="ef-stats" data-reveal data-reveal-delay="1">
 			<?php
 			$ef_numbers = array(
-				array( '01', __( '施工実績', 'eight-fields' ), '<span data-count="10000">10000</span>', __( '棟以上', 'eight-fields' ) ),
+				array( '01', __( '施工実績', 'eight-fields' ), '<span data-count="10000">10,000</span>', __( '棟以上', 'eight-fields' ) ),
 				array( '02', __( '対応エリア', 'eight-fields' ), '<span data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
 				array( '03', __( 'スタッフ数', 'eight-fields' ), '<span data-count="28">28</span>', __( '名', 'eight-fields' ) ),
 				array( '04', __( '設立', 'eight-fields' ), '<span class="ef-num">2023</span>', __( '年', 'eight-fields' ) ),

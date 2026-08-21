@@ -68,14 +68,18 @@
                 <span>ごあいさつ<small>GREETING</small></span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4.5 12.5 10 7 15.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
             </li><li>
-              <button class="ef-drawer__link ef-drawer__link--toggle" type="button"
-                      data-drawer-toggle aria-expanded="false" aria-controls="ef-dsub-service">
-                <span>サービス<small>SERVICE</small></span>
-                <span class="ef-drawer__caret"></span>
-              </button>
+              <div class="ef-drawer__row">
+                <a class="ef-drawer__link" href="/eight-fields.renewal/service_/">
+                  <span>サービス<small>SERVICE</small></span>
+                </a>
+                <button class="ef-drawer__toggle" type="button" data-drawer-toggle
+                        aria-expanded="false" aria-controls="ef-dsub-service">
+                  <span class="ef-drawer__caret"></span>
+                  <span class="ef-sr">サービスのサブメニューを開閉</span>
+                </button>
+              </div>
               <div class="ef-drawer__sub" id="ef-dsub-service" hidden>
-                <div><ul class="ef-drawer__sublist"><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service_/">
-              <span class="ef-ico"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 4.5 12.5 10 7 15.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>サービス一覧</a></li><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service/solar/">
+                <div><ul class="ef-drawer__sublist"><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service/solar/">
                   <span class="ef-ico"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 2v4M27 7l-2.8 2.8M30 18h-4M6 18H2M7.8 9.8 5 7" stroke="#FFBC2C" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="18" r="4.4" fill="#FFBC2C"/><path d="m8 30 3-9h10l3 9H8Z" fill="#43ACDC"/><path d="M9.6 26.5h12.8M14.9 21v9M17.1 21v9" stroke="#fff" stroke-width="1.3"/></svg></span>太陽光</a></li><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service/storage_battery/">
                   <span class="ef-ico"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="5" y="6" width="22" height="21" rx="3.5" fill="#43ACDC"/><path d="M11 3.5h10" stroke="#0B2E42" stroke-width="2.2" stroke-linecap="round"/><path d="m17.4 10.5-5.2 7.3h3.6l-1.2 5.4 5.4-7.6h-3.7l1.1-5.1Z" fill="#FFBC2C"/></svg></span>蓄電池</a></li><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service/allelectric/">
                   <span class="ef-ico"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M4 14 16 4l12 10" stroke="#43ACDC" stroke-width="2.2" stroke-linejoin="round"/><path d="M7 14v13h18V14" stroke="#43ACDC" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="20" r="4.6" fill="#FFBC2C"/><path d="M13.6 20h4.8M16 17.6v4.8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></span>オール電化（エコキュート・IH）</a></li><li><a class="ef-drawer__sublink" href="/eight-fields.renewal/service/wall_painting/">
@@ -270,10 +274,6 @@
       </div>
     </footer>
 
-    <div class="ef-fixedbar" data-fixedbar>
-      <a href="tel:0366705540"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.3 3h3l1.5 3.8-2.3 1.4a12 12 0 0 0 5.3 5.3l1.4-2.3L19 12.7v3a2.3 2.3 0 0 1-2.5 2.3A15.5 15.5 0 0 1 4 5.5 2.3 2.3 0 0 1 6.3 3Z" fill="currentColor"/></svg><span>電話する</span></a>
-      <a href="/eight-fields.renewal/contact/"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m3.5 6.5 8.5 6 8.5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>無料見積り</span></a>
-    </div>
     <a class="ef-totop" href="#top" data-totop aria-label="ページの先頭へ戻る"><svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 14.5V3.5M3.8 8.7 9 3.5l5.2 5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
 <script src="/eight-fields.renewal/assets/js/vendor/gsap.min.js" defer></script>
 <script src="/eight-fields.renewal/assets/js/vendor/ScrollTrigger.min.js" defer></script>
