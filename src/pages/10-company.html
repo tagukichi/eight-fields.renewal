@@ -106,14 +106,19 @@ desc: エイトフィールズ株式会社の会社概要。商号・設立・�
     </div>
     <div class="ef-split" data-reveal data-reveal-delay="1">
       <div class="ef-split__media">
-        <div style="aspect-ratio:4/3;border-radius:var(--ef-radius-lg);background:var(--ef-sand-d);border:1px dashed var(--ef-line);display:grid;place-items:center;text-align:center;padding:24px;">
-          <div>
-            <span style="display:block;color:var(--ef-primary-l);margin:0 auto 12px;width:40px;">{{ICON:pin}}</span>
-            <p style="font-size:14px;color:var(--ef-muted);margin:0;">
-              Google マップ埋め込み枠<br><small>（本番では iframe を設置します）</small>
-            </p>
-          </div>
+        <div class="ef-map">
+          <iframe
+            src="{{MAP_EMBED}}"
+            title="エイトフィールズ株式会社 本社の地図"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen></iframe>
         </div>
+        <p class="ef-map__link">
+          <a class="ef-link" href="{{MAP_LINK}}" target="_blank" rel="noopener">
+            Google マップで見る
+          </a>
+        </p>
       </div>
       <div>
         <h3 class="ef-h3">本社</h3>

@@ -40,6 +40,16 @@ SITE = {
     "founded": "2023年10月17日",
     "ceo": "金山 準",
     "group": "有限会社 金山製作所",
+    "map_embed": (
+        "https://www.google.com/maps?q="
+        "%E3%80%92131-0042%20%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%A2%A8%E7%94%B0"
+        "%E5%8C%BA%E6%9D%B1%E5%A2%A8%E7%94%B02-12-20&hl=ja&z=17&output=embed"
+    ),
+    "map_link": (
+        "https://www.google.com/maps/search/?api=1&query="
+        "%E3%80%92131-0042%20%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%A2%A8%E7%94%B0"
+        "%E5%8C%BA%E6%9D%B1%E5%A2%A8%E7%94%B02-12-20"
+    ),
 }
 
 SERVICES = [
@@ -564,6 +574,9 @@ def expand(text, base):
         "{{CEO}}": SITE["ceo"],
         "{{FOUNDED}}": SITE["founded"],
         "{{GROUP}}": SITE["group"],
+        # These land inside HTML attributes, so the query separators need escaping.
+        "{{MAP_EMBED}}": SITE["map_embed"].replace("&", "&amp;"),
+        "{{MAP_LINK}}": SITE["map_link"].replace("&", "&amp;"),
         "{{SERVICE_CARDS}}": "",
         "{{SERVICE_OTHERS}}": "",
         "{{NEWS_LATEST}}": "",

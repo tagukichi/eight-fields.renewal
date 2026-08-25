@@ -233,3 +233,60 @@ function ef_pagination() {
 	}
 	echo '</nav>';
 }
+
+/**
+ * The Google Maps embed URL for the head office.
+ *
+ * Falls back to the bundled keyless embed so a fresh install shows the right
+ * location before anyone opens the Customizer.
+ *
+ * @return string Embed URL, or '' when the setting was deliberately cleared.
+ */
+function ef_map_embed_url() {
+	$url = ef_info( 'map', defined( 'EF_MAP_EMBED_DEFAULT' ) ? EF_MAP_EMBED_DEFAULT : '' );
+	return esc_url_raw( trim( $url ) );
+}
+
+/**
+ * The "open in Google Maps" link for the head office address.
+ *
+ * @return string
+ */
+function ef_map_link_url() {
+	$query = trim( '〒' . ef_info( 'zip', '131-0042' ) . ' ' . ef_info( 'address', '東京都墨田区東墨田2-12-20' ) );
+	return 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode( $query );
+}
+
+/**
+ * The access map block: a lazily loaded embed plus a link out.
+ *
+ * Also registered as the `[ef_map]` shortcode so the block editor can drop it
+ * into the 会社概要 page without touching a template.
+ *
+ * @return string Markup, or '' when no embed URL is configured.
+ */
+function ef_map_block() {
+	$embed = ef_map_embed_url();
+	if ( '' === $embed ) {
+		return '';
+	}
+
+	ob_start();
+	?>
+	<div class="ef-map">
+		<iframe
+			src="<?php echo esc_url( $embed ); ?>"
+			title="<?php echo esc_attr( sprintf( __( '%s 本社の地図', 'eight-fields' ), get_bloginfo( 'name' ) ) ); ?>"
+			loading="lazy"
+			referrerpolicy="no-referrer-when-downgrade"
+			allowfullscreen></iframe>
+	</div>
+	<p class="ef-map__link">
+		<a class="ef-link" href="<?php echo esc_url( ef_map_link_url() ); ?>" target="_blank" rel="noopener">
+			<?php esc_html_e( 'Google マップで見る', 'eight-fields' ); ?>
+		</a>
+	</p>
+	<?php
+	return trim( ob_get_clean() );
+}
+add_shortcode( 'ef_map', 'ef_map_block' );

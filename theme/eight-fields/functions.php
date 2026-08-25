@@ -214,6 +214,12 @@ function ef_trim_excerpt( $text ) {
 add_filter( 'get_the_excerpt', 'ef_trim_excerpt', 20 );
 
 /**
+ * The default Google Maps embed for the head office, used when the Customizer
+ * field is left empty. Keyless `output=embed` form — no API key to manage.
+ */
+define( 'EF_MAP_EMBED_DEFAULT', 'https://www.google.com/maps?q=%E3%80%92131-0042%20%E6%9D%B1%E4%BA%AC%E9%83%BD%E5%A2%A8%E7%94%B0%E5%8C%BA%E6%9D%B1%E5%A2%A8%E7%94%B02-12-20&hl=ja&z=17&output=embed' );
+
+/**
  * Company details, editable from Appearance → Customize.
  *
  * @param WP_Customize_Manager $wp_customize Customizer.
@@ -233,7 +239,7 @@ function ef_customize_register( $wp_customize ) {
 		'ef_zip'      => array( __( '郵便番号', 'eight-fields' ), '131-0042' ),
 		'ef_address'  => array( __( '住所', 'eight-fields' ), '東京都墨田区東墨田2-12-20' ),
 		'ef_hours'    => array( __( '受付時間', 'eight-fields' ), '平日 9:00 - 18:00' ),
-		'ef_map'      => array( __( 'Googleマップ埋め込みURL', 'eight-fields' ), '' ),
+		'ef_map'      => array( __( 'Googleマップ埋め込みURL', 'eight-fields' ), EF_MAP_EMBED_DEFAULT, 'esc_url_raw' ),
 	);
 
 	foreach ( $fields as $key => $field ) {
@@ -241,7 +247,7 @@ function ef_customize_register( $wp_customize ) {
 			$key,
 			array(
 				'default'           => $field[1],
-				'sanitize_callback' => 'wp_kses_post',
+				'sanitize_callback' => isset( $field[2] ) ? $field[2] : 'wp_kses_post',
 				'transport'         => 'refresh',
 			)
 		);
