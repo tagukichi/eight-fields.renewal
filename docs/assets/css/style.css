@@ -688,12 +688,6 @@ input, select, textarea { font: inherit; color: inherit; }
   transition: transform .35s var(--ef-ease), box-shadow .35s var(--ef-ease);
 }
 .ef-feature:hover { transform: translateY(-5px); box-shadow: var(--ef-shadow); }
-.ef-feature__icon {
-  display: grid; place-items: center; width: 60px; height: 60px; margin-bottom: 24px;
-  border-radius: 18px;
-  background: linear-gradient(140deg, rgba(28,127,168,.1), rgba(255,188,44,.14));
-}
-.ef-feature__icon svg { width: 30px; height: 30px; }
 .ef-feature__no {
   font-family: var(--ef-font-en); font-size: 12px; font-weight: 600; letter-spacing: .18em;
   color: var(--ef-solar); display: block; margin-bottom: 10px;
