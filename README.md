@@ -39,8 +39,8 @@
 | ページ | URL | テンプレート |
 |---|---|---|
 | トップページ | `/` | `front-page.php` |
-| 会社概要 | `/company/` | `page.php` |
-| 代表挨拶（ごあいさつ） | `/greeting/` | `page.php` |
+| 会社概要 | `/company/` | `page-company.php` |
+| 代表挨拶（ごあいさつ） | `/greeting/` | `page-greeting.php` |
 | サービス（一覧） | `/service_/` | `archive-service.php` |
 | 太陽光 | `/service/solar/` | `single-service.php` |
 | 蓄電池 | `/service/storage_battery/` | `single-service.php` |
@@ -50,7 +50,7 @@
 | メンテナンスサポート | `/service/maintenance/` | `single-service.php` |
 | お知らせ（一覧） | `/news/` | `index.php` |
 | お知らせ（詳細） | `/news/<slug>/` | `single.php` |
-| お問い合わせ | `/contact/` | `page.php` |
+| お問い合わせ | `/contact/` | `page-contact.php` |
 
 ## 2-a. プレビューの閲覧制限について ⚠️
 
