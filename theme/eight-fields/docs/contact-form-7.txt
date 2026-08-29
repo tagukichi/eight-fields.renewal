@@ -1,0 +1,125 @@
+================================================================================
+お問い合わせフォーム（Contact Form 7 用）
+================================================================================
+
+デザイン案のフォームをそのまま再現する定義です。
+テーマ側に Contact Form 7 用のスタイルを入れてあるので、
+下記を貼り付けるだけで見た目が揃います。
+
+--------------------------------------------------------------------------------
+手順
+--------------------------------------------------------------------------------
+1. プラグイン「Contact Form 7」をインストールして有効化
+2. 「お問い合わせ」→「新規追加」でフォームを作成（タイトル例：お問い合わせ）
+3. 「フォーム」タブの中身を全部消して、下の【フォーム】をそのまま貼り付け
+4. 「メール」タブに下の【メール】の内容を反映
+5. 保存すると発行される [contact-form-7 id="..." title="お問い合わせ"] を、
+   固定ページ「お問い合わせ」の本文に貼り付け
+
+※ 固定ページ「お問い合わせ」のテンプレートは自動で「お問い合わせ」が選ばれます。
+   本文が空のあいだは、フォームの代わりに電話のご案内が表示されます。
+
+--------------------------------------------------------------------------------
+【フォーム】
+--------------------------------------------------------------------------------
+<div class="ef-form__row">
+  <span class="ef-form__label">ご相談内容<span class="ef-req">必須</span></span>
+  <div>
+    [radio type use_label_element default:1 "太陽光" "蓄電池" "オール電化" "屋根・外壁塗装" "EV車・V2H" "メンテナンス" "その他"]
+    <p class="ef-help">複数のご相談がある場合は、本文にお書き添えください。</p>
+  </div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-name">お名前<span class="ef-req">必須</span></label>
+  <div>[text* your-name id:f-name class:ef-input autocomplete:name placeholder "山田 太郎"]</div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-kana">フリガナ<span class="ef-any">任意</span></label>
+  <div>[text kana id:f-kana class:ef-input placeholder "ヤマダ タロウ"]</div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-email">メールアドレス<span class="ef-req">必須</span></label>
+  <div>[email* your-email id:f-email class:ef-input autocomplete:email placeholder "example@eight-fields.co.jp"]</div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-tel">電話番号<span class="ef-req">必須</span></label>
+  <div>
+    [tel* your-tel id:f-tel class:ef-input autocomplete:tel placeholder "03-0000-0000"]
+    <p class="ef-help">日中つながりやすい番号をご記入ください。</p>
+  </div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-zip">建物の所在地<span class="ef-req">必須</span></label>
+  <div>
+    [text* your-zip id:f-zip class:ef-input autocomplete:postal-code placeholder "郵便番号（例：131-0042）"]
+    [text your-address id:f-address class:ef-input class:ef-mt-12 autocomplete:street-address placeholder "住所"]
+    <p class="ef-help">対応エリア：東京都／千葉県／神奈川県／埼玉県／茨城県／栃木県／群馬県</p>
+  </div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-building">建物種別<span class="ef-any">任意</span></label>
+  <div>[select building id:f-building class:ef-select "選択してください" "戸建て（持ち家）" "戸建て（建築予定・建築中）" "集合住宅" "店舗・事務所" "その他"]</div>
+</div>
+
+<div class="ef-form__row">
+  <span class="ef-form__label">ご希望の連絡方法<span class="ef-any">任意</span></span>
+  <div>[checkbox contact-method use_label_element "電話" "メール" "訪問希望"]</div>
+</div>
+
+<div class="ef-form__row">
+  <label class="ef-form__label" for="f-body">お問い合わせ内容<span class="ef-req">必須</span></label>
+  <div>[textarea* your-message id:f-body class:ef-textarea placeholder "例）築12年の戸建てです。電気代が上がってきたので、太陽光と蓄電池を検討しています。屋根は南向きの片流れです。"]</div>
+</div>
+
+<div class="ef-consent">
+  [acceptance agree] 個人情報の取り扱いに同意します。ご入力いただいた情報は、お問い合わせへの回答およびご提案のためにのみ使用します。 [/acceptance]
+</div>
+
+<div class="ef-form__submit">
+  [submit class:ef-btn class:ef-btn--primary "この内容で送信する"]
+  <p class="ef-form__note">送信後、2営業日以内に担当者よりご連絡いたします。</p>
+</div>
+
+--------------------------------------------------------------------------------
+【メール】
+--------------------------------------------------------------------------------
+題名:
+【お問い合わせ】[your-name] 様（[type]）
+
+メッセージ本文:
+サイトのお問い合わせフォームから送信がありました。
+
+ご相談内容: [type]
+お名前:     [your-name]
+フリガナ:   [kana]
+メール:     [your-email]
+電話番号:   [your-tel]
+郵便番号:   [your-zip]
+住所:       [your-address]
+建物種別:   [building]
+希望連絡方法: [contact-method]
+
+お問い合わせ内容:
+[your-message]
+
+--
+送信元: [_url]
+送信日時: [_date] [_time]
+
+追加ヘッダー:
+Reply-To: [your-email]
+
+--------------------------------------------------------------------------------
+補足
+--------------------------------------------------------------------------------
+・[acceptance agree] は「同意チェックが無いと送信できない」設定です。
+  Contact Form 7 の初期設定のままで動きます。
+・自動返信メールを送る場合は「メール (2)」を有効にし、
+  送信先に [your-email] を指定してください。
+・迷惑メール対策として、reCAPTCHA v3 または Akismet の設定を推奨します。

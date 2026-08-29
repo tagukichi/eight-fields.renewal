@@ -725,6 +725,23 @@ input, select, textarea { font: inherit; color: inherit; }
   border: 0; display: block;
 }
 .ef-map__link { margin: 14px 0 0; }
+
+/* Secondary detail inside a table cell — the group company's work list. */
+.ef-table__note {
+  display: block; margin-top: 10px;
+  font-size: 14px; color: var(--ef-body);
+}
+
+/* The philosophy statement on 会社概要 — a callout turned into a centred quote. */
+.ef-callout--quote {
+  text-align: center;
+  border-left: 0;
+  border-top: 4px solid var(--ef-solar);
+  padding: 40px 32px;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 2.1;
+  color: var(--ef-ink);
+}
 @media (max-width: 700px) {
   .ef-map { aspect-ratio: 3 / 2; }
 }
@@ -1117,6 +1134,67 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-form__submit .ef-btn { min-width: 300px; }
 .ef-form__note { margin-top: 18px; font-size: 13px; color: var(--ef-muted); }
 
+/* --------------------------------------------------------------------------
+   Contact Form 7 compatibility
+
+   CF7 wraps every field in its own spans, so the designed form styles above
+   would not reach the real form. These rules map CF7's output onto the same
+   look, which means the shipped form definition renders exactly like the
+   design without any per-field class juggling.
+   -------------------------------------------------------------------------- */
+.ef-form .wpcf7-form-control-wrap { display: block; }
+
+/* Radio and checkbox groups become the same pill row as .ef-choices.
+   Acceptance is deliberately excluded — its label holds a paragraph of consent
+   text, which must not be squeezed into a pill. */
+.ef-form .wpcf7-radio,
+.ef-form .wpcf7-checkbox { display: flex; flex-wrap: wrap; gap: 10px; }
+.ef-form .wpcf7-radio .wpcf7-list-item,
+.ef-form .wpcf7-checkbox .wpcf7-list-item { margin: 0; }
+.ef-form .wpcf7-radio .wpcf7-list-item > label,
+.ef-form .wpcf7-checkbox .wpcf7-list-item > label {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 12px 20px; border: 1.5px solid var(--ef-line); border-radius: 999px;
+  font-size: 14.5px; cursor: pointer; background: #fff;
+  transition: all .22s var(--ef-ease);
+}
+.ef-form .wpcf7-radio .wpcf7-list-item > label:hover,
+.ef-form .wpcf7-checkbox .wpcf7-list-item > label:hover { border-color: var(--ef-primary-l); }
+.ef-form .wpcf7-radio .wpcf7-list-item input,
+.ef-form .wpcf7-checkbox .wpcf7-list-item input {
+  accent-color: var(--ef-primary); width: 17px; height: 17px; margin: 0; cursor: pointer;
+}
+.ef-form .wpcf7-radio .wpcf7-list-item > label:has(input:checked),
+.ef-form .wpcf7-checkbox .wpcf7-list-item > label:has(input:checked) {
+  border-color: var(--ef-primary); background: rgba(28,127,168,.06);
+  color: var(--ef-primary); font-weight: 700;
+}
+.ef-form .wpcf7-radio .wpcf7-list-item-label,
+.ef-form .wpcf7-checkbox .wpcf7-list-item-label { line-height: 1; }
+
+/* The consent checkbox keeps the .ef-consent panel look. */
+.ef-consent .wpcf7-form-control-wrap { display: contents; }
+.ef-consent .wpcf7-acceptance .wpcf7-list-item { margin: 0; }
+.ef-consent .wpcf7-acceptance label {
+  display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+}
+.ef-consent .wpcf7-acceptance input {
+  accent-color: var(--ef-primary); width: 20px; height: 20px; margin-top: 3px; flex: none; cursor: pointer;
+}
+
+.ef-form .wpcf7-not-valid-tip { margin-top: 8px; font-size: 12.5px; color: #D64545; }
+.ef-form .wpcf7-response-output {
+  margin: 24px 0 0; padding: 16px 20px; border-radius: var(--ef-radius);
+  border: 1px solid var(--ef-line); font-size: 14px; line-height: 1.8;
+}
+/* Before the first submit the box is empty; CF7 normally hides it itself, but
+   this keeps an empty bordered strip off the page either way. */
+.ef-form .wpcf7-response-output:empty { display: none; }
+.ef-form .wpcf7-spinner { margin: 0 0 0 12px; vertical-align: middle; }
+/* CF7 renders the submit as an <input>, which cannot hold the button's icon. */
+.ef-form input.ef-btn { border: 0; -webkit-appearance: none; appearance: none; cursor: pointer; }
+
+
 @media (max-width: 780px) {
   .ef-form__row { grid-template-columns: 1fr; gap: 12px; padding: 22px 0; }
   .ef-form__label { padding-top: 0; }
@@ -1251,6 +1329,7 @@ input, select, textarea { font: inherit; color: inherit; }
    22. Utilities
    -------------------------------------------------------------------------- */
 .ef-mt-0  { margin-top: 0 !important; }
+.ef-mt-12 { margin-top: 12px; }
 .ef-mt-24 { margin-top: 24px; }
 .ef-mt-32 { margin-top: 32px; }
 .ef-mt-48 { margin-top: 48px; }
@@ -1268,29 +1347,7 @@ input, select, textarea { font: inherit; color: inherit; }
   font-size: 12.5px; color: #7A5200; line-height: 1.7;
 }
 
-/* Preview banner (design proposal only — not part of the WP theme) */
-/* WordPress shows a 32px admin bar to logged-in editors; the fixed header
-   offsets by the same variable the preview banner used to set. */
+/* WordPress shows an admin bar to logged-in editors; the fixed header offsets
+   by --ef-bar-h so it never sits underneath it. */
 body.admin-bar { --ef-bar-h: 32px; }
 @media (max-width: 782px) { body.admin-bar { --ef-bar-h: 46px; } }
-
-/* --------------------------------------------------------------------------
-   22. Utilities
-   -------------------------------------------------------------------------- */
-.ef-mt-0  { margin-top: 0 !important; }
-.ef-mt-24 { margin-top: 24px; }
-.ef-mt-32 { margin-top: 32px; }
-.ef-mt-48 { margin-top: 48px; }
-.ef-mt-64 { margin-top: clamp(40px, 5vw, 64px); }
-.ef-center { text-align: center; }
-.ef-br-sp { display: none; }
-@media (max-width: 640px) { .ef-br-sp { display: inline; } }
-.ef-actions { display: flex; flex-wrap: wrap; gap: 14px; }
-.ef-actions--center { justify-content: center; }
-
-.ef-placeholder-note {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 18px; border-radius: 10px;
-  background: rgba(255,188,44,.12); border: 1px dashed var(--ef-solar);
-  font-size: 12.5px; color: #7A5200; line-height: 1.7;
-}

@@ -290,3 +290,106 @@ function ef_map_block() {
 	return trim( ob_get_clean() );
 }
 add_shortcode( 'ef_map', 'ef_map_block' );
+
+/**
+ * The modifier class for a service's card image.
+ *
+ * Most service photos are scenery and crop well. A product shot on a white
+ * background (an エコキュート unit, say) must not be cropped, so setting the
+ * `ef_service_fit` custom field to `contain` switches that card to a contained
+ * image on white.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return string Either '' or ' ef-card__media--contain'.
+ */
+function ef_service_media_class( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+	$fit     = get_post_meta( $post_id, 'ef_service_fit', true );
+	return 'contain' === $fit ? ' ef-card__media--contain' : '';
+}
+
+/**
+ * A service's position in the menu order, used for the 01–06 badges.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return int 1-based position, or 0 when the service is not in the list.
+ */
+function ef_service_position( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+
+	static $order = null;
+	if ( null === $order ) {
+		$order = get_posts(
+			array(
+				'post_type'      => 'service',
+				'posts_per_page' => -1,
+				'orderby'        => 'menu_order',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+			)
+		);
+	}
+
+	$index = array_search( (int) $post_id, $order, true );
+	return false === $index ? 0 : $index + 1;
+}
+
+/**
+ * The merit rows filled in for a service.
+ *
+ * A merit needs at least a heading to be shown. The first one falls back to the
+ * featured image when no image is named; the others show text only, separated
+ * by a rule, unless an image is given.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return array[] Rows of array( title, text, image_id, contain ).
+ */
+function ef_service_merits( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+	$rows    = array();
+
+	for ( $i = 1; $i <= 3; $i++ ) {
+		$title = get_post_meta( $post_id, "ef_merit{$i}_title", true );
+		if ( ! $title ) {
+			continue;
+		}
+
+		$image_id = (int) get_post_meta( $post_id, "ef_merit{$i}_image", true );
+		if ( ! $image_id && 1 === $i ) {
+			$image_id = (int) get_post_thumbnail_id( $post_id );
+		}
+
+		$rows[] = array(
+			'title'    => $title,
+			'text'     => get_post_meta( $post_id, "ef_merit{$i}_text", true ),
+			'image_id' => $image_id,
+			'contain'  => 'contain' === get_post_meta( $post_id, "ef_merit{$i}_fit", true ),
+		);
+	}
+
+	return $rows;
+}
+
+/**
+ * The FAQ rows filled in for a service.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return array[] Rows of array( q, a ).
+ */
+function ef_service_faq( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+	$rows    = array();
+
+	for ( $i = 1; $i <= 3; $i++ ) {
+		$q = get_post_meta( $post_id, "ef_faq{$i}_q", true );
+		if ( ! $q ) {
+			continue;
+		}
+		$rows[] = array(
+			'q' => $q,
+			'a' => get_post_meta( $post_id, "ef_faq{$i}_a", true ),
+		);
+	}
+
+	return $rows;
+}

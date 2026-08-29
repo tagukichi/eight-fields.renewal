@@ -66,18 +66,11 @@ get_header();
 		</div>
 
 		<dl class="ef-hero__meta">
-			<?php
-			$ef_hero_stats = array(
-				array( __( '施工実績', 'eight-fields' ), '<span class="ef-num" data-count="10000">10,000</span>', __( '棟以上', 'eight-fields' ) ),
-				array( __( '対応エリア', 'eight-fields' ), '<span class="ef-num" data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
-				array( __( '取扱サービス', 'eight-fields' ), '<span class="ef-num" data-count="6">6</span>', __( '分野', 'eight-fields' ) ),
-				array( __( '営業＝施工', 'eight-fields' ), esc_html__( '自社一貫', 'eight-fields' ), __( '体制', 'eight-fields' ) ),
-			);
-			foreach ( $ef_hero_stats as $ef_stat ) :
-				?>
+			<?php foreach ( ef_hero_stats() as $ef_stat ) : ?>
 				<div class="ef-hero__stat">
-					<dt><?php echo esc_html( $ef_stat[0] ); ?></dt>
-					<dd><?php echo $ef_stat[1]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php echo esc_html( $ef_stat[2] ); ?></span></dd>
+					<dt><?php echo esc_html( $ef_stat['label'] ); ?></dt>
+					<?php // Keep the value and unit adjacent — a newline between them renders as a wide space at this size. ?>
+					<dd><?php if ( isset( $ef_stat['count'] ) ) : ?><span class="ef-num" data-count="<?php echo esc_attr( $ef_stat['count'] ); ?>"><?php echo esc_html( $ef_stat['value'] ); ?></span><?php else : ?><?php echo esc_html( $ef_stat['value'] ); ?><?php endif; ?><span><?php echo esc_html( $ef_stat['unit'] ); ?></span></dd>
 				</div>
 			<?php endforeach; ?>
 		</dl>
@@ -101,9 +94,9 @@ get_header();
 	<div class="ef-container">
 		<div class="ef-split">
 			<div class="ef-split__media ef-split__media--stack" data-reveal>
-				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/solar.jpg' ) ); ?>" alt="" loading="lazy" decoding="async">
-				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/ceo.jpg' ) ); ?>" alt="" loading="lazy" decoding="async">
-				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/battery.jpg' ) ); ?>" alt="" loading="lazy" decoding="async">
+				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/lifestyle.jpg' ) ); ?>" alt="<?php esc_attr_e( '家族で暮らす住まい', 'eight-fields' ); ?>" loading="lazy" decoding="async">
+				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/ceo.jpg' ) ); ?>" alt="<?php esc_attr_e( 'エイトフィールズ株式会社 代表取締役社長', 'eight-fields' ); ?>" loading="lazy" decoding="async">
+				<img src="<?php echo esc_url( get_theme_file_uri( '/assets/img/battery.jpg' ) ); ?>" alt="<?php esc_attr_e( '住宅用蓄電池', 'eight-fields' ); ?>" loading="lazy" decoding="async">
 			</div>
 			<div data-reveal data-reveal-delay="1">
 				<span class="ef-eyebrow">About us</span>
@@ -129,8 +122,19 @@ get_header();
 	</div>
 </section>
 
-<!-- SERVICE -->
+<!-- REASONS -->
 <section class="ef-section ef-section--sand">
+	<div class="ef-container">
+		<div class="ef-head ef-head--center" data-reveal>
+			<span class="ef-eyebrow">Why EIGHT FIELDS</span>
+			<h2 class="ef-h2"><?php esc_html_e( 'エイトフィールズが', 'eight-fields' ); ?><br class="ef-br-sp"><?php esc_html_e( '選ばれる3つの理由', 'eight-fields' ); ?></h2>
+		</div>
+		<?php get_template_part( 'template-parts/cards-feature', null, array( 'items' => ef_reasons() ) ); ?>
+	</div>
+</section>
+
+<!-- SERVICE -->
+<section class="ef-section">
 	<div class="ef-container">
 		<div class="ef-head" data-reveal>
 			<span class="ef-eyebrow">Service</span>
@@ -153,11 +157,9 @@ get_header();
 			?>
 			<div class="ef-grid ef-grid--3">
 				<?php
-				$ef_i = 0;
 				while ( $ef_services->have_posts() ) :
 					$ef_services->the_post();
-					++$ef_i;
-					get_template_part( 'template-parts/card-service', null, array( 'no' => $ef_i ) );
+					get_template_part( 'template-parts/card-service', null, array( 'no' => ef_service_position() ) );
 				endwhile;
 				wp_reset_postdata();
 				?>
@@ -171,6 +173,30 @@ get_header();
 	</div>
 </section>
 
+<!-- FLOW -->
+<section class="ef-section ef-section--sand">
+	<div class="ef-container">
+		<div class="ef-split ef-split--top">
+			<div data-reveal>
+				<span class="ef-eyebrow">Flow</span>
+				<h2 class="ef-h2"><?php esc_html_e( 'ご相談から施工までの流れ', 'eight-fields' ); ?></h2>
+				<p class="ef-lead">
+					<?php esc_html_e( 'はじめてのお客様でも迷わないよう、各ステップでやること・かかる期間を明示しています。相談・現地調査・お見積りまでは無料です。', 'eight-fields' ); ?>
+				</p>
+				<div class="ef-callout ef-mt-32">
+					<h3 class="ef-callout__title"><span class="ef-callout__icon"><?php ef_icon( 'chat' ); ?></span><?php esc_html_e( 'まずはご相談だけでも', 'eight-fields' ); ?></h3>
+					<p class="ef-callout__text">
+						<?php esc_html_e( '「電気代が上がって気になっている」「訪問販売で見積りをもらったが妥当か知りたい」——そんな段階でのご相談も歓迎です。セカンドオピニオンとしてお使いください。', 'eight-fields' ); ?>
+					</p>
+				</div>
+			</div>
+			<div data-reveal data-reveal-delay="1">
+				<?php get_template_part( 'template-parts/list-flow', null, array( 'context' => 'home' ) ); ?>
+			</div>
+		</div>
+	</div>
+</section>
+
 <!-- NUMBERS -->
 <section class="ef-section ef-section--tight ef-section--deep ef-numbers">
 	<div class="ef-container">
@@ -178,23 +204,7 @@ get_header();
 			<span class="ef-eyebrow">Numbers</span>
 			<h2 class="ef-h2"><?php esc_html_e( '数字で見るエイトフィールズ', 'eight-fields' ); ?></h2>
 		</div>
-		<div class="ef-stats" data-reveal data-reveal-delay="1">
-			<?php
-			$ef_numbers = array(
-				array( '01', __( '施工実績', 'eight-fields' ), '<span data-count="10000">10,000</span>', __( '棟以上', 'eight-fields' ) ),
-				array( '02', __( '対応エリア', 'eight-fields' ), '<span data-count="7">7</span>', __( '都県', 'eight-fields' ) ),
-				array( '03', __( 'スタッフ数', 'eight-fields' ), '<span data-count="28">28</span>', __( '名', 'eight-fields' ) ),
-				array( '04', __( '設立', 'eight-fields' ), '<span class="ef-num">2023</span>', __( '年', 'eight-fields' ) ),
-			);
-			foreach ( $ef_numbers as $ef_n ) :
-				?>
-				<div class="ef-stats__item">
-					<span class="ef-stats__no"><?php echo esc_html( $ef_n[0] ); ?></span>
-					<p class="ef-stats__label"><?php echo esc_html( $ef_n[1] ); ?></p>
-					<p class="ef-stats__value"><?php echo $ef_n[2]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?><span><?php echo esc_html( $ef_n[3] ); ?></span></p>
-				</div>
-			<?php endforeach; ?>
-		</div>
+		<?php get_template_part( 'template-parts/list-stats', null, array( 'items' => ef_numbers() ) ); ?>
 	</div>
 </section>
 

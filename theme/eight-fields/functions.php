@@ -15,6 +15,11 @@ require_once get_template_directory() . '/inc/post-types.php';
 require_once get_template_directory() . '/inc/nav.php';
 require_once get_template_directory() . '/inc/service-icons.php';
 require_once get_template_directory() . '/inc/template-tags.php';
+require_once get_template_directory() . '/inc/content.php';
+require_once get_template_directory() . '/inc/meta-boxes.php';
+if ( is_admin() ) {
+	require_once get_template_directory() . '/inc/importer.php';
+}
 
 /**
  * Theme supports and menu locations.
@@ -240,6 +245,28 @@ function ef_customize_register( $wp_customize ) {
 		'ef_address'  => array( __( '住所', 'eight-fields' ), '東京都墨田区東墨田2-12-20' ),
 		'ef_hours'    => array( __( '受付時間', 'eight-fields' ), '平日 9:00 - 18:00' ),
 		'ef_map'      => array( __( 'Googleマップ埋め込みURL', 'eight-fields' ), EF_MAP_EMBED_DEFAULT, 'esc_url_raw' ),
+		'ef_founded'  => array( __( '設立年月日', 'eight-fields' ), '2023年10月17日' ),
+		'ef_ceo'      => array( __( '代表者名', 'eight-fields' ), '金山 準' ),
+		'ef_group'    => array( __( 'グループ会社名', 'eight-fields' ), '有限会社 金山製作所' ),
+	);
+
+	// 企業理念 is a few lines of prose, so it gets a textarea rather than a text field.
+	$wp_customize->add_setting(
+		'ef_philosophy',
+		array(
+			'default'           => __( '私たちは誠実と誇りを全ての企業活動の原点とし、<br>一人一人の出会いに感謝し、環境活動を推奨とし、<br>地域・日本の信頼に生きる活動を行います。', 'eight-fields' ),
+			'sanitize_callback' => 'wp_kses_post',
+			'transport'         => 'refresh',
+		)
+	);
+	$wp_customize->add_control(
+		'ef_philosophy',
+		array(
+			'label'       => __( '企業理念', 'eight-fields' ),
+			'description' => __( '改行したい位置に &lt;br&gt; を入れてください。', 'eight-fields' ),
+			'section'     => 'ef_company',
+			'type'        => 'textarea',
+		)
 	);
 
 	foreach ( $fields as $key => $field ) {

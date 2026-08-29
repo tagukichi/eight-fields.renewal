@@ -31,17 +31,40 @@ ef_breadcrumbs();
 		<?php if ( have_posts() ) : ?>
 			<div class="ef-grid ef-grid--3">
 				<?php
-				$ef_i = 0;
 				while ( have_posts() ) :
 					the_post();
-					++$ef_i;
-					get_template_part( 'template-parts/card-service', null, array( 'no' => $ef_i ) );
+					get_template_part( 'template-parts/card-service', null, array( 'no' => ef_service_position() ) );
 				endwhile;
 				?>
 			</div>
 		<?php else : ?>
 			<p><?php esc_html_e( 'サービスがまだ登録されていません。', 'eight-fields' ); ?></p>
 		<?php endif; ?>
+	</div>
+</section>
+
+<!-- COMBINATION -->
+<section class="ef-section ef-section--sand">
+	<div class="ef-container">
+		<div class="ef-head ef-head--center" data-reveal>
+			<span class="ef-eyebrow">Combination</span>
+			<h2 class="ef-h2"><?php esc_html_e( '組み合わせると、効果が変わります', 'eight-fields' ); ?></h2>
+			<p class="ef-lead">
+				<?php esc_html_e( '単体でも効果はありますが、組み合わせることで「つくる・ためる・かしこく使う」が完成します。ご家庭の電気の使い方を伺ったうえで、必要なものだけをご提案します。', 'eight-fields' ); ?>
+			</p>
+		</div>
+		<div class="ef-steps" data-reveal data-reveal-delay="1">
+			<?php foreach ( ef_combination_steps() as $ef_step ) : ?>
+				<div class="ef-steps__item">
+					<span class="ef-steps__no"><?php echo esc_html( $ef_step['no'] ); ?></span>
+					<h3 class="ef-steps__title"><?php echo esc_html( $ef_step['title'] ); ?></h3>
+					<p class="ef-steps__text"><?php echo esc_html( $ef_step['text'] ); ?></p>
+				</div>
+			<?php endforeach; ?>
+		</div>
+		<ul class="ef-notes ef-notes--center" data-reveal>
+			<li><?php esc_html_e( '設置条件・電力プラン・ご家庭の使用量によって効果は異なります。現地調査のうえシミュレーションをご提示します。', 'eight-fields' ); ?></li>
+		</ul>
 	</div>
 </section>
 

@@ -652,25 +652,22 @@ def service_detail_body(base, svc):
     for i, (title, text, img) in enumerate(d["merits"]):
         media = ""
         if img:
-            contain = " ef-card__media--contain" if img.startswith("diagram") else ""
-            media = (f'<div class="ef-split__media">'
-                     f'<img src="{base}assets/img/{img}" alt="" loading="lazy" decoding="async"'
-                     f' style="border-radius:var(--ef-radius-lg);'
-                     f'{"background:#fff;padding:16px;border:1px solid var(--ef-line-soft);" if contain else ""}">'
+            # A diagram is artwork on white and must not be cropped.
+            contain = " ef-merit__media--contain" if img.startswith("diagram") else ""
+            media = (f'<div class="ef-split__media ef-merit__media{contain}">'
+                     f'<img src="{base}assets/img/{img}" alt="" loading="lazy" decoding="async">'
                      f'</div>')
         reverse = " ef-split--reverse" if i % 2 else ""
         body = f'''<div>
             <span class="ef-feature__no">MERIT {i + 1:02d}</span>
-            <h3 class="ef-h3" style="margin-top:10px;">{title}</h3>
+            <h3 class="ef-h3 ef-merit__title">{title}</h3>
             <p class="ef-lead">{text}</p>
           </div>'''
         if media:
-            merits.append(f'''<div class="ef-split{reverse}" data-reveal
-                 style="margin-top:{"0" if i == 0 else "clamp(48px,6vw,80px)"};">{media}{body}</div>''')
+            gap = "" if i == 0 else " ef-merit--gap"
+            merits.append(f'<div class="ef-merit ef-split{reverse}{gap}" data-reveal>{media}{body}</div>')
         else:
-            merits.append(f'''<div data-reveal
-                 style="margin-top:clamp(40px,5vw,64px);padding-top:clamp(40px,5vw,64px);
-                        border-top:1px solid var(--ef-line-soft);">{body}</div>''')
+            merits.append(f'<div class="ef-merit ef-merit--rule" data-reveal>{body}</div>')
 
     steps = "".join(
         f'''<li class="ef-flow__item">

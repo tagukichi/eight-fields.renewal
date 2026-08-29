@@ -5,14 +5,26 @@
  * @package eight-fields
  */
 
-$ef_no  = isset( $args['no'] ) ? (int) $args['no'] : 0;
-$ef_lag = ( $ef_no % 3 ) + 1;
+$ef_no      = isset( $args['no'] ) ? (int) $args['no'] : 0;
+$ef_lag     = ( $ef_no % 3 ) + 1;
+$ef_contain = '' !== ef_service_media_class();
 ?>
 <article class="ef-card ef-scard" data-reveal data-reveal-delay="<?php echo esc_attr( $ef_lag ); ?>">
 	<a href="<?php the_permalink(); ?>" style="display:contents;color:inherit;">
-		<div class="ef-card__media">
+		<div class="ef-card__media<?php echo esc_attr( ef_service_media_class() ); ?>">
 			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'ef-card', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => get_the_title() ) ); ?>
+				<?php
+				// `ef-card` is a hard 720x450 crop. A contained image is meant to
+				// be seen whole, so it takes an uncropped size instead.
+				the_post_thumbnail(
+					$ef_contain ? 'large' : 'ef-card',
+					array(
+						'loading'  => 'lazy',
+						'decoding' => 'async',
+						'alt'      => get_the_title(),
+					)
+				);
+				?>
 			<?php endif; ?>
 			<?php if ( get_post_meta( get_the_ID(), 'ef_service_en', true ) ) : ?>
 				<span class="ef-card__badge"><?php echo esc_html( get_post_meta( get_the_ID(), 'ef_service_en', true ) ); ?></span>

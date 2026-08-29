@@ -120,8 +120,17 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 		$url   = ! empty( $item->url ) ? $item->url : '';
 
 		if ( $depth > 0 ) {
+			// A service in the sub-menu carries its own icon, as on the cards.
+			$icon = '';
+			if ( 'service' === $item->object && $item->object_id ) {
+				$svg = ef_service_icon( get_post_field( 'post_name', $item->object_id ) );
+				if ( $svg ) {
+					$icon = '<span class="ef-ico">' . $svg . '</span>';
+				}
+			}
+
 			$output .= '<li><a class="ef-drawer__sublink" href="' . esc_url( $url ) . '">'
-				. esc_html( $title ) . '</a>';
+				. $icon . esc_html( $title ) . '</a>';
 			return;
 		}
 
