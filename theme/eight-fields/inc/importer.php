@@ -7,9 +7,11 @@
  * someone builds it by hand. This screen does that build in one press, using
  * the same content the design proposal was made from.
  *
- * It is safe to run more than once: existing posts are matched by slug and
- * updated, never duplicated, and a page whose body has been edited keeps its
- * body.
+ * It is safe to run more than once, and safe to run on a site that already has
+ * content: posts are matched by slug and never duplicated, and by default an
+ * existing page keeps its title, its body and its settings — only empty fields
+ * are filled in. The screen offers an explicit overwrite mode for a site being
+ * built from nothing.
  *
  * @package eight-fields
  */
@@ -133,15 +135,14 @@ function ef_seed_blocks( $paragraphs ) {
 }
 
 /**
- * Create or update one post, matched by slug.
+ * Find a post by slug, whatever its status.
  *
  * @param string $type Post type.
  * @param string $slug Post slug.
- * @param array  $data Fields for wp_insert_post().
- * @return int Post ID.
+ * @return int Post ID, or 0 when there is none.
  */
-function ef_upsert_post( $type, $slug, $data ) {
-	$existing = get_posts(
+function ef_find_by_slug( $type, $slug ) {
+	$found = get_posts(
 		array(
 			'post_type'        => $type,
 			'name'             => $slug,
@@ -152,61 +153,171 @@ function ef_upsert_post( $type, $slug, $data ) {
 		)
 	);
 
+	return $found ? (int) $found[0] : 0;
+}
+
+/**
+ * Create one post, or fill in the gaps on the one that is already there.
+ *
+ * On a live site a page with the slug `company` is the client's existing 会社概要,
+ * with their title and their copy. Overwriting it would be vandalism, so in the
+ * default mode an existing post keeps everything it already has and this only
+ * fills in fields that are empty. `$overwrite` is for a site being built from
+ * nothing, where replacing the placeholder content is the point.
+ *
+ * @param string $type      Post type.
+ * @param string $slug      Post slug.
+ * @param array  $data      Fields for wp_insert_post().
+ * @param bool   $overwrite Replace fields that already have a value.
+ * @return int Post ID.
+ */
+function ef_upsert_post( $type, $slug, $data, $overwrite = false ) {
+	$id = ef_find_by_slug( $type, $slug );
+
 	$data['post_type']   = $type;
 	$data['post_name']   = $slug;
 	$data['post_status'] = 'publish';
 
-	if ( $existing ) {
-		$data['ID'] = (int) $existing[0];
-		// Body copy is the editor's to own once the site is live; only fill it
-		// in while the post is still empty.
-		$current = get_post( $data['ID'] );
-		if ( trim( $current->post_content ) ) {
-			unset( $data['post_content'] );
-		}
-		return (int) wp_update_post( $data );
+	if ( ! $id ) {
+		return (int) wp_insert_post( $data );
 	}
 
-	return (int) wp_insert_post( $data );
+	$data['ID'] = $id;
+
+	if ( ! $overwrite ) {
+		$current = get_post( $id );
+
+		// Anything the editor has already written stays as it is.
+		foreach ( array( 'post_title', 'post_content', 'post_excerpt' ) as $field ) {
+			if ( isset( $data[ $field ] ) && trim( $current->$field ) ) {
+				unset( $data[ $field ] );
+			}
+		}
+
+		// A published page must not be dragged back to some other status, and a
+		// draft the editor is still working on must not be published behind them.
+		unset( $data['post_status'] );
+
+		// Their ordering is theirs.
+		if ( isset( $data['menu_order'] ) && (int) $current->menu_order ) {
+			unset( $data['menu_order'] );
+		}
+	}
+
+	return (int) wp_update_post( $data );
 }
 
 /**
- * Build the whole site structure from the seed file.
+ * Set a meta value, leaving an existing one alone unless overwriting.
  *
- * @return array|WP_Error Counts on success.
+ * @param int    $post_id   Post.
+ * @param string $key       Meta key.
+ * @param string $value     Value to write.
+ * @param bool   $overwrite Replace a value that is already there.
  */
-function ef_run_setup() {
+function ef_seed_meta( $post_id, $key, $value, $overwrite = false ) {
+	if ( '' === $value ) {
+		return;
+	}
+	if ( ! $overwrite && '' !== (string) get_post_meta( $post_id, $key, true ) ) {
+		return;
+	}
+	update_post_meta( $post_id, $key, $value );
+}
+
+/**
+ * What running the setup would do, without doing it.
+ *
+ * The screen shows this before the button so nobody presses it blind on a live
+ * site.
+ *
+ * @return array|WP_Error Rows of array( label, slug, action ), plus notes.
+ */
+function ef_plan_setup() {
 	$seed = ef_seed_data();
 	if ( is_wp_error( $seed ) ) {
 		return $seed;
 	}
 
-	$made  = array(
-		'pages'    => 0,
-		'services' => 0,
-		'images'   => 0,
+	$rows = array();
+
+	foreach ( $seed['pages'] as $page ) {
+		$id     = ef_find_by_slug( 'page', $page['slug'] );
+		$rows[] = array(
+			'kind'    => __( '固定ページ', 'eight-fields' ),
+			'label'   => $id ? get_the_title( $id ) : $page['title'],
+			'slug'    => $page['slug'],
+			'action'  => $id ? 'exists' : 'create',
+			'edit'    => $id ? get_edit_post_link( $id ) : '',
+		);
+	}
+
+	foreach ( $seed['services'] as $svc ) {
+		$id     = ef_find_by_slug( 'service', $svc['slug'] );
+		$rows[] = array(
+			'kind'    => __( 'サービス', 'eight-fields' ),
+			'label'   => $id ? get_the_title( $id ) : $svc['title'],
+			'slug'    => $svc['slug'],
+			'action'  => $id ? 'exists' : 'create',
+			'edit'    => $id ? get_edit_post_link( $id ) : '',
+		);
+	}
+
+	$front = (int) get_option( 'page_on_front' );
+	$posts = (int) get_option( 'page_for_posts' );
+
+	return array(
+		'rows'      => $rows,
+		'has_front' => $front > 0,
+		'front'     => $front ? get_the_title( $front ) : '',
+		'has_posts' => $posts > 0,
+		'posts'     => $posts ? get_the_title( $posts ) : '',
+		'has_menu'  => (bool) wp_get_nav_menu_object( __( 'メインメニュー', 'eight-fields' ) ),
+	);
+}
+
+/**
+ * Build the whole site structure from the seed file.
+ *
+ * @param bool $overwrite Replace content that is already there. Off by default,
+ *                        so running this on a live site only fills in gaps.
+ * @return array|WP_Error Counts on success.
+ */
+function ef_run_setup( $overwrite = false ) {
+	$seed = ef_seed_data();
+	if ( is_wp_error( $seed ) ) {
+		return $seed;
+	}
+
+	$made   = array(
+		'created' => 0,
+		'updated' => 0,
+		'images'  => 0,
 	);
 	$byslug = array();
 
 	// -- pages ---------------------------------------------------------------
 	foreach ( $seed['pages'] as $page ) {
+		$existed = (bool) ef_find_by_slug( 'page', $page['slug'] );
+
 		$id = ef_upsert_post(
 			'page',
 			$page['slug'],
 			array(
 				'post_title'   => $page['title'],
 				'post_content' => ef_seed_blocks( $page['body'] ),
-			)
+			),
+			$overwrite
 		);
 		if ( ! $id ) {
 			continue;
 		}
 
-		++$made['pages'];
-		$byslug[ $page['slug'] ] = $id;
+		$made[ $existed ? 'updated' : 'created' ] += 1;
+		$byslug[ $page['slug'] ]                   = $id;
 
-		update_post_meta( $id, 'ef_page_en', $page['en'] );
-		update_post_meta( $id, 'ef_page_lead', $page['lead'] );
+		ef_seed_meta( $id, 'ef_page_en', $page['en'], $overwrite );
+		ef_seed_meta( $id, 'ef_page_lead', $page['lead'], $overwrite );
 
 		if ( ! empty( $page['image'] ) && ! has_post_thumbnail( $id ) ) {
 			$img = ef_import_image( $page['image'] );
@@ -219,6 +330,8 @@ function ef_run_setup() {
 
 	// -- services ------------------------------------------------------------
 	foreach ( $seed['services'] as $svc ) {
+		$existed = (bool) ef_find_by_slug( 'service', $svc['slug'] );
+
 		$id = ef_upsert_post(
 			'service',
 			$svc['slug'],
@@ -227,20 +340,21 @@ function ef_run_setup() {
 				'post_excerpt' => $svc['excerpt'],
 				'post_content' => ef_seed_blocks( $svc['content'] ),
 				'menu_order'   => $svc['menu_order'],
-			)
+			),
+			$overwrite
 		);
 		if ( ! $id ) {
 			continue;
 		}
 
-		++$made['services'];
+		$made[ $existed ? 'updated' : 'created' ] += 1;
 
-		update_post_meta( $id, 'ef_service_en', $svc['en'] );
-		update_post_meta( $id, 'ef_service_catch', $svc['catch'] );
-		update_post_meta( $id, 'ef_service_sub', $svc['sub'] );
-		update_post_meta( $id, 'ef_service_fit', $svc['fit'] );
-		update_post_meta( $id, 'ef_service_outro_title', $svc['outro_title'] );
-		update_post_meta( $id, 'ef_service_outro', implode( "\n\n", $svc['outro'] ) );
+		ef_seed_meta( $id, 'ef_service_en', $svc['en'], $overwrite );
+		ef_seed_meta( $id, 'ef_service_catch', $svc['catch'], $overwrite );
+		ef_seed_meta( $id, 'ef_service_sub', $svc['sub'], $overwrite );
+		ef_seed_meta( $id, 'ef_service_fit', $svc['fit'], $overwrite );
+		ef_seed_meta( $id, 'ef_service_outro_title', $svc['outro_title'], $overwrite );
+		ef_seed_meta( $id, 'ef_service_outro', implode( "\n\n", $svc['outro'] ), $overwrite );
 
 		if ( ! has_post_thumbnail( $id ) ) {
 			$img = ef_import_image( $svc['image'] );
@@ -252,11 +366,11 @@ function ef_run_setup() {
 
 		foreach ( $svc['merits'] as $i => $merit ) {
 			$n = $i + 1;
-			update_post_meta( $id, "ef_merit{$n}_title", $merit['title'] );
-			update_post_meta( $id, "ef_merit{$n}_text", $merit['text'] );
-			update_post_meta( $id, "ef_merit{$n}_fit", $merit['fit'] );
+			ef_seed_meta( $id, "ef_merit{$n}_title", $merit['title'], $overwrite );
+			ef_seed_meta( $id, "ef_merit{$n}_text", $merit['text'], $overwrite );
+			ef_seed_meta( $id, "ef_merit{$n}_fit", $merit['fit'], $overwrite );
 
-			if ( $merit['image'] ) {
+			if ( $merit['image'] && ( $overwrite || ! get_post_meta( $id, "ef_merit{$n}_image", true ) ) ) {
 				$img = ef_import_image( $merit['image'] );
 				if ( $img ) {
 					update_post_meta( $id, "ef_merit{$n}_image", $img );
@@ -267,17 +381,19 @@ function ef_run_setup() {
 
 		foreach ( $svc['faq'] as $i => $row ) {
 			$n = $i + 1;
-			update_post_meta( $id, "ef_faq{$n}_q", $row['q'] );
-			update_post_meta( $id, "ef_faq{$n}_a", $row['a'] );
+			ef_seed_meta( $id, "ef_faq{$n}_q", $row['q'], $overwrite );
+			ef_seed_meta( $id, "ef_faq{$n}_a", $row['a'], $overwrite );
 		}
 	}
 
 	// -- reading settings ----------------------------------------------------
-	if ( isset( $byslug['home'] ) ) {
+	// A site that already names a front page has one for a reason; taking it
+	// over would swap the whole homepage out from under the client.
+	if ( isset( $byslug['home'] ) && ( $overwrite || ! get_option( 'page_on_front' ) ) ) {
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $byslug['home'] );
 	}
-	if ( isset( $byslug['news'] ) ) {
+	if ( isset( $byslug['news'] ) && ( $overwrite || ! get_option( 'page_for_posts' ) ) ) {
 		update_option( 'page_for_posts', $byslug['news'] );
 	}
 
@@ -429,10 +545,10 @@ function ef_render_setup_page() {
 	if ( isset( $_POST['ef_setup_nonce'] )
 		&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['ef_setup_nonce'] ) ), 'ef_run_setup' )
 		&& current_user_can( 'edit_theme_options' ) ) {
-		$done = ef_run_setup();
+		$done = ef_run_setup( ! empty( $_POST['ef_overwrite'] ) );
 	}
 
-	$seed = ef_seed_data();
+	$plan = ef_plan_setup();
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'エイトフィールズ 初期セットアップ', 'eight-fields' ); ?></h1>
@@ -444,10 +560,10 @@ function ef_render_setup_page() {
 				<p>
 					<?php
 					printf(
-						/* translators: 1: page count, 2: service count, 3: image count */
-						esc_html__( '完了しました。固定ページ %1$d 件、サービス %2$d 件、画像 %3$d 点を登録しました。', 'eight-fields' ),
-						(int) $done['pages'],
-						(int) $done['services'],
+						/* translators: 1: created count, 2: updated count, 3: image count */
+						esc_html__( '完了しました。新規作成 %1$d 件、既存を更新 %2$d 件、画像 %3$d 点を登録しました。', 'eight-fields' ),
+						(int) $done['created'],
+						(int) $done['updated'],
 						(int) $done['images']
 					);
 					?>
@@ -456,37 +572,114 @@ function ef_render_setup_page() {
 			</div>
 		<?php endif; ?>
 
+		<?php if ( is_wp_error( $plan ) ) : ?>
+			<div class="notice notice-error"><p><?php echo esc_html( $plan->get_error_message() ); ?></p></div>
+			<?php
+			return;
+		endif;
+		?>
+
 		<p><?php esc_html_e( 'デザイン案と同じ構成のページ・サービス・メニューをまとめて作成します。', 'eight-fields' ); ?></p>
 
-		<h2><?php esc_html_e( '作成されるもの', 'eight-fields' ); ?></h2>
+		<h2><?php esc_html_e( '実行するとどうなるか', 'eight-fields' ); ?></h2>
+		<table class="widefat striped" style="max-width:820px">
+			<thead>
+				<tr>
+					<th style="width:110px"><?php esc_html_e( '種類', 'eight-fields' ); ?></th>
+					<th><?php esc_html_e( '対象', 'eight-fields' ); ?></th>
+					<th style="width:130px"><?php esc_html_e( 'スラッグ', 'eight-fields' ); ?></th>
+					<th style="width:220px"><?php esc_html_e( '動作', 'eight-fields' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $plan['rows'] as $row ) : ?>
+					<tr>
+						<td><?php echo esc_html( $row['kind'] ); ?></td>
+						<td>
+							<?php if ( $row['edit'] ) : ?>
+								<a href="<?php echo esc_url( $row['edit'] ); ?>"><?php echo esc_html( $row['label'] ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $row['label'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td><code><?php echo esc_html( $row['slug'] ); ?></code></td>
+						<td>
+							<?php if ( 'create' === $row['action'] ) : ?>
+								<span style="color:#1d6f42"><?php esc_html_e( '新しく作成します', 'eight-fields' ); ?></span>
+							<?php else : ?>
+								<span style="color:#8a6d00"><?php esc_html_e( 'すでにあります（空欄のみ補完）', 'eight-fields' ); ?></span>
+							<?php endif; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+
+		<h2><?php esc_html_e( 'サイト設定', 'eight-fields' ); ?></h2>
 		<ul class="ul-disc">
-			<li><?php esc_html_e( '固定ページ：ホーム／会社概要／ごあいさつ／お知らせ／お問い合わせ', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( 'サービス（CPT）：6件（キャッチコピー・メリット・よくあるご質問つき）', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( 'アイキャッチ画像：テーマ同梱の写真をメディアライブラリに取り込みます', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( 'メニュー：ヘッダーとハンバーガーに「メインメニュー」を設定', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( '表示設定：ホームをトップページ、お知らせを投稿ページに設定', 'eight-fields' ); ?></li>
+			<li>
+				<?php if ( $plan['has_front'] ) : ?>
+					<?php
+					printf(
+						/* translators: %s: current front page title */
+						esc_html__( 'トップページは現在「%s」に設定されています。上書きしない限り変更しません。', 'eight-fields' ),
+						esc_html( $plan['front'] )
+					);
+					?>
+				<?php else : ?>
+					<?php esc_html_e( 'トップページが未設定なので、固定ページ「ホーム」を割り当てます。', 'eight-fields' ); ?>
+				<?php endif; ?>
+			</li>
+			<li>
+				<?php if ( $plan['has_posts'] ) : ?>
+					<?php
+					printf(
+						/* translators: %s: current posts page title */
+						esc_html__( '投稿ページは現在「%s」に設定されています。上書きしない限り変更しません。', 'eight-fields' ),
+						esc_html( $plan['posts'] )
+					);
+					?>
+				<?php else : ?>
+					<?php esc_html_e( '投稿ページが未設定なので、固定ページ「お知らせ」を割り当てます。', 'eight-fields' ); ?>
+				<?php endif; ?>
+			</li>
+			<li>
+				<?php if ( $plan['has_menu'] ) : ?>
+					<?php esc_html_e( 'メニュー「メインメニュー」はすでにあります。並び順はそのままにします。', 'eight-fields' ); ?>
+				<?php else : ?>
+					<?php esc_html_e( 'メニュー「メインメニュー」を作り、未設定の表示位置に割り当てます。', 'eight-fields' ); ?>
+				<?php endif; ?>
+			</li>
+			<li><?php esc_html_e( 'アイキャッチ画像は、まだ設定されていないものにだけ入れます。', 'eight-fields' ); ?></li>
 		</ul>
 
-		<h2><?php esc_html_e( '注意', 'eight-fields' ); ?></h2>
+		<h2><?php esc_html_e( '安全のために', 'eight-fields' ); ?></h2>
 		<ul class="ul-disc">
-			<li><?php esc_html_e( '何度実行しても同じページが増えることはありません（スラッグで照合して更新します）。', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( '本文をすでに編集したページは、本文を上書きしません。', 'eight-fields' ); ?></li>
-			<li><?php esc_html_e( 'メニューを並べ替えたあとは、その順序を保ちます。', 'eight-fields' ); ?></li>
+			<li><?php esc_html_e( '同じページが増えることはありません（スラッグで照合します）。', 'eight-fields' ); ?></li>
+			<li><?php esc_html_e( 'すでにあるページのタイトル・本文・抜粋・並び順・公開状態は変更しません。空欄の項目だけを埋めます。', 'eight-fields' ); ?></li>
+			<li><?php esc_html_e( '既存の投稿・カテゴリー・メディアを削除することはありません。', 'eight-fields' ); ?></li>
 			<li><?php esc_html_e( '写真はデザイン案の仮素材です。公開前に差し替えてください。', 'eight-fields' ); ?></li>
 		</ul>
 
-		<?php if ( is_wp_error( $seed ) ) : ?>
-			<div class="notice notice-error inline"><p><?php echo esc_html( $seed->get_error_message() ); ?></p></div>
-		<?php else : ?>
-			<form method="post">
-				<?php wp_nonce_field( 'ef_run_setup', 'ef_setup_nonce' ); ?>
-				<p class="submit">
-					<button type="submit" class="button button-primary button-hero">
-						<?php esc_html_e( '初期コンテンツを作成する', 'eight-fields' ); ?>
-					</button>
-				</p>
-			</form>
-		<?php endif; ?>
+		<form method="post">
+			<?php wp_nonce_field( 'ef_run_setup', 'ef_setup_nonce' ); ?>
+
+			<p style="margin:20px 0 8px">
+				<label>
+					<input type="checkbox" name="ef_overwrite" value="1">
+					<strong><?php esc_html_e( 'すでにある内容もデザイン案の内容で上書きする', 'eight-fields' ); ?></strong>
+				</label>
+			</p>
+			<p class="description" style="max-width:820px;margin-bottom:20px">
+				<?php esc_html_e( '新しく立てたサイトで、中身をデザイン案どおりに揃えたいときだけチェックしてください。既存サイトのテーマを入れ替えた場合は、チェックを外したまま実行してください。', 'eight-fields' ); ?>
+			</p>
+
+			<p class="submit">
+				<button type="submit" class="button button-primary button-hero">
+					<?php esc_html_e( '初期コンテンツを作成する', 'eight-fields' ); ?>
+				</button>
+			</p>
+		</form>
 	</div>
 	<?php
 }
