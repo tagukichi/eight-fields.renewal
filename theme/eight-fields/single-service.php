@@ -87,103 +87,15 @@ while ( have_posts() ) :
 	</section>
 
 	<?php
-	$ef_how = ef_service_how( $ef_id );
-	if ( $ef_how ) :
+	$ef_sections = ef_service_sections( $ef_id );
+	if ( $ef_sections ) :
 		?>
-		<!-- HOW IT WORKS -->
-		<section class="ef-section ef-section--tight ef-section--sand">
+		<!-- SECTIONS -->
+		<div class="ef-section">
 			<div class="ef-container">
-				<h2 class="ef-bandtitle" data-reveal><?php echo esc_html( $ef_how['title'] ); ?></h2>
-				<div class="ef-how" data-reveal data-reveal-delay="1">
-					<?php if ( $ef_how['image_id'] ) : ?>
-						<div class="ef-how__media">
-							<?php echo wp_get_attachment_image( $ef_how['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
-						</div>
-					<?php endif; ?>
-					<div class="ef-how__text"><?php echo wp_kses_post( wpautop( $ef_how['text'] ) ); ?></div>
-				</div>
+				<?php get_template_part( 'template-parts/service-sections', null, array( 'sections' => $ef_sections ) ); ?>
 			</div>
-		</section>
-	<?php endif; ?>
-
-	<?php
-	$ef_merits = ef_service_merits( $ef_id );
-	if ( $ef_merits ) :
-		?>
-		<!-- MERIT -->
-		<section class="ef-section">
-			<div class="ef-container">
-				<h2 class="ef-bandtitle" data-reveal>
-					<?php
-					$ef_merit_title = ef_field( 'ef_merit_title', $ef_id );
-					echo esc_html(
-						$ef_merit_title
-							? $ef_merit_title
-							/* translators: %s: service name */
-							: sprintf( __( '%sの導入で得られるメリット', 'eight-fields' ), get_the_title() )
-					);
-					?>
-				</h2>
-
-				<div class="ef-merits">
-					<?php
-					$ef_i = 0;
-					foreach ( $ef_merits as $ef_merit ) :
-						++$ef_i;
-						$ef_has_media = ! empty( $ef_merit['image_id'] );
-						?>
-						<div class="ef-meritrow<?php echo $ef_has_media ? '' : ' ef-meritrow--solo'; ?>" data-reveal>
-							<div>
-								<span class="ef-meritrow__no">MERIT <?php echo esc_html( sprintf( '%02d', $ef_i ) ); ?></span>
-								<h3 class="ef-meritrow__title"><?php echo esc_html( $ef_merit['title'] ); ?></h3>
-								<?php if ( ! empty( $ef_merit['sub'] ) ) : ?>
-									<p class="ef-meritrow__sub"><?php echo nl2br( esc_html( $ef_merit['sub'] ) ); ?></p>
-								<?php endif; ?>
-								<?php if ( ! empty( $ef_merit['text'] ) ) : ?>
-									<div class="ef-meritrow__text"><?php echo wp_kses_post( wpautop( $ef_merit['text'] ) ); ?></div>
-								<?php endif; ?>
-							</div>
-							<?php if ( $ef_has_media ) : ?>
-								<div class="ef-meritrow__media<?php echo $ef_merit['contain'] ? ' ef-merit__media--contain' : ''; ?>">
-									<?php echo wp_get_attachment_image( $ef_merit['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
-								</div>
-							<?php endif; ?>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			</div>
-		</section>
-	<?php endif; ?>
-
-	<?php
-	$ef_outro_title = ef_field( 'ef_service_outro_title', $ef_id );
-	$ef_outro       = ef_field( 'ef_service_outro', $ef_id );
-	$ef_recommend   = ef_service_recommend( $ef_id );
-
-	if ( ( $ef_outro_title && $ef_outro ) || $ef_recommend ) :
-		?>
-		<!-- CLOSING -->
-		<section class="ef-section ef-section--tight">
-			<div class="ef-container ef-container--narrow">
-				<?php if ( $ef_outro_title && $ef_outro ) : ?>
-					<div data-reveal>
-						<h2 class="ef-h3 ef-underline"><?php echo esc_html( $ef_outro_title ); ?></h2>
-						<div class="ef-article ef-mt-24"><?php echo wp_kses_post( wpautop( $ef_outro ) ); ?></div>
-					</div>
-				<?php endif; ?>
-
-				<?php if ( $ef_recommend ) : ?>
-					<div class="ef-recommend<?php echo ( $ef_outro_title && $ef_outro ) ? ' ef-mt-48' : ''; ?>" data-reveal data-reveal-delay="1">
-						<h3 class="ef-recommend__title"><?php ef_icon( 'bulb' ); ?><?php echo esc_html( $ef_recommend['title'] ); ?></h3>
-						<ul class="ef-recommend__list">
-							<?php foreach ( $ef_recommend['items'] as $ef_item ) : ?>
-								<li><?php echo esc_html( $ef_item ); ?></li>
-							<?php endforeach; ?>
-						</ul>
-					</div>
-				<?php endif; ?>
-			</div>
-		</section>
+		</div>
 	<?php endif; ?>
 
 	<!-- FLOW -->

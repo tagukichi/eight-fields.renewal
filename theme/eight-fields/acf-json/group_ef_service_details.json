@@ -50,12 +50,13 @@
             },
             "choices": {
                 "": "切り抜いて表示（写真向け）",
-                "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
+                "contain": "全体を収めて表示（図版向け）"
             },
             "default_value": "",
             "return_format": "value",
             "allow_null": 0,
-            "ui": 0
+            "ui": 0,
+            "multiple": 0
         },
         {
             "key": "field_ef0ff8c389f881",
@@ -90,8 +91,8 @@
             "new_lines": ""
         },
         {
-            "key": "field_ef67a369d5c487",
-            "label": "仕組み",
+            "key": "field_efe16bc26193cd",
+            "label": "本文セクション",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -107,94 +108,12 @@
             "endpoint": 0
         },
         {
-            "key": "field_ef95674944a9c7",
-            "label": "見出し",
-            "name": "ef_how_title",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "例：太陽光発電の仕組み。空欄にすると、このセクション自体を出しません。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_efeba15456c26c",
-            "label": "図版・写真",
-            "name": "ef_how_image",
-            "aria-label": "",
-            "type": "image",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "40",
-                "class": "",
-                "id": ""
-            },
-            "return_format": "id",
-            "preview_size": "medium",
-            "library": "all"
-        },
-        {
-            "key": "field_ef4b8507b22421",
-            "label": "説明文",
-            "name": "ef_how_text",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "60",
-                "class": "",
-                "id": ""
-            },
-            "rows": 6,
-            "new_lines": "wpautop"
-        },
-        {
-            "key": "field_ef6539d7b0aacb",
-            "label": "メリット",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_efbefbdefd9d3c",
-            "label": "セクション見出し",
-            "name": "ef_merit_title",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "例：太陽光発電システムの導入で得られる経済的メリット。空欄なら「〈サービス名〉の導入で得られるメリット」が入ります。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_ef1d849e5ba509",
-            "label": "メリット",
-            "name": "ef_merits",
+            "key": "field_efc0f504567bcc",
+            "label": "セクション",
+            "name": "ef_sections",
             "aria-label": "",
             "type": "repeater",
-            "instructions": "行は上から順に表示されます。「＋ 行を追加」で何個でも増やせます。",
+            "instructions": "上から順に表示されます。「＋ セクションを追加」で何段でも増やせます。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -202,19 +121,19 @@
                 "class": "",
                 "id": ""
             },
-            "collapsed": "field_ef7985f5602e49",
+            "collapsed": "field_ef7e059528bbe6",
             "min": 0,
             "max": 0,
             "layout": "block",
-            "button_label": "メリットを追加",
+            "button_label": "セクションを追加",
             "sub_fields": [
                 {
-                    "key": "field_ef7985f5602e49",
+                    "key": "field_ef7e059528bbe6",
                     "label": "見出し",
-                    "name": "title",
+                    "name": "heading",
                     "aria-label": "",
                     "type": "text",
-                    "instructions": "例：発電した電気を収益化できる",
+                    "instructions": "空欄にすると見出しなしで本文だけ出ます。",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -224,41 +143,32 @@
                     }
                 },
                 {
-                    "key": "field_efcef16a1ca661",
-                    "label": "強調文",
-                    "name": "sub",
+                    "key": "field_ef64377c9fb478",
+                    "label": "見出しのスタイル",
+                    "name": "style",
                     "aria-label": "",
-                    "type": "textarea",
-                    "instructions": "任意。本文の上に太字で出ます。",
-                    "required": 0,
-                    "conditional_logic": 0,
-                    "wrapper": {
-                        "width": "",
-                        "class": "",
-                        "id": ""
-                    },
-                    "rows": 2,
-                    "new_lines": ""
-                },
-                {
-                    "key": "field_eff861c597afec",
-                    "label": "本文",
-                    "name": "text",
-                    "aria-label": "",
-                    "type": "textarea",
+                    "type": "select",
                     "instructions": "",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
-                        "width": "",
+                        "width": "34",
                         "class": "",
                         "id": ""
                     },
-                    "rows": 5,
-                    "new_lines": "wpautop"
+                    "choices": {
+                        "band": "帯つき（大きな区切り）",
+                        "plain": "下線のみ（帯の中の小見出し）",
+                        "merit": "下線＋MERIT 01 の連番"
+                    },
+                    "default_value": "band",
+                    "return_format": "value",
+                    "allow_null": 0,
+                    "ui": 0,
+                    "multiple": 0
                 },
                 {
-                    "key": "field_efb805709830c4",
+                    "key": "field_eff49d21598b20",
                     "label": "画像",
                     "name": "image",
                     "aria-label": "",
@@ -267,7 +177,7 @@
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
-                        "width": "50",
+                        "width": "33",
                         "class": "",
                         "id": ""
                     },
@@ -276,7 +186,31 @@
                     "library": "all"
                 },
                 {
-                    "key": "field_efd7a7cd856357",
+                    "key": "field_efa6d2c404c4d3",
+                    "label": "画像の位置",
+                    "name": "side",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "33",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "right": "右",
+                        "left": "左"
+                    },
+                    "default_value": "right",
+                    "return_format": "value",
+                    "allow_null": 0,
+                    "ui": 0,
+                    "multiple": 0
+                },
+                {
+                    "key": "field_ef8f5527cfacd7",
                     "label": "画像の表示方法",
                     "name": "fit",
                     "aria-label": "",
@@ -285,113 +219,44 @@
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
-                        "width": "50",
+                        "width": "34",
                         "class": "",
                         "id": ""
                     },
                     "choices": {
                         "": "切り抜いて表示（写真向け）",
-                        "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
+                        "contain": "全体を収めて表示（図版向け）"
                     },
                     "default_value": "",
                     "return_format": "value",
                     "allow_null": 0,
-                    "ui": 0
-                }
-            ]
-        },
-        {
-            "key": "field_ef158bb16b2bb0",
-            "label": "まとめ",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_efe46069f2e3cd",
-            "label": "見出し",
-            "name": "ef_service_outro_title",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "例：導入もアフターも、すべておまかせ。空欄なら出しません。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_eff939d93cb839",
-            "label": "本文",
-            "name": "ef_service_outro",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": "wpautop"
-        },
-        {
-            "key": "field_ef9b8ae48d0319",
-            "label": "おすすめ欄の見出し",
-            "name": "ef_recommend_title",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "空欄なら「こんなご家庭におすすめです」が入ります。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "こんなご家庭におすすめです"
-        },
-        {
-            "key": "field_efcdc954097ce5",
-            "label": "おすすめの項目",
-            "name": "ef_recommend_items",
-            "aria-label": "",
-            "type": "repeater",
-            "instructions": "箇条書きで出ます。空欄にすると、この枠自体を出しません。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "collapsed": "",
-            "min": 0,
-            "max": 0,
-            "layout": "table",
-            "button_label": "項目を追加",
-            "sub_fields": [
+                    "ui": 0,
+                    "multiple": 0
+                },
                 {
-                    "key": "field_ef6d7fde72b450",
-                    "label": "項目",
+                    "key": "field_ef5ab75777cb3a",
+                    "label": "本文",
                     "name": "text",
                     "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "空行で段落が分かれます。",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 7,
+                    "new_lines": "wpautop"
+                },
+                {
+                    "key": "field_ef4d44990bc2c8",
+                    "label": "箇条書きの見出し",
+                    "name": "list_heading",
+                    "aria-label": "",
                     "type": "text",
-                    "instructions": "",
+                    "instructions": "枠で囲むときに、電球アイコンつきで上に出ます。",
                     "required": 0,
                     "conditional_logic": 0,
                     "wrapper": {
@@ -399,6 +264,42 @@
                         "class": "",
                         "id": ""
                     }
+                },
+                {
+                    "key": "field_ef0d6ea85adf15",
+                    "label": "箇条書き",
+                    "name": "list",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "1行に1項目。空欄なら出しません。",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "66",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 4,
+                    "new_lines": ""
+                },
+                {
+                    "key": "field_ef73964bad4de4",
+                    "label": "箇条書きを枠で囲む",
+                    "name": "boxed",
+                    "aria-label": "",
+                    "type": "true_false",
+                    "instructions": "「こんなご家庭におすすめ」のような、色つきの枠にします。",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "34",
+                        "class": "",
+                        "id": ""
+                    },
+                    "ui": 1,
+                    "default_value": 0,
+                    "ui_on_text": "囲む",
+                    "ui_off_text": "囲まない"
                 }
             ]
         },

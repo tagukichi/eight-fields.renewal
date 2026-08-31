@@ -277,6 +277,85 @@ function ef_plan_setup() {
 }
 
 /**
+ * Write the body sections in the shape ACF's repeater reads.
+ *
+ * A repeater is stored as a row count under the field name, plus one meta row
+ * per sub-field named `<field>_<index>_<sub>`. Writing that directly means the
+ * seeded copy appears in the ACF panel ready to edit, with no import step.
+ *
+ * @param int   $post_id   Service post ID.
+ * @param array $sections  Section rows from the seed.
+ * @param bool  $overwrite Replace sections that are already there.
+ */
+function ef_seed_sections( $post_id, $sections, $overwrite = false ) {
+	if ( ! $sections ) {
+		return;
+	}
+	if ( ! $overwrite && get_post_meta( $post_id, 'ef_sections', true ) ) {
+		return;
+	}
+
+	// ACF locates its sub-fields through a hidden `_`-prefixed row holding the
+	// field key; without those the panel shows empty rows.
+	$keys = ef_section_field_keys();
+
+	update_post_meta( $post_id, 'ef_sections', count( $sections ) );
+	if ( ! empty( $keys['ef_sections'] ) ) {
+		update_post_meta( $post_id, '_ef_sections', $keys['ef_sections'] );
+	}
+
+	foreach ( $sections as $i => $section ) {
+		$row = array(
+			'heading'      => $section['heading'],
+			'style'        => $section['style'],
+			'image'        => '',
+			'side'         => $section['side'],
+			'fit'          => $section['fit'],
+			'text'         => $section['text'],
+			'list_heading' => $section['list_heading'],
+			'list'         => implode( "\n", (array) $section['list'] ),
+			'boxed'        => $section['boxed'] ? 1 : 0,
+		);
+
+		foreach ( $row as $sub => $value ) {
+			update_post_meta( $post_id, "ef_sections_{$i}_{$sub}", $value );
+			if ( ! empty( $keys[ $sub ] ) ) {
+				update_post_meta( $post_id, "_ef_sections_{$i}_{$sub}", $keys[ $sub ] );
+			}
+		}
+	}
+}
+
+/**
+ * The ACF field keys for the sections repeater, read from the bundled JSON.
+ *
+ * @return array Keys by sub-field name, plus `ef_sections` for the repeater.
+ */
+function ef_section_field_keys() {
+	$path = get_template_directory() . '/acf-json/group_ef_service_details.json';
+	if ( ! file_exists( $path ) ) {
+		return array();
+	}
+
+	$group = json_decode( file_get_contents( $path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- bundled theme file.
+	if ( ! is_array( $group ) || empty( $group['fields'] ) ) {
+		return array();
+	}
+
+	foreach ( $group['fields'] as $field ) {
+		if ( isset( $field['name'] ) && 'ef_sections' === $field['name'] ) {
+			$keys = array( 'ef_sections' => $field['key'] );
+			foreach ( $field['sub_fields'] as $sub ) {
+				$keys[ $sub['name'] ] = $sub['key'];
+			}
+			return $keys;
+		}
+	}
+
+	return array();
+}
+
+/**
  * Build the whole site structure from the seed file.
  *
  * @param bool $overwrite Replace content that is already there. Off by default,
@@ -353,8 +432,6 @@ function ef_run_setup( $overwrite = false ) {
 		ef_seed_meta( $id, 'ef_service_catch', $svc['catch'], $overwrite );
 		ef_seed_meta( $id, 'ef_service_sub', $svc['sub'], $overwrite );
 		ef_seed_meta( $id, 'ef_service_fit', $svc['fit'], $overwrite );
-		ef_seed_meta( $id, 'ef_service_outro_title', $svc['outro_title'], $overwrite );
-		ef_seed_meta( $id, 'ef_service_outro', implode( "\n\n", $svc['outro'] ), $overwrite );
 
 		if ( ! has_post_thumbnail( $id ) ) {
 			$img = ef_import_image( $svc['image'] );
@@ -364,20 +441,7 @@ function ef_run_setup( $overwrite = false ) {
 			}
 		}
 
-		foreach ( $svc['merits'] as $i => $merit ) {
-			$n = $i + 1;
-			ef_seed_meta( $id, "ef_merit{$n}_title", $merit['title'], $overwrite );
-			ef_seed_meta( $id, "ef_merit{$n}_text", $merit['text'], $overwrite );
-			ef_seed_meta( $id, "ef_merit{$n}_fit", $merit['fit'], $overwrite );
-
-			if ( $merit['image'] && ( $overwrite || ! get_post_meta( $id, "ef_merit{$n}_image", true ) ) ) {
-				$img = ef_import_image( $merit['image'] );
-				if ( $img ) {
-					update_post_meta( $id, "ef_merit{$n}_image", $img );
-					++$made['images'];
-				}
-			}
-		}
+		ef_seed_sections( $id, $svc['sections'], $overwrite );
 
 		foreach ( $svc['faq'] as $i => $row ) {
 			$n = $i + 1;

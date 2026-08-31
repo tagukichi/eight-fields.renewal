@@ -721,11 +721,19 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .ef-merit__title { margin-top: 10px; }
 
-/* Banded section heading — a tinted strip with a brand rule down its left
-   edge. Used to open each block of a service page. */
-.ef-bandtitle {
+/* --------------------------------------------------------------------------
+   Service page sections
+
+   A service page is a stack of sections, each one a heading plus some mix of
+   copy, a picture and a list. The heading comes in two weights — a tinted band
+   that opens a major part of the page, and a plain rule for a step inside one.
+   -------------------------------------------------------------------------- */
+.ef-sec { display: grid; gap: clamp(28px, 4vw, 44px); }
+.ef-sec + .ef-sec { margin-top: clamp(44px, 6vw, 76px); }
+
+.ef-sec__band {
   display: flex; align-items: center; gap: 14px;
-  margin: 0 0 clamp(24px, 3vw, 36px);
+  margin: 0;
   padding: 16px 22px;
   background: linear-gradient(90deg, var(--ef-sand), rgba(242, 246, 248, 0));
   border-left: 5px solid var(--ef-primary);
@@ -734,34 +742,60 @@ input, select, textarea { font: inherit; color: inherit; }
   line-height: 1.55;
   color: var(--ef-ink);
 }
-
-/* How-it-works: diagram beside its explanation. */
-.ef-how { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(28px, 4vw, 56px); align-items: center; }
-.ef-how__media img { width: 100%; border-radius: var(--ef-radius); }
-.ef-how__text { font-size: 15.5px; line-height: 2.05; }
-@media (max-width: 860px) { .ef-how { grid-template-columns: 1fr; } }
-
-/* Merit rows: copy on the left, supporting picture on the right. */
-.ef-merits { display: grid; gap: clamp(40px, 5vw, 68px); }
-.ef-meritrow { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(24px, 4vw, 52px); align-items: center; }
-.ef-meritrow--solo { grid-template-columns: 1fr; }
-.ef-meritrow__media img { width: 100%; border-radius: var(--ef-radius); }
-.ef-meritrow__no {
+.ef-sec__plain {
+  margin: 0; padding-bottom: 14px;
+  border-bottom: 1px solid var(--ef-line);
+  font-size: clamp(17px, 2vw, 20px); line-height: 1.6; color: var(--ef-ink);
+}
+.ef-sec__no {
   display: block; margin-bottom: 8px;
   font-family: var(--ef-font-en); font-size: 12px; font-weight: 600;
   letter-spacing: .16em; color: var(--ef-solar-d);
 }
-.ef-meritrow__title {
-  margin: 0 0 4px; padding-bottom: 14px;
-  border-bottom: 1px solid var(--ef-line);
-  font-size: clamp(17px, 2vw, 20px); line-height: 1.6; color: var(--ef-ink);
+
+/* Body and picture sit side by side; with no picture the copy runs full width. */
+.ef-sec__body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 52px); align-items: center; }
+.ef-sec__body--solo { grid-template-columns: 1fr; }
+.ef-sec__media img { width: 100%; border-radius: var(--ef-radius); }
+.ef-sec__media--contain img {
+  background: #fff; padding: 16px; border: 1px solid var(--ef-line-soft);
 }
-.ef-meritrow__sub { margin: 16px 0 0; font-weight: 700; color: var(--ef-primary); line-height: 1.8; }
-.ef-meritrow__text { margin: 16px 0 0; font-size: 14.5px; line-height: 2; }
+.ef-sec__media--left { order: -1; }
+.ef-sec__text { font-size: 14.5px; line-height: 2.05; }
+/* With no picture the copy would otherwise run the full 1180px, which is far
+   too wide to read comfortably. */
+.ef-sec__body--solo .ef-sec__text,
+.ef-sec__body--solo .ef-sec__list { max-width: 46em; }
+.ef-sec__text > *:first-child { margin-top: 0; }
+.ef-sec__text > *:last-child { margin-bottom: 0; }
 @media (max-width: 860px) {
-  .ef-meritrow { grid-template-columns: 1fr; }
-  .ef-meritrow__media { order: -1; }
+  .ef-sec__body { grid-template-columns: 1fr; }
+  .ef-sec__media, .ef-sec__media--left { order: -1; }
 }
+
+/* Bulleted points inside a section. */
+.ef-sec__list { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+.ef-sec__list li { position: relative; padding-left: 26px; font-size: 14.5px; line-height: 1.85; }
+.ef-sec__list li::before {
+  content: ""; position: absolute; left: 3px; top: .62em;
+  width: 8px; height: 8px; border-radius: 50%; background: var(--ef-primary-l);
+}
+
+/* The same list, boxed, for a closing "this suits you if…" panel. */
+.ef-sec__list--boxed {
+  margin-top: 24px;
+  padding: clamp(22px, 3vw, 30px) clamp(22px, 4vw, 34px);
+  border-radius: var(--ef-radius);
+  background: rgba(255, 188, 44, .09);
+  border: 1px solid rgba(255, 188, 44, .4);
+}
+.ef-sec__list--boxed .ef-sec__list { margin-top: 0; }
+.ef-sec__list--boxed li::before { background: var(--ef-solar); }
+.ef-sec__listtitle {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 16px; font-size: clamp(16px, 2vw, 19px); color: var(--ef-ink);
+}
+.ef-sec__listtitle svg { width: 22px; height: 22px; flex: none; color: var(--ef-solar-d); }
 
 /* A heading with a hairline under it, for the closing paragraph. */
 .ef-underline {

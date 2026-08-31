@@ -17,6 +17,9 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from build import SERVICES, SRC, parse_page  # noqa: E402
 from service_detail import DETAIL  # noqa: E402
 
+sys.path.insert(0, str(pathlib.Path(__file__).parent / "content"))
+from services import SERVICE_PAGES  # noqa: E402
+
 OUT = pathlib.Path(__file__).parent.parent / "theme/eight-fields/data/seed.json"
 
 
@@ -24,6 +27,8 @@ def services():
     rows = []
     for i, s in enumerate(SERVICES):
         d = DETAIL[s["slug"]]
+        # The現行サイト copy, where it has been transcribed for this service.
+        page = SERVICE_PAGES.get(s["slug"])
         rows.append(
             {
                 "slug": s["slug"],
@@ -31,24 +36,25 @@ def services():
                 "menu_order": i + 1,
                 "en": s["en"],
                 "excerpt": s["lead"],
-                "catch": s["catch"],
-                "sub": d.get("catch_sub", ""),
+                "catch": page["catch"] if page else s["catch"],
+                "sub": page["sub"] if page else d.get("catch_sub", ""),
                 "image": s["img"],
                 "fit": "contain" if s.get("fit") == "contain" else "",
-                "content": list(d["intro"]),
-                "merits": [
+                "content": list(page["intro"]) if page else list(d["intro"]),
+                "sections": [
                     {
-                        "title": m[0],
-                        "text": m[1],
-                        "image": m[2] or "",
-                        # Diagrams are artwork on white and must not be cropped.
-                        "fit": "contain" if (m[2] or "").startswith("diagram") else "",
+                        "heading": sec.get("heading", ""),
+                        "style": sec.get("style", "band"),
+                        "side": sec.get("side", "right"),
+                        "fit": sec.get("fit", ""),
+                        "text": sec.get("text", ""),
+                        "list": sec.get("list", []),
+                        "list_heading": sec.get("list_heading", ""),
+                        "boxed": bool(sec.get("boxed")),
                     }
-                    for m in d["merits"]
+                    for sec in (page["sections"] if page else [])
                 ],
                 "faq": [{"q": q, "a": a} for q, a in d["faq"]],
-                "outro_title": d.get("outro_title", ""),
-                "outro": list(d.get("outro") or []),
             }
         )
     return rows

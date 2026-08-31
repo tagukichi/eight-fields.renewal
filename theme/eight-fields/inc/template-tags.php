@@ -336,61 +336,6 @@ function ef_service_position( $post_id = null ) {
 }
 
 /**
- * The merit rows filled in for a service.
- *
- * With ACF the merits are a repeater, so there can be any number of them. Without
- * it they are three numbered field sets. A merit needs at least a heading to
- * appear; the picture is optional and the row goes full width without one.
- *
- * @param int|null $post_id Service post ID. Defaults to the current post.
- * @return array[] Rows of array( title, sub, text, image_id, contain ).
- */
-function ef_service_merits( $post_id = null ) {
-	$post_id = $post_id ? $post_id : get_the_ID();
-
-	$repeater = function_exists( 'get_field' ) ? get_field( 'ef_merits', $post_id ) : null;
-	if ( is_array( $repeater ) && $repeater ) {
-		$rows = array();
-		foreach ( $repeater as $row ) {
-			if ( empty( $row['title'] ) ) {
-				continue;
-			}
-			$rows[] = array(
-				'title'    => $row['title'],
-				'sub'      => isset( $row['sub'] ) ? $row['sub'] : '',
-				'text'     => isset( $row['text'] ) ? $row['text'] : '',
-				'image_id' => ef_attachment_id( isset( $row['image'] ) ? $row['image'] : 0 ),
-				'contain'  => isset( $row['fit'] ) && 'contain' === $row['fit'],
-			);
-		}
-		return $rows;
-	}
-
-	$rows = array();
-	for ( $i = 1; $i <= 3; $i++ ) {
-		$title = get_post_meta( $post_id, "ef_merit{$i}_title", true );
-		if ( ! $title ) {
-			continue;
-		}
-
-		$image_id = (int) get_post_meta( $post_id, "ef_merit{$i}_image", true );
-		if ( ! $image_id && 1 === $i ) {
-			$image_id = (int) get_post_thumbnail_id( $post_id );
-		}
-
-		$rows[] = array(
-			'title'    => $title,
-			'sub'      => '',
-			'text'     => get_post_meta( $post_id, "ef_merit{$i}_text", true ),
-			'image_id' => $image_id,
-			'contain'  => 'contain' === get_post_meta( $post_id, "ef_merit{$i}_fit", true ),
-		);
-	}
-
-	return $rows;
-}
-
-/**
  * The FAQ rows filled in for a service.
  *
  * @param int|null $post_id Service post ID. Defaults to the current post.
@@ -477,63 +422,178 @@ function ef_field( $name, $post_id ) {
 }
 
 /**
- * The "how it works" block, shown between the intro and the merits.
+ * Read an ACF-style repeater straight from post meta.
  *
- * @param int|null $post_id Service post ID. Defaults to the current post.
- * @return array|null array( title, text, image_id ), or null when unused.
+ * Lets the templates render seeded content on a site where ACF is not (yet)
+ * installed, using the same storage layout ACF itself uses.
+ *
+ * @param int      $post_id Post ID.
+ * @param string   $field   Repeater field name.
+ * @param string[] $subs    Sub-field names to read.
+ * @return array[] Rows, or an empty array when the field is unset.
  */
-function ef_service_how( $post_id = null ) {
-	$post_id = $post_id ? $post_id : get_the_ID();
-
-	$title = ef_field( 'ef_how_title', $post_id );
-	$text  = ef_field( 'ef_how_text', $post_id );
-	$image = ef_field( 'ef_how_image', $post_id );
-
-	if ( ! $title && ! $text ) {
-		return null;
+function ef_read_repeater( $post_id, $field, $subs ) {
+	$count = get_post_meta( $post_id, $field, true );
+	if ( ! is_numeric( $count ) || (int) $count < 1 ) {
+		return array();
 	}
 
-	return array(
-		'title'    => $title ? $title : __( '仕組み', 'eight-fields' ),
-		'text'     => $text,
-		'image_id' => ef_attachment_id( $image ),
-	);
+	$rows = array();
+	for ( $i = 0; $i < (int) $count; $i++ ) {
+		$row = array();
+		foreach ( $subs as $sub ) {
+			$row[ $sub ] = get_post_meta( $post_id, "{$field}_{$i}_{$sub}", true );
+		}
+		$rows[] = $row;
+	}
+
+	return $rows;
 }
 
 /**
- * The bullet list closing a service page.
+ * The sections that make up a service page's body.
+ *
+ * The reference pages differ from one another — one opens with a diagram, one
+ * is a run of numbered merits, one is mostly bulleted checklists — so a service
+ * page is a stack of sections rather than a fixed shape. Each row carries its
+ * own heading weight, picture side and list style.
+ *
+ * Falls back to the earlier fixed fields (仕組み・メリット・まとめ) so pages
+ * filled in before this existed keep rendering.
  *
  * @param int|null $post_id Service post ID. Defaults to the current post.
- * @return array|null array( title, items ), or null when unused.
+ * @return array[] Rows of array( heading, style, image_id, contain, side, text, list, boxed ).
  */
-function ef_service_recommend( $post_id = null ) {
+function ef_service_sections( $post_id = null ) {
 	$post_id = $post_id ? $post_id : get_the_ID();
 
-	$raw = ef_field( 'ef_recommend_items', $post_id );
-	if ( is_array( $raw ) ) {
-		// An ACF repeater hands back rows; each row holds one line.
-		$items = array();
-		foreach ( $raw as $row ) {
+	$rows = function_exists( 'get_field' ) ? get_field( 'ef_sections', $post_id ) : null;
+	if ( ! is_array( $rows ) || ! $rows ) {
+		// Without ACF the repeater is just a row count plus numbered meta rows,
+		// so rebuild the array from those.
+		$rows = ef_read_repeater( $post_id, 'ef_sections', array( 'heading', 'style', 'image', 'side', 'fit', 'text', 'list_heading', 'list', 'boxed' ) );
+	}
+
+	if ( is_array( $rows ) && $rows ) {
+		$out = array();
+		foreach ( $rows as $row ) {
+			if ( empty( $row['heading'] ) && empty( $row['text'] ) && empty( $row['list'] ) ) {
+				continue;
+			}
+			$out[] = array(
+				'heading'  => isset( $row['heading'] ) ? $row['heading'] : '',
+				'style'    => isset( $row['style'] ) ? $row['style'] : 'band',
+				'image_id' => ef_attachment_id( isset( $row['image'] ) ? $row['image'] : 0 ),
+				'contain'  => isset( $row['fit'] ) && 'contain' === $row['fit'],
+				'side'     => isset( $row['side'] ) && 'left' === $row['side'] ? 'left' : 'right',
+				'text'     => isset( $row['text'] ) ? $row['text'] : '',
+				'list'     => ef_split_lines( isset( $row['list'] ) ? $row['list'] : '' ),
+				'list_heading' => isset( $row['list_heading'] ) ? $row['list_heading'] : '',
+				'boxed'    => ! empty( $row['boxed'] ),
+			);
+		}
+		return $out;
+	}
+
+	return ef_legacy_service_sections( $post_id );
+}
+
+/**
+ * The pre-repeater fields, rebuilt as sections.
+ *
+ * @param int $post_id Service post ID.
+ * @return array[]
+ */
+function ef_legacy_service_sections( $post_id ) {
+	$out = array();
+
+	$how_title = get_post_meta( $post_id, 'ef_how_title', true );
+	$how_text  = get_post_meta( $post_id, 'ef_how_text', true );
+	if ( $how_title || $how_text ) {
+		$out[] = array(
+			'heading'  => $how_title,
+			'style'    => 'band',
+			'image_id' => (int) get_post_meta( $post_id, 'ef_how_image', true ),
+			'contain'  => false,
+			'side'     => 'right',
+			'text'     => $how_text,
+			'list'     => array(),
+			'list_heading' => '',
+			'boxed'    => false,
+		);
+	}
+
+	$merit_title = get_post_meta( $post_id, 'ef_merit_title', true );
+	for ( $i = 1; $i <= 3; $i++ ) {
+		$title = get_post_meta( $post_id, "ef_merit{$i}_title", true );
+		if ( ! $title ) {
+			continue;
+		}
+		if ( 1 === $i && $merit_title ) {
+			$out[] = array(
+				'heading' => $merit_title,
+				'style'   => 'band',
+				'image_id' => 0,
+				'contain' => false,
+				'side'    => 'right',
+				'text'    => '',
+				'list'    => array(),
+				'list_heading' => '',
+				'boxed'   => false,
+			);
+		}
+		$out[] = array(
+			'heading'  => $title,
+			'style'    => 'merit',
+			'image_id' => (int) get_post_meta( $post_id, "ef_merit{$i}_image", true ),
+			'contain'  => 'contain' === get_post_meta( $post_id, "ef_merit{$i}_fit", true ),
+			'side'     => 'right',
+			'text'     => get_post_meta( $post_id, "ef_merit{$i}_text", true ),
+			'list'     => array(),
+			'list_heading' => '',
+			'boxed'    => false,
+		);
+	}
+
+	$outro_title = get_post_meta( $post_id, 'ef_service_outro_title', true );
+	$outro       = get_post_meta( $post_id, 'ef_service_outro', true );
+	$recommend   = ef_split_lines( get_post_meta( $post_id, 'ef_recommend_items', true ) );
+	if ( $outro_title || $outro || $recommend ) {
+		$out[] = array(
+			'heading'  => $outro_title,
+			'style'    => 'band',
+			'image_id' => 0,
+			'contain'  => false,
+			'side'     => 'right',
+			'text'     => $outro,
+			'list'     => $recommend,
+			'list_heading' => $recommend ? __( 'こんなご家庭におすすめです', 'eight-fields' ) : '',
+			'boxed'    => (bool) $recommend,
+		);
+	}
+
+	return $out;
+}
+
+/**
+ * Split a textarea into trimmed, non-empty lines.
+ *
+ * @param mixed $value Field value; an ACF repeater hands back rows instead.
+ * @return string[]
+ */
+function ef_split_lines( $value ) {
+	if ( is_array( $value ) ) {
+		$lines = array();
+		foreach ( $value as $row ) {
 			$line = is_array( $row ) ? reset( $row ) : $row;
 			if ( trim( (string) $line ) ) {
-				$items[] = (string) $line;
+				$lines[] = (string) $line;
 			}
 		}
-	} else {
-		// Plain meta keeps one line per row of a textarea.
-		$items = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) $raw ) ) ) );
+		return $lines;
 	}
 
-	if ( ! $items ) {
-		return null;
-	}
-
-	$title = ef_field( 'ef_recommend_title', $post_id );
-
-	return array(
-		'title' => $title ? $title : __( 'こんなご家庭におすすめです', 'eight-fields' ),
-		'items' => $items,
-	);
+	return array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) $value ) ) ) );
 }
 
 /**
