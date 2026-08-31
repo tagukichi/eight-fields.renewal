@@ -31,6 +31,10 @@ while ( have_posts() ) :
 	$ef_ceo     = ef_info( 'ceo', '金山 準' );
 	$ef_name    = get_bloginfo( 'name' );
 	$ef_heading = get_post_meta( get_the_ID(), 'ef_message_title', true );
+
+	// A page-builder message brings its own layout, so it goes below the split
+	// at full width rather than into the column beside the portrait.
+	$ef_builder = ef_uses_page_builder();
 	?>
 
 	<section class="ef-section">
@@ -59,9 +63,11 @@ while ( have_posts() ) :
 						}
 						?>
 					</h2>
-					<div class="ef-article ef-mt-32">
-						<?php the_content(); ?>
-					</div>
+					<?php if ( ! $ef_builder ) : ?>
+						<div class="ef-article ef-mt-32">
+							<?php the_content(); ?>
+						</div>
+					<?php endif; ?>
 					<div class="ef-signature">
 						<small><?php echo esc_html( $ef_name ); ?></small>
 						<small><?php esc_html_e( '代表取締役社長', 'eight-fields' ); ?></small>
@@ -71,6 +77,12 @@ while ( have_posts() ) :
 			</div>
 		</div>
 	</section>
+
+	<?php if ( $ef_builder ) : ?>
+		<section class="ef-section ef-section--tight">
+			<?php get_template_part( 'template-parts/content-body' ); ?>
+		</section>
+	<?php endif; ?>
 
 	<section class="ef-section ef-section--sand">
 		<div class="ef-container">

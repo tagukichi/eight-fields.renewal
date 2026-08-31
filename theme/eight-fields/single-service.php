@@ -34,18 +34,28 @@ while ( have_posts() ) :
 	ef_breadcrumbs();
 	?>
 
+	<?php
+	// A page-builder body brings its own grid and needs the full width, and a
+	// service with no photo has nothing to put in the left column — in both
+	// cases the two-column intro would leave the content squeezed or the layout
+	// half empty, so the body moves to its own full-width section instead.
+	$ef_builder = ef_uses_page_builder( $ef_id );
+	$ef_media   = has_post_thumbnail();
+	$ef_split   = $ef_media && ! $ef_builder;
+	?>
+
 	<!-- INTRO -->
-	<section class="ef-section">
-		<div class="ef-container">
-			<div class="ef-split">
-				<div class="ef-split__media" data-reveal>
-					<?php if ( has_post_thumbnail() ) : ?>
+	<section class="ef-section<?php echo $ef_builder ? ' ef-section--tight' : ''; ?>">
+		<div class="ef-container<?php echo $ef_split ? '' : ' ef-container--narrow'; ?>">
+			<div class="<?php echo $ef_split ? 'ef-split' : ''; ?>">
+				<?php if ( $ef_split ) : ?>
+					<div class="ef-split__media" data-reveal>
 						<?php the_post_thumbnail( 'large', array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => get_the_title() ) ); ?>
-					<?php endif; ?>
-					<?php if ( $ef_no ) : ?>
-						<span class="ef-split__badge"><b><?php echo esc_html( sprintf( '%02d', $ef_no ) ); ?></b><span><?php echo esc_html( $ef_en ); ?></span></span>
-					<?php endif; ?>
-				</div>
+						<?php if ( $ef_no ) : ?>
+							<span class="ef-split__badge"><b><?php echo esc_html( sprintf( '%02d', $ef_no ) ); ?></b><span><?php echo esc_html( $ef_en ); ?></span></span>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
 				<div data-reveal data-reveal-delay="1">
 					<?php if ( $ef_en ) : ?>
 						<span class="ef-eyebrow"><?php echo esc_html( $ef_en ); ?></span>
@@ -54,9 +64,13 @@ while ( have_posts() ) :
 					<?php if ( $ef_sub ) : ?>
 						<p class="ef-lead"><?php echo esc_html( $ef_sub ); ?></p>
 					<?php endif; ?>
-					<div class="ef-article ef-mt-24">
-						<?php the_content(); ?>
-					</div>
+
+					<?php if ( ! $ef_builder ) : ?>
+						<div class="ef-article ef-mt-24">
+							<?php the_content(); ?>
+						</div>
+					<?php endif; ?>
+
 					<div class="ef-actions ef-mt-32">
 						<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
 							<?php esc_html_e( 'この設備について相談する', 'eight-fields' ); ?>
@@ -66,6 +80,15 @@ while ( have_posts() ) :
 			</div>
 		</div>
 	</section>
+
+	<?php if ( $ef_builder ) : ?>
+		<!-- BODY (page builder) -->
+		<section class="ef-section ef-section--tight">
+			<div class="ef-builder" data-reveal>
+				<?php the_content(); ?>
+			</div>
+		</section>
+	<?php endif; ?>
 
 	<?php
 	$ef_merits = ef_service_merits( $ef_id );

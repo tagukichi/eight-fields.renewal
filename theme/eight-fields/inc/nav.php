@@ -62,11 +62,17 @@ class EF_Nav_Walker extends Walker_Nav_Menu {
 
 		$title = apply_filters( 'the_title', $item->title, $item->ID );
 
-		$output .= '<a' . $attributes . '>' . esc_html( $title );
+		// A menu item can end up with no URL — pointing at a post type archive
+		// that the post type does not actually have, for one. An <a> without an
+		// href is not focusable and not clickable, so use a span for that case
+		// rather than emitting a link that is not one.
+		$tag = isset( $atts['href'] ) && '' !== $atts['href'] ? 'a' : 'span';
+
+		$output .= '<' . $tag . $attributes . '>' . esc_html( $title );
 		if ( $has_children && 0 === $depth ) {
 			$output .= ef_icon( 'caret', false );
 		}
-		$output .= '</a>';
+		$output .= '</' . $tag . '>';
 	}
 }
 
@@ -144,8 +150,11 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 			$toggle_label = sprintf( __( '%sのサブメニューを開閉', 'eight-fields' ), $title );
 			$output      .= '<li>'
 				. '<div class="ef-drawer__row">'
-				. '<a class="ef-drawer__link" href="' . esc_url( $url ) . '">'
-				. '<span>' . esc_html( $title ) . $en . '</span></a>'
+				. ( $url
+					? '<a class="ef-drawer__link" href="' . esc_url( $url ) . '">'
+						. '<span>' . esc_html( $title ) . $en . '</span></a>'
+					: '<span class="ef-drawer__link">'
+						. '<span>' . esc_html( $title ) . $en . '</span></span>' )
 				. '<button class="ef-drawer__toggle" type="button" data-drawer-toggle'
 				. ' aria-expanded="false" aria-controls="' . esc_attr( $panel ) . '">'
 				. '<span class="ef-drawer__caret"></span>'
@@ -156,9 +165,11 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 			return;
 		}
 
-		$output .= '<li><a class="ef-drawer__link" href="' . esc_url( $url ) . '">'
+		$tag     = $url ? 'a' : 'span';
+		$href    = $url ? ' href="' . esc_url( $url ) . '"' : '';
+		$output .= '<li><' . $tag . ' class="ef-drawer__link"' . $href . '>'
 			. '<span>' . esc_html( $title ) . $en . '</span>'
-			. ef_icon( 'arrow', false ) . '</a>';
+			. ef_icon( 'arrow', false ) . '</' . $tag . '>';
 	}
 
 	/**

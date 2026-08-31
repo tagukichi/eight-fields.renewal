@@ -1264,6 +1264,50 @@ input, select, textarea { font: inherit; color: inherit; }
   font-size: 15px;
 }
 .ef-article strong { color: var(--ef-ink); font-weight: 700; }
+
+/* --------------------------------------------------------------------------
+   Page-builder content (SiteOrigin, Elementor, …)
+
+   A builder lays out its own rows and columns across the full width it is
+   given, so it gets a plain centred container rather than the narrow article
+   column, and none of the `.ef-article` spacing rules — those would fight the
+   builder's own margins. Only the typography is shared, so builder content
+   still reads as part of the site.
+   -------------------------------------------------------------------------- */
+.ef-builder {
+  width: 100%;
+  max-width: var(--ef-container);
+  margin-inline: auto;
+  padding-inline: var(--ef-gutter);
+  font-size: 16px;
+  line-height: 2.05;
+}
+.ef-builder img { max-width: 100%; height: auto; }
+/* Written with :where() so every rule here has zero specificity — whatever the
+   builder ships always wins, and these only apply where it sets nothing. */
+:where(.ef-builder) h2 {
+  font-size: clamp(21px, 2.4vw, 27px);
+  line-height: 1.55;
+  color: var(--ef-ink);
+  margin: 1.8em 0 .6em;
+}
+:where(.ef-builder) h3 {
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.6;
+  color: var(--ef-ink);
+  margin: 1.6em 0 .5em;
+}
+:where(.ef-builder) h4 { font-size: 17px; line-height: 1.7; color: var(--ef-ink); margin: 1.4em 0 .4em; }
+:where(.ef-builder) p { margin: 0 0 1.2em; }
+:where(.ef-builder) ul,
+:where(.ef-builder) ol { margin: 0 0 1.2em; padding-left: 1.4em; }
+:where(.ef-builder) li { margin-bottom: .4em; }
+:where(.ef-builder) > *:first-child { margin-top: 0; }
+:where(.ef-builder) > *:last-child { margin-bottom: 0; }
+.ef-builder a { color: var(--ef-primary); text-decoration: underline; text-underline-offset: 3px; }
+.ef-builder strong { color: var(--ef-ink); font-weight: 700; }
+/* SiteOrigin's rows already carry their own gutters; let them keep them. */
+.ef-builder .panel-grid { margin-bottom: 0; }
 .ef-article a { text-decoration: underline; text-underline-offset: 3px; }
 
 .ef-signature { margin-top: 56px; padding-top: 30px; border-top: 1px solid var(--ef-line-soft); text-align: right; }

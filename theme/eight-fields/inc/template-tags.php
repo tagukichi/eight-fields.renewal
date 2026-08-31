@@ -393,3 +393,43 @@ function ef_service_faq( $post_id = null ) {
 
 	return $rows;
 }
+
+/**
+ * Whether a post's body was laid out with a page builder.
+ *
+ * A builder emits its own rows and columns and expects the full width of the
+ * page. Dropping that into one half of a two-column layout squeezes it into a
+ * strip, so the templates check this and give builder content its own
+ * full-width section instead.
+ *
+ * @param int|null $post_id Post ID. Defaults to the current post.
+ * @return bool
+ */
+function ef_uses_page_builder( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+	if ( ! $post_id ) {
+		return false;
+	}
+
+	// SiteOrigin Page Builder stores its layout here; the others set a flag.
+	if ( get_post_meta( $post_id, 'panels_data', true ) ) {
+		return true;
+	}
+	if ( 'builder' === get_post_meta( $post_id, '_elementor_edit_mode', true ) ) {
+		return true;
+	}
+	if ( get_post_meta( $post_id, '_fl_builder_enabled', true ) ) {
+		return true;
+	}
+	if ( 'true' === get_post_meta( $post_id, '_wpb_vc_js_status', true ) ) {
+		return true;
+	}
+
+	// Divi and Beaver leave their shortcodes in the content itself.
+	$content = get_post_field( 'post_content', $post_id );
+	if ( $content && preg_match( '/\[(et_pb_section|vc_row|fl_builder)/', $content ) ) {
+		return true;
+	}
+
+	return (bool) apply_filters( 'ef_uses_page_builder', false, $post_id );
+}

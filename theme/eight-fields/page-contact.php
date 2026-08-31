@@ -70,7 +70,13 @@ while ( have_posts() ) :
 			</div>
 
 			<?php if ( $ef_has_form ) : ?>
-				<div class="ef-form" data-reveal data-reveal-delay="1">
+				<?php
+				// `.ef-form` has to stay on the wrapper either way — the Contact
+				// Form 7 styles hang off it. A page-builder body just gets the
+				// wider measure alongside it.
+				$ef_form_class = ef_uses_page_builder() ? 'ef-form ef-builder' : 'ef-form';
+				?>
+				<div class="<?php echo esc_attr( $ef_form_class ); ?>" data-reveal data-reveal-delay="1">
 					<?php the_content(); ?>
 				</div>
 			<?php else : ?>

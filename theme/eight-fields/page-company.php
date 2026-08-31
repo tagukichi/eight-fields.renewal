@@ -40,12 +40,13 @@ while ( have_posts() ) :
 				<?php echo wp_kses( ef_philosophy(), array( 'br' => array() ) ); ?>
 			</blockquote>
 
-			<?php if ( trim( get_the_content() ) ) : ?>
-				<div class="ef-article ef-mt-64" data-reveal>
-					<?php the_content(); ?>
-				</div>
-			<?php endif; ?>
 		</div>
+
+		<?php if ( trim( get_the_content() ) ) : ?>
+			<div class="ef-mt-64">
+				<?php get_template_part( 'template-parts/content-body' ); ?>
+			</div>
+		<?php endif; ?>
 	</section>
 
 	<!-- GROUP -->

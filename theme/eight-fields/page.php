@@ -25,11 +25,7 @@ while ( have_posts() ) :
 	?>
 
 	<section class="ef-section">
-		<div class="ef-container ef-container--narrow">
-			<div class="ef-article" data-reveal>
-				<?php the_content(); ?>
-			</div>
-		</div>
+		<?php get_template_part( 'template-parts/content-body' ); ?>
 	</section>
 
 	<?php

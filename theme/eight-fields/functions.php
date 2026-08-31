@@ -19,6 +19,7 @@ require_once get_template_directory() . '/inc/content.php';
 require_once get_template_directory() . '/inc/meta-boxes.php';
 if ( is_admin() ) {
 	require_once get_template_directory() . '/inc/importer.php';
+	require_once get_template_directory() . '/inc/diagnostics.php';
 }
 
 /**
