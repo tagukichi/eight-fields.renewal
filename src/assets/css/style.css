@@ -721,6 +721,74 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .ef-merit__title { margin-top: 10px; }
 
+/* Banded section heading — a tinted strip with a brand rule down its left
+   edge. Used to open each block of a service page. */
+.ef-bandtitle {
+  display: flex; align-items: center; gap: 14px;
+  margin: 0 0 clamp(24px, 3vw, 36px);
+  padding: 16px 22px;
+  background: linear-gradient(90deg, var(--ef-sand), rgba(242, 246, 248, 0));
+  border-left: 5px solid var(--ef-primary);
+  border-radius: 3px;
+  font-size: clamp(18px, 2.2vw, 23px);
+  line-height: 1.55;
+  color: var(--ef-ink);
+}
+
+/* How-it-works: diagram beside its explanation. */
+.ef-how { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(28px, 4vw, 56px); align-items: center; }
+.ef-how__media img { width: 100%; border-radius: var(--ef-radius); }
+.ef-how__text { font-size: 15.5px; line-height: 2.05; }
+@media (max-width: 860px) { .ef-how { grid-template-columns: 1fr; } }
+
+/* Merit rows: copy on the left, supporting picture on the right. */
+.ef-merits { display: grid; gap: clamp(40px, 5vw, 68px); }
+.ef-meritrow { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(24px, 4vw, 52px); align-items: center; }
+.ef-meritrow--solo { grid-template-columns: 1fr; }
+.ef-meritrow__media img { width: 100%; border-radius: var(--ef-radius); }
+.ef-meritrow__no {
+  display: block; margin-bottom: 8px;
+  font-family: var(--ef-font-en); font-size: 12px; font-weight: 600;
+  letter-spacing: .16em; color: var(--ef-solar-d);
+}
+.ef-meritrow__title {
+  margin: 0 0 4px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--ef-line);
+  font-size: clamp(17px, 2vw, 20px); line-height: 1.6; color: var(--ef-ink);
+}
+.ef-meritrow__sub { margin: 16px 0 0; font-weight: 700; color: var(--ef-primary); line-height: 1.8; }
+.ef-meritrow__text { margin: 16px 0 0; font-size: 14.5px; line-height: 2; }
+@media (max-width: 860px) {
+  .ef-meritrow { grid-template-columns: 1fr; }
+  .ef-meritrow__media { order: -1; }
+}
+
+/* A heading with a hairline under it, for the closing paragraph. */
+.ef-underline {
+  margin: 0; padding-bottom: 14px;
+  border-bottom: 1px solid var(--ef-line);
+  color: var(--ef-ink);
+}
+
+/* "こんなご家庭におすすめです" — a soft callout closing the page. */
+.ef-recommend {
+  padding: clamp(24px, 3vw, 34px) clamp(24px, 4vw, 40px);
+  border-radius: var(--ef-radius);
+  background: rgba(255, 188, 44, .09);
+  border: 1px solid rgba(255, 188, 44, .4);
+}
+.ef-recommend__title {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 18px; font-size: clamp(17px, 2vw, 20px); color: var(--ef-ink);
+}
+.ef-recommend__title svg { width: 24px; height: 24px; flex: none; color: var(--ef-solar-d); }
+.ef-recommend__list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ef-recommend__list li { position: relative; padding-left: 30px; font-size: 15px; line-height: 1.85; }
+.ef-recommend__list li::before {
+  content: ""; position: absolute; left: 4px; top: .55em;
+  width: 9px; height: 9px; border-radius: 50%; background: var(--ef-solar);
+}
+
 /* A centred, narrow note list — the footnote under the combination steps. */
 .ef-notes--center { max-width: 820px; margin-inline: auto; }
 .ef-split__media img { width: 100%; border-radius: var(--ef-radius-lg); }

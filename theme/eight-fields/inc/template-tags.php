@@ -86,6 +86,7 @@ function ef_icon( $name, $echo = true ) {
 		'up'    => '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 14.5V3.5M3.8 8.7 9 3.5l5.2 5.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		'caret' => '<svg class="ef-caret" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
 		'chat'  => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.4c0 4-4 7.2-9 7.2a10.7 10.7 0 0 1-2.6-.3L4.5 20.5l1-3.7A6.9 6.9 0 0 1 3 11.4C3 7.4 7 4.2 12 4.2s9 3.2 9 7.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11.4" r="1.15" fill="currentColor"/><circle cx="12" cy="11.4" r="1.15" fill="currentColor"/><circle cx="15.4" cy="11.4" r="1.15" fill="currentColor"/></svg>',
+		'bulb'  => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.2 18h5.6M10 21h4M12 2.8a6.2 6.2 0 0 0-3.6 11.25c.6.43.95 1.1.95 1.83V16h5.3v-.12c0-.73.35-1.4.95-1.83A6.2 6.2 0 0 0 12 2.8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		'check' => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#3B9C6D"/><path d="m7.5 12.3 3 3 6-6.6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 	);
 
@@ -337,17 +338,35 @@ function ef_service_position( $post_id = null ) {
 /**
  * The merit rows filled in for a service.
  *
- * A merit needs at least a heading to be shown. The first one falls back to the
- * featured image when no image is named; the others show text only, separated
- * by a rule, unless an image is given.
+ * With ACF the merits are a repeater, so there can be any number of them. Without
+ * it they are three numbered field sets. A merit needs at least a heading to
+ * appear; the picture is optional and the row goes full width without one.
  *
  * @param int|null $post_id Service post ID. Defaults to the current post.
- * @return array[] Rows of array( title, text, image_id, contain ).
+ * @return array[] Rows of array( title, sub, text, image_id, contain ).
  */
 function ef_service_merits( $post_id = null ) {
 	$post_id = $post_id ? $post_id : get_the_ID();
-	$rows    = array();
 
+	$repeater = function_exists( 'get_field' ) ? get_field( 'ef_merits', $post_id ) : null;
+	if ( is_array( $repeater ) && $repeater ) {
+		$rows = array();
+		foreach ( $repeater as $row ) {
+			if ( empty( $row['title'] ) ) {
+				continue;
+			}
+			$rows[] = array(
+				'title'    => $row['title'],
+				'sub'      => isset( $row['sub'] ) ? $row['sub'] : '',
+				'text'     => isset( $row['text'] ) ? $row['text'] : '',
+				'image_id' => ef_attachment_id( isset( $row['image'] ) ? $row['image'] : 0 ),
+				'contain'  => isset( $row['fit'] ) && 'contain' === $row['fit'],
+			);
+		}
+		return $rows;
+	}
+
+	$rows = array();
 	for ( $i = 1; $i <= 3; $i++ ) {
 		$title = get_post_meta( $post_id, "ef_merit{$i}_title", true );
 		if ( ! $title ) {
@@ -361,6 +380,7 @@ function ef_service_merits( $post_id = null ) {
 
 		$rows[] = array(
 			'title'    => $title,
+			'sub'      => '',
 			'text'     => get_post_meta( $post_id, "ef_merit{$i}_text", true ),
 			'image_id' => $image_id,
 			'contain'  => 'contain' === get_post_meta( $post_id, "ef_merit{$i}_fit", true ),
@@ -432,4 +452,107 @@ function ef_uses_page_builder( $post_id = null ) {
 	}
 
 	return (bool) apply_filters( 'ef_uses_page_builder', false, $post_id );
+}
+
+/**
+ * Read a field from ACF when it is available, falling back to raw post meta.
+ *
+ * The theme works with or without ACF, so every read goes through here: ACF
+ * returns formatted values (an image array, a resolved select), while plain
+ * meta returns whatever was stored.
+ *
+ * @param string $name    Field name.
+ * @param int    $post_id Post ID.
+ * @return mixed
+ */
+function ef_field( $name, $post_id ) {
+	if ( function_exists( 'get_field' ) ) {
+		$value = get_field( $name, $post_id );
+		if ( null !== $value && '' !== $value && array() !== $value ) {
+			return $value;
+		}
+	}
+
+	return get_post_meta( $post_id, $name, true );
+}
+
+/**
+ * The "how it works" block, shown between the intro and the merits.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return array|null array( title, text, image_id ), or null when unused.
+ */
+function ef_service_how( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+
+	$title = ef_field( 'ef_how_title', $post_id );
+	$text  = ef_field( 'ef_how_text', $post_id );
+	$image = ef_field( 'ef_how_image', $post_id );
+
+	if ( ! $title && ! $text ) {
+		return null;
+	}
+
+	return array(
+		'title'    => $title ? $title : __( '仕組み', 'eight-fields' ),
+		'text'     => $text,
+		'image_id' => ef_attachment_id( $image ),
+	);
+}
+
+/**
+ * The bullet list closing a service page.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return array|null array( title, items ), or null when unused.
+ */
+function ef_service_recommend( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+
+	$raw = ef_field( 'ef_recommend_items', $post_id );
+	if ( is_array( $raw ) ) {
+		// An ACF repeater hands back rows; each row holds one line.
+		$items = array();
+		foreach ( $raw as $row ) {
+			$line = is_array( $row ) ? reset( $row ) : $row;
+			if ( trim( (string) $line ) ) {
+				$items[] = (string) $line;
+			}
+		}
+	} else {
+		// Plain meta keeps one line per row of a textarea.
+		$items = array_values( array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', (string) $raw ) ) ) );
+	}
+
+	if ( ! $items ) {
+		return null;
+	}
+
+	$title = ef_field( 'ef_recommend_title', $post_id );
+
+	return array(
+		'title' => $title ? $title : __( 'こんなご家庭におすすめです', 'eight-fields' ),
+		'items' => $items,
+	);
+}
+
+/**
+ * Normalise whatever an image field returned into an attachment ID.
+ *
+ * ACF can be set to return an ID, a URL or an array; plain meta holds an ID.
+ *
+ * @param mixed $value Field value.
+ * @return int Attachment ID, or 0.
+ */
+function ef_attachment_id( $value ) {
+	if ( is_array( $value ) && isset( $value['ID'] ) ) {
+		return (int) $value['ID'];
+	}
+	if ( is_numeric( $value ) ) {
+		return (int) $value;
+	}
+	if ( is_string( $value ) && $value ) {
+		return (int) attachment_url_to_postid( $value );
+	}
+	return 0;
 }

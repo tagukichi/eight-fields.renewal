@@ -36,11 +36,11 @@
         },
         {
             "key": "field_ef2c084caa7a92",
-            "label": "画像の表示方法",
+            "label": "アイキャッチ画像の表示方法",
             "name": "ef_service_fit",
             "aria-label": "",
             "type": "select",
-            "instructions": "アイキャッチ画像の見せ方。",
+            "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -63,7 +63,7 @@
             "name": "ef_service_catch",
             "aria-label": "",
             "type": "text",
-            "instructions": "本文の上に大きく出る一文。空欄ならサービス名が入ります。",
+            "instructions": "ページ上部に大きく出る一文。空欄ならサービス名が入ります。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -78,7 +78,7 @@
             "name": "ef_service_sub",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "任意。キャッチコピーのすぐ下に、少し大きめの文字で出ます。",
+            "instructions": "任意。キャッチコピーのすぐ下に出ます。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -90,8 +90,8 @@
             "new_lines": ""
         },
         {
-            "key": "field_efbadd6f3d1af9",
-            "label": "メリット1",
+            "key": "field_ef67a369d5c487",
+            "label": "仕組み",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -107,12 +107,12 @@
             "endpoint": 0
         },
         {
-            "key": "field_efcc13ae575f99",
+            "key": "field_ef95674944a9c7",
             "label": "見出し",
-            "name": "ef_merit1_title",
+            "name": "ef_how_title",
             "aria-label": "",
             "type": "text",
-            "instructions": "",
+            "instructions": "例：太陽光発電の仕組み。空欄にすると、このセクション自体を出しません。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -122,33 +122,16 @@
             }
         },
         {
-            "key": "field_efc6b75df73c51",
-            "label": "本文",
-            "name": "ef_merit1_text",
+            "key": "field_efeba15456c26c",
+            "label": "図版・写真",
+            "name": "ef_how_image",
             "aria-label": "",
-            "type": "textarea",
+            "type": "image",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": ""
-        },
-        {
-            "key": "field_efe95aac02b2e6",
-            "label": "画像",
-            "name": "ef_merit1_image",
-            "aria-label": "",
-            "type": "image",
-            "instructions": "空欄でも構いません。メリット1のみ、空欄ならアイキャッチ画像を使います。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
+                "width": "40",
                 "class": "",
                 "id": ""
             },
@@ -157,31 +140,25 @@
             "library": "all"
         },
         {
-            "key": "field_ef1a5b7b2624b7",
-            "label": "画像の表示方法",
-            "name": "ef_merit1_fit",
+            "key": "field_ef4b8507b22421",
+            "label": "説明文",
+            "name": "ef_how_text",
             "aria-label": "",
-            "type": "select",
+            "type": "textarea",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
-                "width": "50",
+                "width": "60",
                 "class": "",
                 "id": ""
             },
-            "choices": {
-                "": "切り抜いて表示（写真向け）",
-                "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
-            },
-            "default_value": "",
-            "return_format": "value",
-            "allow_null": 0,
-            "ui": 0
+            "rows": 6,
+            "new_lines": "wpautop"
         },
         {
-            "key": "field_efeef982084eaa",
-            "label": "メリット2",
+            "key": "field_ef6539d7b0aacb",
+            "label": "メリット",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -197,12 +174,12 @@
             "endpoint": 0
         },
         {
-            "key": "field_ef63a8f3b43623",
-            "label": "見出し",
-            "name": "ef_merit2_title",
+            "key": "field_efbefbdefd9d3c",
+            "label": "セクション見出し",
+            "name": "ef_merit_title",
             "aria-label": "",
             "type": "text",
-            "instructions": "",
+            "instructions": "例：太陽光発電システムの導入で得られる経済的メリット。空欄なら「〈サービス名〉の導入で得られるメリット」が入ります。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -212,12 +189,12 @@
             }
         },
         {
-            "key": "field_ef682b9fafa43e",
-            "label": "本文",
-            "name": "ef_merit2_text",
+            "key": "field_ef1d849e5ba509",
+            "label": "メリット",
+            "name": "ef_merits",
             "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
+            "type": "repeater",
+            "instructions": "行は上から順に表示されます。「＋ 行を追加」で何個でも増やせます。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -225,290 +202,107 @@
                 "class": "",
                 "id": ""
             },
-            "rows": 4,
-            "new_lines": ""
+            "collapsed": "field_ef7985f5602e49",
+            "min": 0,
+            "max": 0,
+            "layout": "block",
+            "button_label": "メリットを追加",
+            "sub_fields": [
+                {
+                    "key": "field_ef7985f5602e49",
+                    "label": "見出し",
+                    "name": "title",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "例：発電した電気を収益化できる",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    }
+                },
+                {
+                    "key": "field_efcef16a1ca661",
+                    "label": "強調文",
+                    "name": "sub",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "任意。本文の上に太字で出ます。",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 2,
+                    "new_lines": ""
+                },
+                {
+                    "key": "field_eff861c597afec",
+                    "label": "本文",
+                    "name": "text",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 5,
+                    "new_lines": "wpautop"
+                },
+                {
+                    "key": "field_efb805709830c4",
+                    "label": "画像",
+                    "name": "image",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "id",
+                    "preview_size": "medium",
+                    "library": "all"
+                },
+                {
+                    "key": "field_efd7a7cd856357",
+                    "label": "画像の表示方法",
+                    "name": "fit",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "": "切り抜いて表示（写真向け）",
+                        "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
+                    },
+                    "default_value": "",
+                    "return_format": "value",
+                    "allow_null": 0,
+                    "ui": 0
+                }
+            ]
         },
         {
-            "key": "field_efef357c9b4abf",
-            "label": "画像",
-            "name": "ef_merit2_image",
-            "aria-label": "",
-            "type": "image",
-            "instructions": "空欄でも構いません。メリット1のみ、空欄ならアイキャッチ画像を使います。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "return_format": "id",
-            "preview_size": "medium",
-            "library": "all"
-        },
-        {
-            "key": "field_ef037a7d349527",
-            "label": "画像の表示方法",
-            "name": "ef_merit2_fit",
-            "aria-label": "",
-            "type": "select",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "": "切り抜いて表示（写真向け）",
-                "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
-            },
-            "default_value": "",
-            "return_format": "value",
-            "allow_null": 0,
-            "ui": 0
-        },
-        {
-            "key": "field_ef0b9350fd488f",
-            "label": "メリット3",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_efe09d7eb8ce4f",
-            "label": "見出し",
-            "name": "ef_merit3_title",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_efd76404e11998",
-            "label": "本文",
-            "name": "ef_merit3_text",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": ""
-        },
-        {
-            "key": "field_effe4d026c9b8e",
-            "label": "画像",
-            "name": "ef_merit3_image",
-            "aria-label": "",
-            "type": "image",
-            "instructions": "空欄でも構いません。メリット1のみ、空欄ならアイキャッチ画像を使います。",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "return_format": "id",
-            "preview_size": "medium",
-            "library": "all"
-        },
-        {
-            "key": "field_efda91ef9d4015",
-            "label": "画像の表示方法",
-            "name": "ef_merit3_fit",
-            "aria-label": "",
-            "type": "select",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "choices": {
-                "": "切り抜いて表示（写真向け）",
-                "contain": "全体を収めて表示（図版・白背景の製品画像向け）"
-            },
-            "default_value": "",
-            "return_format": "value",
-            "allow_null": 0,
-            "ui": 0
-        },
-        {
-            "key": "field_effb4a62454963",
-            "label": "よくあるご質問1",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_ef6e3fc6b6e023",
-            "label": "質問",
-            "name": "ef_faq1_q",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_ef80bab60b2bc9",
-            "label": "回答",
-            "name": "ef_faq1_a",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": ""
-        },
-        {
-            "key": "field_ef1d8aec7e1dd6",
-            "label": "よくあるご質問2",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_efeae367d502d4",
-            "label": "質問",
-            "name": "ef_faq2_q",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_eff814a9f443e3",
-            "label": "回答",
-            "name": "ef_faq2_a",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": ""
-        },
-        {
-            "key": "field_efde00d012d0ac",
-            "label": "よくあるご質問3",
-            "name": "",
-            "aria-label": "",
-            "type": "tab",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "placement": "top",
-            "endpoint": 0
-        },
-        {
-            "key": "field_ef13b9d39ab123",
-            "label": "質問",
-            "name": "ef_faq3_q",
-            "aria-label": "",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            }
-        },
-        {
-            "key": "field_efaf4ec4282c98",
-            "label": "回答",
-            "name": "ef_faq3_a",
-            "aria-label": "",
-            "type": "textarea",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "",
-                "class": "",
-                "id": ""
-            },
-            "rows": 4,
-            "new_lines": ""
-        },
-        {
-            "key": "field_ef9f502313b054",
-            "label": "補足セクション",
+            "key": "field_ef158bb16b2bb0",
+            "label": "まとめ",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -529,7 +323,7 @@
             "name": "ef_service_outro_title",
             "aria-label": "",
             "type": "text",
-            "instructions": "FAQ の前にもう一段落だけ説明を足したいときに使います。空欄なら表示されません。",
+            "instructions": "例：導入もアフターも、すべておまかせ。空欄なら出しません。",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -552,8 +346,174 @@
                 "class": "",
                 "id": ""
             },
-            "rows": 5,
-            "new_lines": ""
+            "rows": 4,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_ef9b8ae48d0319",
+            "label": "おすすめ欄の見出し",
+            "name": "ef_recommend_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "空欄なら「こんなご家庭におすすめです」が入ります。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "こんなご家庭におすすめです"
+        },
+        {
+            "key": "field_efcdc954097ce5",
+            "label": "おすすめの項目",
+            "name": "ef_recommend_items",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "箇条書きで出ます。空欄にすると、この枠自体を出しません。",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "table",
+            "button_label": "項目を追加",
+            "sub_fields": [
+                {
+                    "key": "field_ef6d7fde72b450",
+                    "label": "項目",
+                    "name": "text",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    }
+                }
+            ]
+        },
+        {
+            "key": "field_ef5d716473c73d",
+            "label": "よくあるご質問",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0
+        },
+        {
+            "key": "field_ef6e3fc6b6e023",
+            "label": "質問1",
+            "name": "ef_faq1_q",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_ef80bab60b2bc9",
+            "label": "回答1",
+            "name": "ef_faq1_a",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_efeae367d502d4",
+            "label": "質問2",
+            "name": "ef_faq2_q",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_eff814a9f443e3",
+            "label": "回答2",
+            "name": "ef_faq2_a",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": "wpautop"
+        },
+        {
+            "key": "field_ef13b9d39ab123",
+            "label": "質問3",
+            "name": "ef_faq3_q",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_efaf4ec4282c98",
+            "label": "回答3",
+            "name": "ef_faq3_a",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": "wpautop"
         }
     ],
     "location": [

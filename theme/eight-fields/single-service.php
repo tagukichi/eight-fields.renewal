@@ -87,77 +87,101 @@ while ( have_posts() ) :
 	</section>
 
 	<?php
-	$ef_merits = ef_service_merits( $ef_id );
-	if ( $ef_merits ) :
+	$ef_how = ef_service_how( $ef_id );
+	if ( $ef_how ) :
 		?>
-		<!-- MERIT -->
-		<section class="ef-section ef-section--sand">
+		<!-- HOW IT WORKS -->
+		<section class="ef-section ef-section--tight ef-section--sand">
 			<div class="ef-container">
-				<div class="ef-head" data-reveal>
-					<span class="ef-eyebrow">Merit</span>
-					<h2 class="ef-h2">
-						<?php
-						printf(
-							/* translators: 1: service name, 2: number of merits */
-							esc_html__( '%1$sの%2$dつのメリット', 'eight-fields' ),
-							esc_html( get_the_title() ),
-							count( $ef_merits )
-						);
-						?>
-					</h2>
-				</div>
-				<?php
-				$ef_i = 0;
-				foreach ( $ef_merits as $ef_merit ) :
-					$ef_has_media = ! empty( $ef_merit['image_id'] );
-					$ef_classes   = 'ef-merit';
-					if ( $ef_has_media ) {
-						$ef_classes .= ' ef-split';
-						if ( $ef_i % 2 ) {
-							$ef_classes .= ' ef-split--reverse';
-						}
-						if ( $ef_i > 0 ) {
-							$ef_classes .= ' ef-merit--gap';
-						}
-					} else {
-						$ef_classes .= ' ef-merit--rule';
-					}
-					?>
-					<div class="<?php echo esc_attr( $ef_classes ); ?>" data-reveal>
-						<?php if ( $ef_has_media ) : ?>
-							<div class="ef-split__media ef-merit__media<?php echo $ef_merit['contain'] ? ' ef-merit__media--contain' : ''; ?>">
-								<?php echo wp_get_attachment_image( $ef_merit['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
-							</div>
-						<?php endif; ?>
-						<div>
-							<span class="ef-feature__no">MERIT <?php echo esc_html( sprintf( '%02d', $ef_i + 1 ) ); ?></span>
-							<h3 class="ef-h3 ef-merit__title"><?php echo esc_html( $ef_merit['title'] ); ?></h3>
-							<p class="ef-lead"><?php echo esc_html( $ef_merit['text'] ); ?></p>
+				<h2 class="ef-bandtitle" data-reveal><?php echo esc_html( $ef_how['title'] ); ?></h2>
+				<div class="ef-how" data-reveal data-reveal-delay="1">
+					<?php if ( $ef_how['image_id'] ) : ?>
+						<div class="ef-how__media">
+							<?php echo wp_get_attachment_image( $ef_how['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
 						</div>
-					</div>
-					<?php
-					++$ef_i;
-				endforeach;
-				?>
+					<?php endif; ?>
+					<div class="ef-how__text"><?php echo wp_kses_post( wpautop( $ef_how['text'] ) ); ?></div>
+				</div>
 			</div>
 		</section>
 	<?php endif; ?>
 
 	<?php
-	$ef_outro_title = get_post_meta( $ef_id, 'ef_service_outro_title', true );
-	$ef_outro       = get_post_meta( $ef_id, 'ef_service_outro', true );
-	if ( $ef_outro_title && $ef_outro ) :
+	$ef_merits = ef_service_merits( $ef_id );
+	if ( $ef_merits ) :
 		?>
-		<!-- OUTLOOK -->
-		<section class="ef-section ef-section--sand">
+		<!-- MERIT -->
+		<section class="ef-section">
+			<div class="ef-container">
+				<h2 class="ef-bandtitle" data-reveal>
+					<?php
+					$ef_merit_title = ef_field( 'ef_merit_title', $ef_id );
+					echo esc_html(
+						$ef_merit_title
+							? $ef_merit_title
+							/* translators: %s: service name */
+							: sprintf( __( '%sの導入で得られるメリット', 'eight-fields' ), get_the_title() )
+					);
+					?>
+				</h2>
+
+				<div class="ef-merits">
+					<?php
+					$ef_i = 0;
+					foreach ( $ef_merits as $ef_merit ) :
+						++$ef_i;
+						$ef_has_media = ! empty( $ef_merit['image_id'] );
+						?>
+						<div class="ef-meritrow<?php echo $ef_has_media ? '' : ' ef-meritrow--solo'; ?>" data-reveal>
+							<div>
+								<span class="ef-meritrow__no">MERIT <?php echo esc_html( sprintf( '%02d', $ef_i ) ); ?></span>
+								<h3 class="ef-meritrow__title"><?php echo esc_html( $ef_merit['title'] ); ?></h3>
+								<?php if ( ! empty( $ef_merit['sub'] ) ) : ?>
+									<p class="ef-meritrow__sub"><?php echo nl2br( esc_html( $ef_merit['sub'] ) ); ?></p>
+								<?php endif; ?>
+								<?php if ( ! empty( $ef_merit['text'] ) ) : ?>
+									<div class="ef-meritrow__text"><?php echo wp_kses_post( wpautop( $ef_merit['text'] ) ); ?></div>
+								<?php endif; ?>
+							</div>
+							<?php if ( $ef_has_media ) : ?>
+								<div class="ef-meritrow__media<?php echo $ef_merit['contain'] ? ' ef-merit__media--contain' : ''; ?>">
+									<?php echo wp_get_attachment_image( $ef_merit['image_id'], 'large', false, array( 'loading' => 'lazy', 'decoding' => 'async', 'alt' => '' ) ); ?>
+								</div>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
+	<?php
+	$ef_outro_title = ef_field( 'ef_service_outro_title', $ef_id );
+	$ef_outro       = ef_field( 'ef_service_outro', $ef_id );
+	$ef_recommend   = ef_service_recommend( $ef_id );
+
+	if ( ( $ef_outro_title && $ef_outro ) || $ef_recommend ) :
+		?>
+		<!-- CLOSING -->
+		<section class="ef-section ef-section--tight">
 			<div class="ef-container ef-container--narrow">
-				<div class="ef-head" data-reveal>
-					<span class="ef-eyebrow">Outlook</span>
-					<h2 class="ef-h2"><?php echo esc_html( $ef_outro_title ); ?></h2>
-				</div>
-				<div class="ef-article" data-reveal data-reveal-delay="1">
-					<?php echo wp_kses_post( wpautop( $ef_outro ) ); ?>
-				</div>
+				<?php if ( $ef_outro_title && $ef_outro ) : ?>
+					<div data-reveal>
+						<h2 class="ef-h3 ef-underline"><?php echo esc_html( $ef_outro_title ); ?></h2>
+						<div class="ef-article ef-mt-24"><?php echo wp_kses_post( wpautop( $ef_outro ) ); ?></div>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( $ef_recommend ) : ?>
+					<div class="ef-recommend<?php echo ( $ef_outro_title && $ef_outro ) ? ' ef-mt-48' : ''; ?>" data-reveal data-reveal-delay="1">
+						<h3 class="ef-recommend__title"><?php ef_icon( 'bulb' ); ?><?php echo esc_html( $ef_recommend['title'] ); ?></h3>
+						<ul class="ef-recommend__list">
+							<?php foreach ( $ef_recommend['items'] as $ef_item ) : ?>
+								<li><?php echo esc_html( $ef_item ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
 			</div>
 		</section>
 	<?php endif; ?>
