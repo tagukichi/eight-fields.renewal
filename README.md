@@ -245,12 +245,42 @@ GitHub Pages 用は `--base /eight-fields.renewal/`（ワークフローが自�
 未設定なら本社住所（〒131-0042 東京都墨田区東墨田2-12-20）が既定値です。
 `output=embed` 形式のため API キーは不要で、課金も発生しません。
 
-### CPT `service` について
+### CPT `service` について（ACF で登録している場合は要確認）
 
 `service` が未登録の環境でもテーマ単体で動くよう、`inc/post-types.php` で登録しています。
-CPT UI などで既に登録済みの場合は `post_type_exists()` により自動的にスキップされるため、
-既存の設定を上書きしません。アーカイブは現行サイトに合わせて `/service_/`、
-個別ページは `/service/<slug>/` です。
+ただし **ACF や CPT UI ですでに登録済みの場合、テーマ側の登録は行いません**
+（`post_type_exists()` で判定）。つまり、そのプラグイン側の設定がそのままサイトの挙動になります。
+
+テーマのテンプレートは次の設定を前提にしているので、ACF の投稿タイプ設定を合わせてください。
+
+| 設定 | 必要な値 | 効かないとどうなるか |
+|---|---|---|
+| アーカイブ（`has_archive`） | `service_` | `/service_/` が404になる |
+| パーマリンク（`rewrite` の slug） | `service` | 個別ページのURLが現行サイトと変わる |
+| 抜粋（excerpt） | 有効 | サービスカードの説明文が空になる |
+| アイキャッチ画像（thumbnail） | 有効 | カードとページヒーローの画像が出ない |
+| ページ属性（page-attributes） | 有効 | 01〜06 の並び順が制御できない |
+
+**設定が合っているかは自動でチェックします。**
+ずれている場合は「外観 → 初期セットアップ」と「サービス一覧」の画面に、
+何をどう直せばよいかの表が出ます。設定を変えたあとは「設定 → パーマリンク」で一度保存してください。
+
+#### ACF のフィールドを使いたい場合
+
+サービスページの入力欄（キャッチコピー・メリット・よくあるご質問）はテーマ側のパネルで用意していますが、
+中身は通常のカスタムフィールドとして保存しています。ACF で**同じ名前のフィールド**を作れば
+そちらから編集できます（ACF もカスタムフィールドとして保存するため、テンプレート側の変更は不要です）。
+
+```
+ef_service_en / ef_service_catch / ef_service_sub / ef_service_fit
+ef_merit1_title / ef_merit1_text / ef_merit1_image / ef_merit1_fit   （2, 3 も同様）
+ef_faq1_q / ef_faq1_a                                                （2, 3 も同様）
+ef_service_outro_title / ef_service_outro
+```
+
+その場合はテーマ側のパネルが重複するので、`functions.php` の
+`inc/meta-boxes.php` の読み込みを外すか、`remove_meta_box( 'ef_service_details', 'service', 'normal' )`
+で非表示にしてください。
 
 ### 動作確認済み
 

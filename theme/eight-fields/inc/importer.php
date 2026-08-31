@@ -581,6 +581,8 @@ function ef_render_setup_page() {
 
 		<p><?php esc_html_e( 'デザイン案と同じ構成のページ・サービス・メニューをまとめて作成します。', 'eight-fields' ); ?></p>
 
+		<?php ef_render_service_cpt_notice(); ?>
+
 		<h2><?php esc_html_e( '実行するとどうなるか', 'eight-fields' ); ?></h2>
 		<table class="widefat striped" style="max-width:820px">
 			<thead>
