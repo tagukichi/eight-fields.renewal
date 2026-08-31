@@ -130,6 +130,12 @@ add_action( 'init', 'ef_register_service_meta' );
  * Add the meta box to the service editor.
  */
 function ef_add_service_meta_box() {
+	// ACF is showing the same fields in a nicer panel; two of them would just be
+	// two places to edit the same values.
+	if ( ef_acf_owns_service_fields() ) {
+		return;
+	}
+
 	add_meta_box(
 		'ef_service_details',
 		__( 'サービスページの内容', 'eight-fields' ),
@@ -194,6 +200,9 @@ function ef_render_service_meta_box( $post ) {
  * @param int $post_id Service being saved.
  */
 function ef_save_service_meta( $post_id ) {
+	if ( ef_acf_owns_service_fields() ) {
+		return;
+	}
 	if ( ! isset( $_POST['ef_service_meta_nonce'] )
 		|| ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['ef_service_meta_nonce'] ) ), 'ef_save_service_meta' ) ) {
 		return;
@@ -218,3 +227,34 @@ function ef_save_service_meta( $post_id ) {
 	}
 }
 add_action( 'save_post_service', 'ef_save_service_meta' );
+
+/**
+ * Tell ACF where the theme keeps its field groups.
+ *
+ * With ACF (free or Pro) installed, the group in `acf-json/` appears under
+ * カスタムフィールド → フィールドグループ and can be edited there like any
+ * other. Its field names match the meta keys the templates read, so ACF and
+ * the templates stay in step without any mapping.
+ *
+ * @param array $paths Load paths.
+ * @return array
+ */
+function ef_acf_json_load_point( $paths ) {
+	$paths[] = get_template_directory() . '/acf-json';
+	return $paths;
+}
+add_filter( 'acf/settings/load_json', 'ef_acf_json_load_point' );
+
+/**
+ * Whether ACF is providing the service fields.
+ *
+ * @return bool
+ */
+function ef_acf_owns_service_fields() {
+	if ( ! function_exists( 'acf_get_field_group' ) ) {
+		return false;
+	}
+
+	$group = acf_get_field_group( 'group_ef_service_details' );
+	return $group && ! empty( $group['active'] );
+}

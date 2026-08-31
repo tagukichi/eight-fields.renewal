@@ -35,17 +35,18 @@ while ( have_posts() ) :
 	?>
 
 	<?php
-	// A page-builder body brings its own grid and needs the full width, and a
-	// service with no photo has nothing to put in the left column — in both
-	// cases the two-column intro would leave the content squeezed or the layout
-	// half empty, so the body moves to its own full-width section instead.
-	$ef_builder = ef_uses_page_builder( $ef_id );
-	$ef_media   = has_post_thumbnail();
-	$ef_split   = $ef_media && ! $ef_builder;
+	// A service page is a designed template, so a builder's own grid is set
+	// aside and its text rendered as prose in the intro column. `ef_plain_body`
+	// reads the builder's data without letting the builder lay it out; nothing
+	// is written back, so the layout survives if this is ever switched off.
+	$ef_ignore = ef_ignores_page_builder( 'service' );
+	$ef_body   = $ef_ignore ? ef_plain_body( $ef_id ) : '';
+	$ef_media  = has_post_thumbnail();
+	$ef_split  = $ef_media;
 	?>
 
 	<!-- INTRO -->
-	<section class="ef-section<?php echo $ef_builder ? ' ef-section--tight' : ''; ?>">
+	<section class="ef-section">
 		<div class="ef-container<?php echo $ef_split ? '' : ' ef-container--narrow'; ?>">
 			<div class="<?php echo $ef_split ? 'ef-split' : ''; ?>">
 				<?php if ( $ef_split ) : ?>
@@ -65,7 +66,11 @@ while ( have_posts() ) :
 						<p class="ef-lead"><?php echo esc_html( $ef_sub ); ?></p>
 					<?php endif; ?>
 
-					<?php if ( ! $ef_builder ) : ?>
+					<?php if ( $ef_ignore && $ef_body ) : ?>
+						<div class="ef-article ef-mt-24">
+							<?php echo wp_kses_post( $ef_body ); ?>
+						</div>
+					<?php elseif ( ! $ef_ignore ) : ?>
 						<div class="ef-article ef-mt-24">
 							<?php the_content(); ?>
 						</div>
@@ -80,15 +85,6 @@ while ( have_posts() ) :
 			</div>
 		</div>
 	</section>
-
-	<?php if ( $ef_builder ) : ?>
-		<!-- BODY (page builder) -->
-		<section class="ef-section ef-section--tight">
-			<div class="ef-builder" data-reveal>
-				<?php the_content(); ?>
-			</div>
-		</section>
-	<?php endif; ?>
 
 	<?php
 	$ef_merits = ef_service_merits( $ef_id );

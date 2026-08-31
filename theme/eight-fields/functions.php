@@ -16,6 +16,7 @@ require_once get_template_directory() . '/inc/nav.php';
 require_once get_template_directory() . '/inc/service-icons.php';
 require_once get_template_directory() . '/inc/template-tags.php';
 require_once get_template_directory() . '/inc/content.php';
+require_once get_template_directory() . '/inc/page-builder.php';
 require_once get_template_directory() . '/inc/meta-boxes.php';
 if ( is_admin() ) {
 	require_once get_template_directory() . '/inc/importer.php';
