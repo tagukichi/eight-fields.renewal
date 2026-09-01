@@ -728,10 +728,44 @@ input, select, textarea { font: inherit; color: inherit; }
    copy, a picture and a list. The heading comes in two weights — a tinted band
    that opens a major part of the page, and a plain rule for a step inside one.
    -------------------------------------------------------------------------- */
-/* The opening block of a service page: one reading column, no picture — the
-   hero band above already carries the photograph. */
-.ef-intro .ef-h2 { margin-top: 10px; }
-.ef-intro .ef-lead { margin-top: 14px; }
+/* The opening block of a service page: the photograph, and beside it the name,
+   the catch line and the lead. */
+.ef-intro {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  gap: clamp(28px, 4vw, 60px);
+  align-items: start;
+}
+.ef-intro--solo { grid-template-columns: 1fr; max-width: 780px; }
+.ef-intro__media img {
+  width: 100%; border-radius: var(--ef-radius);
+  aspect-ratio: 4 / 5; object-fit: cover;
+}
+.ef-intro__name {
+  margin: 0 0 22px;
+  font-size: clamp(24px, 3.2vw, 34px); line-height: 1.4; letter-spacing: .01em;
+  color: var(--ef-primary-l);
+}
+.ef-intro__copy { font-size: 14.5px; line-height: 1.95; color: var(--ef-body); }
+.ef-intro__copy > *:first-child { margin-top: 0; }
+.ef-intro__copy > *:last-child { margin-bottom: 0; }
+/* The editor field opens with the catch line, so the first paragraph gets the
+   weight a lead heading has. Everything after it is body copy — guessing at
+   further roles by position would break the moment the text is edited. */
+.ef-intro__copy > p:first-child,
+.ef-intro__catch {
+  margin: 0 0 18px;
+  font-size: clamp(19px, 2.4vw, 26px); font-weight: 700; line-height: 1.55;
+  color: var(--ef-ink);
+}
+.ef-intro__sub { margin: 0 0 22px; font-size: 14px; color: var(--ef-muted); }
+.ef-intro__copy p { margin: 0 0 1.1em; }
+.ef-intro__copy strong { color: var(--ef-ink); font-weight: 700; }
+
+@media (max-width: 860px) {
+  .ef-intro { grid-template-columns: 1fr; }
+  .ef-intro__media img { aspect-ratio: 16 / 10; }
+}
 
 .ef-sec { display: grid; gap: clamp(28px, 4vw, 44px); }
 .ef-sec + .ef-sec { margin-top: clamp(44px, 6vw, 76px); }

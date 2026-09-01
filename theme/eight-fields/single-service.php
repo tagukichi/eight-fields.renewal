@@ -18,58 +18,52 @@ while ( have_posts() ) :
 	the_post();
 
 	$ef_id    = get_the_ID();
-	$ef_en    = get_post_meta( $ef_id, 'ef_service_en', true );
-	$ef_catch = get_post_meta( $ef_id, 'ef_service_catch', true );
-	$ef_sub   = get_post_meta( $ef_id, 'ef_service_sub', true );
 
-	ef_page_hero(
-		array(
-			'title'    => get_the_title(),
-			'en'       => $ef_en,
-			'lead'     => get_the_excerpt(),
-			'image_id' => get_post_thumbnail_id(),
-		)
-	);
+	// No hero band on a service page: the photograph belongs beside the opening
+	// copy below, and the title is set there too.
 	ef_breadcrumbs();
 	?>
 
 	<?php
-	// A service page is a designed template, so a builder's own grid is set
-	// aside and its text rendered as prose. `ef_plain_body` reads the builder's
-	// data without letting the builder lay it out; nothing is written back, so
-	// the layout survives if this is ever switched off.
-	$ef_ignore = ef_ignores_page_builder( 'service' );
-	$ef_body   = $ef_ignore ? ef_plain_body( $ef_id ) : '';
+	// The opening block: the service photograph, and beside it the name, the
+	// catch line and the lead. The copy comes from the site's own WYSIWYG field
+	// when there is one, so the editor edits it in the box they already use.
+	$ef_intro = ef_service_intro( $ef_id );
+	$ef_media = has_post_thumbnail();
 	?>
 
 	<!-- INTRO -->
 	<section class="ef-section">
-		<?php
-		// The featured image already fills the hero band at the top of the page,
-		// so repeating it beside the opening copy shows the same picture twice —
-		// and leaves a tall empty column whenever the copy runs long. The intro
-		// is a single reading column; pictures belong to the sections below.
-		?>
-		<div class="ef-container ef-container--narrow">
-			<div class="ef-intro" data-reveal>
-				<?php if ( $ef_en ) : ?>
-					<span class="ef-eyebrow"><?php echo esc_html( $ef_en ); ?></span>
-				<?php endif; ?>
-				<h2 class="ef-h2"><?php echo esc_html( $ef_catch ? $ef_catch : get_the_title() ); ?></h2>
-				<?php if ( $ef_sub ) : ?>
-					<p class="ef-lead"><?php echo esc_html( $ef_sub ); ?></p>
+		<div class="ef-container">
+			<div class="ef-intro<?php echo $ef_media ? '' : ' ef-intro--solo'; ?>">
+				<?php if ( $ef_media ) : ?>
+					<div class="ef-intro__media" data-reveal>
+						<?php the_post_thumbnail( 'large', array( 'loading' => 'eager', 'decoding' => 'async', 'alt' => get_the_title() ) ); ?>
+					</div>
 				<?php endif; ?>
 
-				<?php if ( $ef_ignore && $ef_body ) : ?>
-					<div class="ef-article ef-mt-24"><?php echo wp_kses_post( $ef_body ); ?></div>
-				<?php elseif ( ! $ef_ignore ) : ?>
-					<div class="ef-article ef-mt-24"><?php the_content(); ?></div>
-				<?php endif; ?>
+				<div class="ef-intro__body" data-reveal data-reveal-delay="1">
+					<h1 class="ef-intro__name"><?php the_title(); ?></h1>
 
-				<div class="ef-actions ef-mt-32">
-					<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
-						<?php esc_html_e( 'この設備について相談する', 'eight-fields' ); ?>
-					</a>
+					<?php if ( $ef_intro['html'] ) : ?>
+						<div class="ef-intro__copy"><?php echo wp_kses_post( $ef_intro['html'] ); ?></div>
+					<?php else : ?>
+						<?php if ( $ef_intro['catch'] ) : ?>
+							<p class="ef-intro__catch"><?php echo esc_html( $ef_intro['catch'] ); ?></p>
+						<?php endif; ?>
+						<?php if ( $ef_intro['sub'] ) : ?>
+							<p class="ef-intro__sub"><?php echo esc_html( $ef_intro['sub'] ); ?></p>
+						<?php endif; ?>
+						<?php if ( $ef_intro['body'] ) : ?>
+							<div class="ef-intro__copy"><?php echo wp_kses_post( $ef_intro['body'] ); ?></div>
+						<?php endif; ?>
+					<?php endif; ?>
+
+					<div class="ef-actions ef-mt-32">
+						<a class="ef-btn ef-btn--primary" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
+							<?php esc_html_e( 'この設備について相談する', 'eight-fields' ); ?>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>

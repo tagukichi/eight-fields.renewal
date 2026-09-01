@@ -616,3 +616,124 @@ function ef_attachment_id( $value ) {
 	}
 	return 0;
 }
+
+/**
+ * The name of the ACF field holding a service's opening copy.
+ *
+ * The site already has its own field group on `service` with the catch line and
+ * lead paragraphs in one WYSIWYG box. Rather than asking anyone to retype that
+ * into the theme's fields, the theme finds it: the first rich-text field on
+ * `service` that is not one of the theme's own `ef_` fields.
+ *
+ * Override it explicitly with:
+ *   add_filter( 'ef_intro_field', fn() => 'your_field_name' );
+ *
+ * @return string Field name, or '' when there is nothing to use.
+ */
+function ef_intro_field() {
+	$name = apply_filters( 'ef_intro_field', null );
+	if ( null !== $name ) {
+		return (string) $name;
+	}
+
+	static $found = null;
+	if ( null !== $found ) {
+		return $found;
+	}
+
+	// The site's own group calls it this; check it first so the lookup below is
+	// only reached on a site that named the field something else.
+	if ( metadata_exists( 'post', get_the_ID(), 'service_subtitle' ) ) {
+		$found = 'service_subtitle';
+		return $found;
+	}
+
+	if ( ! function_exists( 'acf_get_field_groups' ) || ! function_exists( 'acf_get_fields' ) ) {
+		$found = 'service_subtitle';
+		return $found;
+	}
+
+	$found = '';
+	foreach ( acf_get_field_groups( array( 'post_type' => 'service' ) ) as $group ) {
+		if ( 'group_ef_service_details' === $group['key'] ) {
+			continue;
+		}
+		foreach ( (array) acf_get_fields( $group ) as $field ) {
+			if ( ! in_array( $field['type'], array( 'wysiwyg', 'textarea' ), true ) ) {
+				continue;
+			}
+			if ( 0 === strpos( $field['name'], 'ef_' ) ) {
+				continue;
+			}
+			$found = $field['name'];
+			return $found;
+		}
+	}
+
+	return $found;
+}
+
+/**
+ * The opening copy for a service page.
+ *
+ * Prefers the site's own ACF field when there is one, so what the editor sees in
+ * that box is what appears at the top of the page. Falls back to the theme's
+ * catch line and body.
+ *
+ * @param int|null $post_id Service post ID. Defaults to the current post.
+ * @return array {
+ *     @type string $html    Ready-to-print HTML, or '' when using the fallback.
+ *     @type string $catch   Catch line for the fallback.
+ *     @type string $sub     Sub-line for the fallback.
+ *     @type string $body    Body HTML for the fallback.
+ * }
+ */
+function ef_service_intro( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+
+	$field = ef_intro_field();
+	if ( $field ) {
+		// ACF formats the value (paragraphs, shortcodes); without it the raw
+		// meta still holds the editor's HTML, so the page renders either way.
+		$value = function_exists( 'get_field' )
+			? get_field( $field, $post_id )
+			: wpautop( (string) get_post_meta( $post_id, $field, true ) );
+
+		if ( is_string( $value ) && trim( wp_strip_all_tags( $value ) ) ) {
+			return array(
+				'html'  => ef_strip_font_styles( $value ),
+				'catch' => '',
+				'sub'   => '',
+				'body'  => '',
+			);
+		}
+	}
+
+	return array(
+		'html'  => '',
+		'catch' => (string) get_post_meta( $post_id, 'ef_service_catch', true ),
+		'sub'   => (string) get_post_meta( $post_id, 'ef_service_sub', true ),
+		'body'  => ef_ignores_page_builder( 'service' ) ? ef_plain_body( $post_id ) : '',
+	);
+}
+
+/**
+ * Drop hard-coded fonts and sizes from editor HTML.
+ *
+ * The visual editor's font and size pickers write inline styles, which would
+ * put a serif face at a fixed pixel size into a page whose type is set by the
+ * design. Everything else in the style attribute is left alone.
+ *
+ * @param string $html Editor HTML.
+ * @return string
+ */
+function ef_strip_font_styles( $html ) {
+	// Remove the two declarations, then any style attribute left empty by that.
+	$html = preg_replace( '/(?<=[";\s])(font-family|font-size|line-height)\s*:[^;"]*;?/i', '', $html );
+	$html = preg_replace( '/\sstyle="\s*"/i', '', $html );
+
+	// The editor also emits <font> and <span> wrappers for the same purpose.
+	$html = preg_replace( '#</?font[^>]*>#i', '', $html );
+
+	return $html;
+}
