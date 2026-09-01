@@ -131,6 +131,81 @@ function ef_diag_services() {
 }
 
 /**
+ * The concrete next steps, worked out from the site's current state.
+ *
+ * The tables below say what is true; this says what to do about it, so the
+ * screen answers "why does it still look the same?" without needing anyone to
+ * interpret the raw values.
+ *
+ * @return array[] Rows of array( text, done ).
+ */
+function ef_diag_todo() {
+	$todo     = array();
+	$services = ef_diag_services();
+	$object   = get_post_type_object( 'service' );
+
+	$filled = 0;
+	$templated = array();
+	foreach ( $services as $svc ) {
+		if ( $svc['sections'] ) {
+			++$filled;
+		}
+		if ( 'single-service.php' !== $svc['template'] ) {
+			$templated[] = $svc['title'];
+		}
+	}
+
+	if ( $services && ! $filled ) {
+		$todo[] = array(
+			'text' => __( '「外観 → 初期セットアップ」を実行してください。サービスの本文セクションが1件も入っていないため、各ページは導入部分しか表示されません。', 'eight-fields' ),
+			'done' => false,
+		);
+	}
+
+	if ( $templated ) {
+		$todo[] = array(
+			/* translators: %s: comma separated service names */
+			'text' => sprintf( __( '次のサービスは、ページ属性でテンプレートが上書きされているためテーマのデザインが使われません：%s。編集画面のページ属性でテンプレートを「デフォルト」に戻してください。', 'eight-fields' ), implode( '、', $templated ) ),
+			'done' => false,
+		);
+	}
+
+	if ( $object && ! post_type_supports( 'service', 'excerpt' ) ) {
+		$todo[] = array(
+			'text' => __( 'ACFの投稿タイプ設定で「抜粋（excerpt）」を有効にしてください。サービスカードの説明文がここから出るため、いまは一覧のカードが空欄になります。', 'eight-fields' ),
+			'done' => false,
+		);
+	}
+
+	if ( $object && ! post_type_supports( 'service', 'page-attributes' ) ) {
+		$todo[] = array(
+			'text' => __( 'ACFの投稿タイプ設定で「ページ属性（page-attributes）」を有効にしてください。サービスの並び順と 01〜06 の番号がこれで決まります。', 'eight-fields' ),
+			'done' => false,
+		);
+	}
+
+	if ( ! get_option( 'permalink_structure' ) ) {
+		$todo[] = array(
+			'text' => __( '「設定 → パーマリンク」で「投稿名」を選んで保存してください。', 'eight-fields' ),
+			'done' => false,
+		);
+	}
+
+	// A page cache will happily keep serving the previous version of the site.
+	foreach ( array( 'litespeed-cache/litespeed-cache.php', 'wp-super-cache/wp-cache.php', 'w3-total-cache/w3-total-cache.php', 'wp-fastest-cache/wpFastestCache.php' ) as $plugin ) {
+		if ( in_array( $plugin, (array) get_option( 'active_plugins', array() ), true ) ) {
+			$todo[] = array(
+				'text' => __( 'キャッシュ系プラグインが有効です。テーマを更新したあとは、必ずキャッシュを削除してから表示を確認してください。', 'eight-fields' ),
+				'done' => false,
+			);
+			break;
+		}
+	}
+
+	return $todo;
+}
+
+/**
  * Render the diagnostics screen.
  */
 function ef_render_diagnostics_page() {
@@ -153,6 +228,22 @@ function ef_render_diagnostics_page() {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'サイト診断', 'eight-fields' ); ?></h1>
 		<p><?php esc_html_e( 'サービスページの表示がおかしいときに、原因の切り分けに使う画面です。この画面は状態を読み取るだけで、何も変更しません。', 'eight-fields' ); ?></p>
+
+		<?php $ef_todo = ef_diag_todo(); ?>
+		<?php if ( $ef_todo ) : ?>
+			<div class="notice notice-warning" style="padding:12px 16px">
+				<h2 style="margin-top:0"><?php esc_html_e( '次にすること', 'eight-fields' ); ?></h2>
+				<ol style="margin:0 0 8px 20px">
+					<?php foreach ( $ef_todo as $ef_item ) : ?>
+						<li style="margin-bottom:10px"><?php echo esc_html( $ef_item['text'] ); ?></li>
+					<?php endforeach; ?>
+				</ol>
+			</div>
+		<?php else : ?>
+			<div class="notice notice-success" style="padding:12px 16px">
+				<p style="margin:0"><strong><?php esc_html_e( '設定は揃っています。', 'eight-fields' ); ?></strong></p>
+			</div>
+		<?php endif; ?>
 
 		<?php if ( $orphans ) : ?>
 			<div class="notice notice-error">
@@ -387,6 +478,15 @@ function ef_diagnostics_text() {
 			$object->show_in_menu ? 'y' : 'n',
 			$object->publicly_queryable ? 'y' : 'n'
 		);
+	}
+	$lines[] = '';
+
+	$lines[] = '[todo]';
+	foreach ( ef_diag_todo() as $item ) {
+		$lines[] = '  - ' . $item['text'];
+	}
+	if ( ! ef_diag_todo() ) {
+		$lines[] = '  (none)';
 	}
 	$lines[] = '';
 

@@ -89,14 +89,15 @@ function ef_service_cpt_report() {
 	$owner    = ef_service_registered_by_theme() ? 'theme' : 'plugin';
 	$problems = array();
 
-	if ( 'service_' !== $object->has_archive ) {
+	// An archive at some other slug still works — every link in the theme is
+	// built with get_post_type_archive_link(), so it follows whatever is set.
+	// Only having no archive at all breaks things.
+	if ( ! $object->has_archive ) {
 		$problems[] = array(
-			__( 'アーカイブのURL（has_archive）', 'eight-fields' ),
-			'service_',
-			$object->has_archive ? (string) $object->has_archive : __( 'アーカイブなし', 'eight-fields' ),
-			$object->has_archive
-				? __( 'サービス一覧のURLが現行サイトと変わります。', 'eight-fields' )
-				: __( '/service_/ が404になり、ヘッダーとハンバーガーの「サービス」もリンクにならなくなります。', 'eight-fields' ),
+			__( 'アーカイブ（has_archive）', 'eight-fields' ),
+			__( '有効', 'eight-fields' ),
+			__( 'アーカイブなし', 'eight-fields' ),
+			__( 'サービス一覧ページが404になり、ヘッダーとハンバーガーの「サービス」もリンクになりません。', 'eight-fields' ),
 		);
 	}
 
@@ -109,6 +110,10 @@ function ef_service_cpt_report() {
 			__( '各サービスのURLが現行サイトと変わります。', 'eight-fields' ),
 		);
 	}
+
+	// The card text and the 01〜06 ordering come from these two, and ACF leaves
+	// both off by default — the page still renders, just emptier than intended.
+	
 
 	$needed = array(
 		'title'           => __( 'タイトル', 'eight-fields' ),
