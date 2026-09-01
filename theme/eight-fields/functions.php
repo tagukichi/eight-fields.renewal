@@ -9,7 +9,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EF_THEME_VERSION', '1.0.0' );
+/**
+ * The version used to bust caches on the theme's CSS and JS.
+ *
+ * Read from style.css rather than typed here — a hardcoded constant silently
+ * goes stale, and then browsers keep serving the old stylesheet after an
+ * update, which looks exactly like "the new theme did nothing".
+ */
+define( 'EF_THEME_VERSION', wp_get_theme( 'eight-fields' )->get( 'Version' ) );
 
 require_once get_template_directory() . '/inc/post-types.php';
 require_once get_template_directory() . '/inc/nav.php';

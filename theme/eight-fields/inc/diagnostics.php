@@ -90,6 +90,47 @@ function ef_diag_service_rules() {
 }
 
 /**
+ * What each service page is actually built with, and what renders it.
+ *
+ * A builder that takes over the page template (Elementor's Canvas and Full
+ * Width layouts do) means the theme's own service template never runs — so no
+ * amount of theme work changes what is shown. That is invisible from the admin,
+ * so it is reported here per service.
+ *
+ * @return array[] Rows of array( title, edit, template, builder, sections ).
+ */
+function ef_diag_services() {
+	$rows = array();
+
+	foreach ( get_posts( array( 'post_type' => 'service', 'posts_per_page' => -1, 'orderby' => 'menu_order', 'order' => 'ASC' ) ) as $post ) {
+		$builders = array();
+		if ( get_post_meta( $post->ID, 'panels_data', true ) ) {
+			$builders[] = 'SiteOrigin';
+		}
+		if ( 'builder' === get_post_meta( $post->ID, '_elementor_edit_mode', true ) ) {
+			$builders[] = 'Elementor';
+		}
+		if ( get_post_meta( $post->ID, '_fl_builder_enabled', true ) ) {
+			$builders[] = 'Beaver Builder';
+		}
+
+		// A page template set on the post wins over the theme's single-service.php.
+		$template = get_post_meta( $post->ID, '_wp_page_template', true );
+
+		$rows[] = array(
+			'title'    => get_the_title( $post ),
+			'edit'     => get_edit_post_link( $post->ID ),
+			'template' => $template && 'default' !== $template ? $template : 'single-service.php',
+			'builder'  => $builders,
+			'sections' => count( ef_service_sections( $post->ID ) ),
+			'catch'    => (string) get_post_meta( $post->ID, 'ef_service_catch', true ),
+		);
+	}
+
+	return $rows;
+}
+
+/**
  * Render the diagnostics screen.
  */
 function ef_render_diagnostics_page() {
@@ -144,6 +185,47 @@ function ef_render_diagnostics_page() {
 				</ul>
 			</div>
 		<?php endif; ?>
+
+		<h2><?php esc_html_e( 'サービス各ページの状態', 'eight-fields' ); ?></h2>
+		<p><?php esc_html_e( '「テンプレート」が single-service.php 以外になっている場合、テーマのデザインは使われません。ページビルダーが独自のテンプレートを適用していないかご確認ください。', 'eight-fields' ); ?></p>
+		<table class="widefat striped" style="max-width:920px">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'サービス', 'eight-fields' ); ?></th>
+					<th style="width:190px"><?php esc_html_e( 'テンプレート', 'eight-fields' ); ?></th>
+					<th style="width:150px"><?php esc_html_e( 'ページビルダー', 'eight-fields' ); ?></th>
+					<th style="width:110px"><?php esc_html_e( 'セクション数', 'eight-fields' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( ef_diag_services() as $ef_svc ) : ?>
+					<tr>
+						<td>
+							<?php if ( $ef_svc['edit'] ) : ?>
+								<a href="<?php echo esc_url( $ef_svc['edit'] ); ?>"><?php echo esc_html( $ef_svc['title'] ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $ef_svc['title'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td>
+							<code><?php echo esc_html( $ef_svc['template'] ); ?></code>
+							<?php if ( 'single-service.php' !== $ef_svc['template'] ) : ?>
+								<br><span style="color:#b32d2e"><?php esc_html_e( '← テーマのデザインが使われません', 'eight-fields' ); ?></span>
+							<?php endif; ?>
+						</td>
+						<td>
+							<?php echo $ef_svc['builder'] ? esc_html( implode( ', ', $ef_svc['builder'] ) ) : esc_html__( 'なし', 'eight-fields' ); ?>
+						</td>
+						<td>
+							<?php echo (int) $ef_svc['sections']; ?>
+							<?php if ( ! $ef_svc['sections'] ) : ?>
+								<br><span style="color:#8a6d00"><?php esc_html_e( '未入力', 'eight-fields' ); ?></span>
+							<?php endif; ?>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 
 		<h2><?php esc_html_e( 'カスタム投稿タイプ service', 'eight-fields' ); ?></h2>
 		<table class="widefat striped" style="max-width:820px">
@@ -285,7 +367,8 @@ function ef_diagnostics_text() {
 	$lines  = array();
 
 	$lines[] = 'WordPress: ' . get_bloginfo( 'version' ) . ' / PHP: ' . PHP_VERSION;
-	$lines[] = 'Theme: ' . wp_get_theme()->get( 'Name' ) . ' ' . wp_get_theme()->get( 'Version' );
+	$lines[] = 'Theme: ' . wp_get_theme()->get( 'Name' ) . ' ' . wp_get_theme()->get( 'Version' )
+		. ' (assets ?ver=' . ( defined( 'EF_THEME_VERSION' ) ? EF_THEME_VERSION : '?' ) . ')';
 	$lines[] = 'Permalink: ' . ( get_option( 'permalink_structure' ) ? get_option( 'permalink_structure' ) : '(plain)' );
 	$lines[] = '';
 
@@ -303,6 +386,19 @@ function ef_diagnostics_text() {
 			$object->show_ui ? 'y' : 'n',
 			$object->show_in_menu ? 'y' : 'n',
 			$object->publicly_queryable ? 'y' : 'n'
+		);
+	}
+	$lines[] = '';
+
+	$lines[] = '[services]';
+	foreach ( ef_diag_services() as $svc ) {
+		$lines[] = sprintf(
+			'  %-22s template=%-22s builder=%-24s sections=%d catch=%s',
+			$svc['title'],
+			$svc['template'],
+			$svc['builder'] ? implode( '+', $svc['builder'] ) : '-',
+			$svc['sections'],
+			$svc['catch'] ? 'set' : '-'
 		);
 	}
 	$lines[] = '';
