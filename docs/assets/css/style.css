@@ -728,6 +728,11 @@ input, select, textarea { font: inherit; color: inherit; }
    copy, a picture and a list. The heading comes in two weights — a tinted band
    that opens a major part of the page, and a plain rule for a step inside one.
    -------------------------------------------------------------------------- */
+/* The opening block of a service page: one reading column, no picture — the
+   hero band above already carries the photograph. */
+.ef-intro .ef-h2 { margin-top: 10px; }
+.ef-intro .ef-lead { margin-top: 14px; }
+
 .ef-sec { display: grid; gap: clamp(28px, 4vw, 44px); }
 .ef-sec + .ef-sec { margin-top: clamp(44px, 6vw, 76px); }
 
