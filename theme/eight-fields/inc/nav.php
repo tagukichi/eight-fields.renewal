@@ -42,8 +42,37 @@ class EF_Nav_Walker extends Walker_Nav_Menu {
 		$classes   = empty( $item->classes ) ? array() : (array) $item->classes;
 		$classes[] = 'menu-item-' . $item->ID;
 
-		$class_names = implode( ' ', array_filter( apply_filters( 'nav_menu_css_class', array_filter( $classes ), $item, $args, $depth ) ) );
 		$has_children = in_array( 'menu-item-has-children', $classes, true );
+
+		if ( 0 === $depth ) {
+			// The dropdown hangs off this class: it is what positions the panel
+			// and what reveals it on hover. Without it the sub-menu is in the
+			// markup but never visible.
+			$classes[] = 'ef-nav__item';
+
+			$current = array_intersect(
+				$classes,
+				array(
+					'current-menu-item',
+					'current_page_item',
+					'current-menu-parent',
+					'current_page_parent',
+					'current-menu-ancestor',
+					'current_page_ancestor',
+				)
+			);
+			if ( $current ) {
+				$classes[] = 'is-current';
+			}
+
+			// Home is a drawer-only row in the design; on desktop the logo is
+			// the way back.
+			if ( ! empty( $item->url ) && untrailingslashit( $item->url ) === untrailingslashit( home_url( '/' ) ) ) {
+				$classes[] = 'ef-nav__item--home';
+			}
+		}
+
+		$class_names = implode( ' ', array_filter( apply_filters( 'nav_menu_css_class', array_filter( $classes ), $item, $args, $depth ) ) );
 
 		$output .= '<li class="' . esc_attr( $class_names ) . '">';
 
@@ -68,7 +97,17 @@ class EF_Nav_Walker extends Walker_Nav_Menu {
 		// rather than emitting a link that is not one.
 		$tag = isset( $atts['href'] ) && '' !== $atts['href'] ? 'a' : 'span';
 
-		$output .= '<' . $tag . $attributes . '>' . esc_html( $title );
+		// A service in the dropdown carries its own icon, as it does on the
+		// cards and in the drawer.
+		$icon = '';
+		if ( $depth > 0 && 'service' === $item->object && $item->object_id ) {
+			$svg = ef_service_icon( get_post_field( 'post_name', $item->object_id ) );
+			if ( $svg ) {
+				$icon = '<span class="ef-ico">' . $svg . '</span>';
+			}
+		}
+
+		$output .= '<' . $tag . $attributes . '>' . $icon . esc_html( $title );
 		if ( $has_children && 0 === $depth ) {
 			$output .= ef_icon( 'caret', false );
 		}
@@ -190,6 +229,110 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 }
 
 /**
+ * Hang the services under the サービス item when the menu has no children.
+ *
+ * The design's header opens a list of the six services on hover. A menu built
+ * by hand usually has サービス as a single flat item, so rather than asking the
+ * editor to drag six children into place, the services are added here at render
+ * time. A menu that already has its own children is left exactly as it is.
+ *
+ * @param array    $items Menu items.
+ * @param stdClass $args  Menu args.
+ * @return array
+ */
+function ef_nav_service_children( $items, $args ) {
+	if ( empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+		return $items;
+	}
+	if ( ! post_type_exists( 'service' ) ) {
+		return $items;
+	}
+
+	$archive = get_post_type_archive_link( 'service' );
+
+	$parent_id = 0;
+	$parent_at = 0;
+	foreach ( $items as $index => $item ) {
+		if ( ! empty( $item->menu_item_parent ) ) {
+			continue;
+		}
+		$is_service = ( 'post_type_archive' === $item->type && 'service' === $item->object )
+			|| ( $archive && ! empty( $item->url ) && untrailingslashit( $item->url ) === untrailingslashit( $archive ) );
+		if ( $is_service ) {
+			$parent_id = (int) $item->ID;
+			$parent_at = $index;
+			break;
+		}
+	}
+
+	if ( ! $parent_id ) {
+		return $items;
+	}
+
+	// Their own sub-menu wins.
+	foreach ( $items as $item ) {
+		if ( (int) $item->menu_item_parent === $parent_id ) {
+			return $items;
+		}
+	}
+
+	$services = get_posts(
+		array(
+			'post_type'      => 'service',
+			'posts_per_page' => -1,
+			'orderby'        => array(
+				'menu_order' => 'ASC',
+				'date'       => 'ASC',
+			),
+		)
+	);
+	if ( ! $services ) {
+		return $items;
+	}
+
+	$current  = is_singular( 'service' ) ? get_queried_object_id() : 0;
+	$children = array();
+
+	foreach ( $services as $service ) {
+		$child                        = new stdClass();
+		$child->ID                    = (int) $service->ID;
+		$child->db_id                 = (int) $service->ID;
+		$child->menu_item_parent      = (string) $parent_id;
+		$child->object_id             = (int) $service->ID;
+		$child->object                = 'service';
+		$child->type                  = 'post_type';
+		$child->type_label            = '';
+		$child->title                 = get_the_title( $service );
+		$child->url                   = get_permalink( $service );
+		$child->target                = '';
+		$child->attr_title            = '';
+		$child->description           = '';
+		$child->xfn                   = '';
+		$child->post_parent           = 0;
+		$child->menu_order            = (int) $service->menu_order;
+		$child->classes               = array( '' );
+		$child->current               = ( $current === (int) $service->ID );
+		$child->current_item_ancestor = false;
+		$child->current_item_parent   = false;
+
+		if ( $child->current ) {
+			$child->classes[]                       = 'current-menu-item';
+			$items[ $parent_at ]->current_item_parent = true;
+			$items[ $parent_at ]->classes[]           = 'current-menu-parent';
+		}
+
+		$children[] = $child;
+	}
+
+	$items[ $parent_at ]->classes[] = 'menu-item-has-children';
+
+	array_splice( $items, $parent_at + 1, 0, $children );
+
+	return $items;
+}
+add_filter( 'wp_nav_menu_objects', 'ef_nav_service_children', 10, 2 );
+
+/**
  * Shown when no menu has been assigned to the `primary` location yet.
  *
  * @param array $args Menu args.
@@ -218,6 +361,20 @@ function ef_nav_fallback( $args ) {
 		$is_service = 'SERVICE' === $item[2];
 
 		if ( ! $drawer ) {
+			if ( $is_service && $services ) {
+				echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $item[1] ) . '">'
+					. esc_html( $item[0] ) . ef_icon( 'caret', false ) . '</a>'
+					. '<ul class="ef-nav__sub">';
+				foreach ( $services as $service ) {
+					$svg  = ef_service_icon( $service->post_name );
+					$icon = $svg ? '<span class="ef-ico">' . $svg . '</span>' : '';
+					echo '<li><a class="ef-nav__sublink" href="' . esc_url( get_permalink( $service ) ) . '">'
+						. $icon . esc_html( get_the_title( $service ) ) . '</a></li>';
+				}
+				echo '</ul></li>';
+				continue;
+			}
+
 			echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $item[1] ) . '">'
 				. esc_html( $item[0] ) . '</a></li>';
 			continue;

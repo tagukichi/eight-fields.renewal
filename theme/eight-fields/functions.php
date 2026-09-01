@@ -27,6 +27,7 @@ require_once get_template_directory() . '/inc/page-builder.php';
 require_once get_template_directory() . '/inc/meta-boxes.php';
 if ( is_admin() ) {
 	require_once get_template_directory() . '/inc/importer.php';
+	require_once get_template_directory() . '/inc/service-text.php';
 	require_once get_template_directory() . '/inc/diagnostics.php';
 }
 
@@ -162,28 +163,6 @@ function ef_pre_get_posts( $query ) {
 	}
 }
 add_action( 'pre_get_posts', 'ef_pre_get_posts' );
-
-/**
- * Give nav menu items the class names the stylesheet expects.
- *
- * @param array    $classes Existing classes.
- * @param WP_Post  $item    Menu item.
- * @param stdClass $args    Menu args.
- * @param int      $depth   Depth.
- * @return array
- */
-function ef_nav_menu_css_class( $classes, $item, $args, $depth ) {
-	if ( isset( $args->theme_location ) && 'primary' === $args->theme_location && 0 === $depth ) {
-		$classes[] = 'ef-nav__item';
-		if ( in_array( 'current-menu-item', $classes, true )
-			|| in_array( 'current-menu-ancestor', $classes, true )
-			|| in_array( 'current_page_parent', $classes, true ) ) {
-			$classes[] = 'is-current';
-		}
-	}
-	return $classes;
-}
-add_filter( 'nav_menu_css_class', 'ef_nav_menu_css_class', 10, 4 );
 
 /**
  * Link classes for the primary menu.

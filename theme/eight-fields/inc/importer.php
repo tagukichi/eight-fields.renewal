@@ -286,18 +286,30 @@ function ef_plan_setup() {
  * @param int   $post_id   Service post ID.
  * @param array $sections  Section rows from the seed.
  * @param bool  $overwrite Replace sections that are already there.
+ * @return int Rows written, or 0 when nothing was touched.
  */
 function ef_seed_sections( $post_id, $sections, $overwrite = false ) {
 	if ( ! $sections ) {
-		return;
+		return 0;
 	}
 	if ( ! $overwrite && get_post_meta( $post_id, 'ef_sections', true ) ) {
-		return;
+		return 0;
 	}
 
 	// ACF locates its sub-fields through a hidden `_`-prefixed row holding the
 	// field key; without those the panel shows empty rows.
 	$keys = ef_section_field_keys();
+	$subs = array_diff( array_keys( $keys ), array( 'ef_sections' ) );
+
+	// Rows left over from a longer previous set would come back if the count
+	// ever grew again, so clear them out before writing the new ones.
+	$previous = (int) get_post_meta( $post_id, 'ef_sections', true );
+	for ( $i = count( $sections ); $i < $previous; $i++ ) {
+		foreach ( $subs as $sub ) {
+			delete_post_meta( $post_id, "ef_sections_{$i}_{$sub}" );
+			delete_post_meta( $post_id, "_ef_sections_{$i}_{$sub}" );
+		}
+	}
 
 	update_post_meta( $post_id, 'ef_sections', count( $sections ) );
 	if ( ! empty( $keys['ef_sections'] ) ) {
@@ -324,6 +336,8 @@ function ef_seed_sections( $post_id, $sections, $overwrite = false ) {
 			}
 		}
 	}
+
+	return count( $sections );
 }
 
 /**

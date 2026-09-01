@@ -157,7 +157,18 @@ function ef_diag_todo() {
 
 	if ( $services && ! $filled ) {
 		$todo[] = array(
-			'text' => __( '「外観 → 初期セットアップ」を実行してください。サービスの本文セクションが1件も入っていないため、各ページは導入部分しか表示されません。', 'eight-fields' ),
+			'text' => __( '「外観 → サービス本文の流し込み」を実行してください。サービスの本文セクションが1件も入っていないため、各ページは導入部分しか表示されません。', 'eight-fields' ),
+			'done' => false,
+		);
+	} elseif ( $services && $filled < count( $services ) - 1 ) {
+		// Maintenance has no transcribed copy, so one empty service is expected.
+		$todo[] = array(
+			'text' => sprintf(
+				/* translators: 1: services with sections, 2: total services */
+				__( '本文セクションが入っているサービスは %1$d／%2$d 件です。「外観 → サービス本文の流し込み」で残りを埋められます。', 'eight-fields' ),
+				$filled,
+				count( $services )
+			),
 			'done' => false,
 		);
 	}

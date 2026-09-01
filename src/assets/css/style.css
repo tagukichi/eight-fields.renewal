@@ -293,8 +293,15 @@ input, select, textarea { font: inherit; color: inherit; }
   min-width: 260px; padding: 10px;
   background: #fff; border: 1px solid var(--ef-line-soft); border-radius: var(--ef-radius);
   box-shadow: var(--ef-shadow);
+  z-index: 5;
   opacity: 0; visibility: hidden;
   transition: opacity .25s var(--ef-ease), transform .25s var(--ef-ease), visibility .25s;
+}
+/* Bridges the gap between the link and the panel, so moving the pointer down
+   into the list does not pass through a strip where nothing is hovered. It
+   only exists while the panel is open, since it lives inside it. */
+.ef-nav__sub::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px;
 }
 .ef-nav__item:hover .ef-nav__sub,
 .ef-nav__item:focus-within .ef-nav__sub {
