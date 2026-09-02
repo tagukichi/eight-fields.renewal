@@ -132,6 +132,9 @@ input, select, textarea { font: inherit; color: inherit; }
   padding-inline: var(--ef-gutter);
 }
 .ef-container--narrow { max-width: 860px; }
+/* A form needs a little more room than an article: enough for a row of choice
+   pills without ragged wrapping, still short of a full-width line. */
+.ef-container--form { max-width: 980px; }
 .ef-container--wide   { max-width: 1360px; }
 
 .ef-section { padding-block: clamp(64px, 9vw, 120px); }
@@ -1249,28 +1252,56 @@ input, select, textarea { font: inherit; color: inherit; }
 /* --------------------------------------------------------------------------
    18. Forms
    -------------------------------------------------------------------------- */
-.ef-form { display: grid; gap: 4px; }
+/* The form sits on a white panel over the sand section, so the fields read as
+   one considered block rather than loose inputs on the page. */
+.ef-form {
+  padding: clamp(26px, 4vw, 52px) clamp(20px, 4vw, 56px);
+  background: #fff;
+  border: 1px solid var(--ef-line-soft);
+  border-radius: var(--ef-radius-lg);
+  box-shadow: 0 18px 50px -30px rgba(12, 46, 66, .28);
+}
+
 .ef-form__row {
-  display: grid; grid-template-columns: 240px 1fr; gap: 24px;
-  padding: 26px 0; border-bottom: 1px solid var(--ef-line-soft); align-items: start;
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 0 28px;
+  padding: 24px 0; border-bottom: 1px solid var(--ef-line-soft);
 }
-.ef-form__row:first-child { border-top: 1px solid var(--ef-line-soft); }
-.ef-form__label { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: var(--ef-ink); padding-top: 14px; }
+/* WordPress and Contact Form 7 both run the form markup through wpautop, which
+   leaves stray empty paragraphs between a label and its field. Placing the
+   label in column one and everything else in column two keeps the two-column
+   row intact however many extra nodes turn up. */
+.ef-form__row > * { grid-column: 2; min-width: 0; }
+.ef-form__row > .ef-form__label { grid-column: 1; grid-row: 1; align-self: start; }
+.ef-form p:empty, .ef-form__row > br, .ef-form__row > div > br { display: none; }
+/* Stacking the field cell rules out the blank line boxes that the newlines
+   between two fields would otherwise leave between them. */
+.ef-form__row > div { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
+.ef-form__row > div > .wpcf7-form-control-wrap + .wpcf7-form-control-wrap { margin-top: 12px; }
+
+.ef-form__label {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding-top: 15px;
+  font-size: 15px; font-weight: 700; line-height: 1.6; color: var(--ef-ink);
+}
+/* Tinted rather than a solid block: it marks the field without shouting. */
 .ef-req, .ef-any {
-  flex: none; padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  flex: none; padding: 4px 11px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; line-height: 1.5;
 }
-.ef-req { background: #D64545; color: #fff; }
-.ef-any { background: var(--ef-line-soft); color: var(--ef-muted); }
+.ef-req { background: #FCE9E9; color: #C0392B; }
+.ef-any { background: var(--ef-sand-d); color: var(--ef-body); }
 
 .ef-input, .ef-select, .ef-textarea {
-  width: 100%; padding: 15px 18px;
-  border: 1.5px solid var(--ef-line); border-radius: 10px; background: #fff;
+  width: 100%; padding: 14px 18px;
+  border: 1px solid var(--ef-line); border-radius: 12px; background: #FBFCFD;
   font-size: 15.5px; line-height: 1.7; color: var(--ef-ink);
-  transition: border-color .25s var(--ef-ease), box-shadow .25s var(--ef-ease);
+  transition: border-color .2s var(--ef-ease), box-shadow .2s var(--ef-ease), background-color .2s var(--ef-ease);
 }
-.ef-input::placeholder, .ef-textarea::placeholder { color: #B3BDC0; }
+.ef-input::placeholder, .ef-textarea::placeholder { color: #AFBAC0; }
+.ef-input:hover, .ef-select:hover, .ef-textarea:hover { border-color: #C3D0D7; }
 .ef-input:focus, .ef-select:focus, .ef-textarea:focus {
-  outline: none; border-color: var(--ef-primary); box-shadow: 0 0 0 4px rgba(28,127,168,.1);
+  outline: none; background: #fff;
+  border-color: var(--ef-primary); box-shadow: 0 0 0 3px rgba(28,127,168,.13);
 }
 .ef-textarea { min-height: 190px; resize: vertical; }
 .ef-select {
@@ -1278,28 +1309,40 @@ input, select, textarea { font: inherit; color: inherit; }
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23445A63' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 18px center; background-size: 12px;
 }
-.ef-help { margin-top: 8px; font-size: 12.5px; color: var(--ef-muted); line-height: 1.7; }
+.ef-help { margin-top: 10px; font-size: 12.5px; color: var(--ef-muted); line-height: 1.75; }
 
-.ef-choices { display: flex; flex-wrap: wrap; gap: 10px; }
+/* Radio and checkbox groups are pills, so a choice is a target rather than a
+   7px dot. The shared look lives in these two custom properties, which the
+   Contact Form 7 rules below reuse. */
+.ef-choices { display: flex; flex-wrap: wrap; gap: 9px; }
 .ef-choice {
   display: inline-flex; align-items: center; gap: 9px;
-  padding: 12px 20px; border: 1.5px solid var(--ef-line); border-radius: 999px;
-  font-size: 14.5px; cursor: pointer; background: #fff;
-  transition: all .22s var(--ef-ease);
+  padding: 11px 19px; border: 1px solid var(--ef-line); border-radius: 999px;
+  font-size: 14.5px; line-height: 1.5; color: var(--ef-body); cursor: pointer; background: #fff;
+  transition: border-color .2s var(--ef-ease), background-color .2s var(--ef-ease), color .2s var(--ef-ease), box-shadow .2s var(--ef-ease);
 }
-.ef-choice:hover { border-color: var(--ef-primary-l); }
+.ef-choice:hover { border-color: var(--ef-primary-l); background: #F7FBFD; }
 .ef-choice input { accent-color: var(--ef-primary); width: 17px; height: 17px; margin: 0; cursor: pointer; }
-.ef-choice:has(input:checked) { border-color: var(--ef-primary); background: rgba(28,127,168,.06); color: var(--ef-primary); font-weight: 700; }
+.ef-choice:has(input:checked) {
+  border-color: var(--ef-primary); background: rgba(28,127,168,.07);
+  color: var(--ef-primary); font-weight: 700;
+  box-shadow: 0 0 0 1px var(--ef-primary) inset;
+}
 
 .ef-consent {
-  display: flex; align-items: flex-start; justify-content: center; gap: 12px;
-  margin-top: 36px; padding: 24px; border-radius: var(--ef-radius); background: var(--ef-sand);
-  font-size: 14.5px; line-height: 1.8; cursor: pointer;
+  display: flex; align-items: flex-start; gap: 13px;
+  margin-top: 30px; padding: 20px 24px;
+  border: 1px solid var(--ef-line-soft); border-radius: var(--ef-radius);
+  background: var(--ef-sand);
+  font-size: 14.5px; line-height: 1.8; color: var(--ef-body); cursor: pointer;
 }
 .ef-consent input { accent-color: var(--ef-primary); width: 20px; height: 20px; margin-top: 3px; flex: none; cursor: pointer; }
-.ef-form__submit { margin-top: 32px; text-align: center; }
-.ef-form__submit .ef-btn { min-width: 300px; }
-.ef-form__note { margin-top: 18px; font-size: 13px; color: var(--ef-muted); }
+.ef-form__submit { margin-top: 30px; text-align: center; }
+.ef-form__submit .ef-btn {
+  min-width: 320px; padding-block: 18px; font-size: 16px;
+  box-shadow: 0 14px 28px -14px rgba(12, 46, 66, .5);
+}
+.ef-form__note { margin-top: 16px; font-size: 13px; color: var(--ef-muted); }
 
 /* --------------------------------------------------------------------------
    Contact Form 7 compatibility
@@ -1309,35 +1352,38 @@ input, select, textarea { font: inherit; color: inherit; }
    look, which means the shipped form definition renders exactly like the
    design without any per-field class juggling.
    -------------------------------------------------------------------------- */
-.ef-form .wpcf7-form-control-wrap { display: block; }
+/* A column rather than a block: the wrap holds one control, and stacking it
+   keeps the inline leading under an <input> from becoming a stray gap. */
+.ef-form .wpcf7-form-control-wrap { display: flex; flex-direction: column; min-width: 0; }
 
 /* Radio and checkbox groups become the same pill row as .ef-choices.
    Acceptance is deliberately excluded — its label holds a paragraph of consent
    text, which must not be squeezed into a pill. */
 .ef-form .wpcf7-radio,
-.ef-form .wpcf7-checkbox { display: flex; flex-wrap: wrap; gap: 10px; }
+.ef-form .wpcf7-checkbox { display: flex; flex-wrap: wrap; gap: 9px; }
 .ef-form .wpcf7-radio .wpcf7-list-item,
 .ef-form .wpcf7-checkbox .wpcf7-list-item { margin: 0; }
 .ef-form .wpcf7-radio .wpcf7-list-item > label,
 .ef-form .wpcf7-checkbox .wpcf7-list-item > label {
   display: inline-flex; align-items: center; gap: 9px;
-  padding: 12px 20px; border: 1.5px solid var(--ef-line); border-radius: 999px;
-  font-size: 14.5px; cursor: pointer; background: #fff;
-  transition: all .22s var(--ef-ease);
+  padding: 11px 19px; border: 1px solid var(--ef-line); border-radius: 999px;
+  font-size: 14.5px; line-height: 1.5; color: var(--ef-body); cursor: pointer; background: #fff;
+  transition: border-color .2s var(--ef-ease), background-color .2s var(--ef-ease), color .2s var(--ef-ease), box-shadow .2s var(--ef-ease);
 }
 .ef-form .wpcf7-radio .wpcf7-list-item > label:hover,
-.ef-form .wpcf7-checkbox .wpcf7-list-item > label:hover { border-color: var(--ef-primary-l); }
+.ef-form .wpcf7-checkbox .wpcf7-list-item > label:hover { border-color: var(--ef-primary-l); background: #F7FBFD; }
 .ef-form .wpcf7-radio .wpcf7-list-item input,
 .ef-form .wpcf7-checkbox .wpcf7-list-item input {
   accent-color: var(--ef-primary); width: 17px; height: 17px; margin: 0; cursor: pointer;
 }
 .ef-form .wpcf7-radio .wpcf7-list-item > label:has(input:checked),
 .ef-form .wpcf7-checkbox .wpcf7-list-item > label:has(input:checked) {
-  border-color: var(--ef-primary); background: rgba(28,127,168,.06);
+  border-color: var(--ef-primary); background: rgba(28,127,168,.07);
   color: var(--ef-primary); font-weight: 700;
+  box-shadow: 0 0 0 1px var(--ef-primary) inset;
 }
 .ef-form .wpcf7-radio .wpcf7-list-item-label,
-.ef-form .wpcf7-checkbox .wpcf7-list-item-label { line-height: 1; }
+.ef-form .wpcf7-checkbox .wpcf7-list-item-label { line-height: 1.5; }
 
 /* The consent checkbox keeps the .ef-consent panel look. */
 .ef-consent .wpcf7-form-control-wrap { display: contents; }
@@ -1349,10 +1395,12 @@ input, select, textarea { font: inherit; color: inherit; }
   accent-color: var(--ef-primary); width: 20px; height: 20px; margin-top: 3px; flex: none; cursor: pointer;
 }
 
-.ef-form .wpcf7-not-valid-tip { margin-top: 8px; font-size: 12.5px; color: #D64545; }
+.ef-form .wpcf7-not-valid-tip { margin-top: 8px; font-size: 12.5px; color: #C0392B; }
+.ef-form .wpcf7-not-valid { border-color: #E0A0A0; background: #FFFBFB; }
 .ef-form .wpcf7-response-output {
   margin: 24px 0 0; padding: 16px 20px; border-radius: var(--ef-radius);
-  border: 1px solid var(--ef-line); font-size: 14px; line-height: 1.8;
+  border: 1px solid var(--ef-line); background: var(--ef-sand);
+  font-size: 14px; line-height: 1.8; color: var(--ef-ink);
 }
 /* Before the first submit the box is empty; CF7 normally hides it itself, but
    this keeps an empty bordered strip off the page either way. */
@@ -1363,8 +1411,11 @@ input, select, textarea { font: inherit; color: inherit; }
 
 
 @media (max-width: 780px) {
-  .ef-form__row { grid-template-columns: 1fr; gap: 12px; padding: 22px 0; }
+  .ef-form__row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 22px 0; }
+  .ef-form__row > *, .ef-form__row > .ef-form__label { grid-column: 1; }
+  .ef-form__row > .ef-form__label { grid-row: auto; }
   .ef-form__label { padding-top: 0; }
+  .ef-consent { padding: 18px; }
   .ef-form__submit .ef-btn { min-width: 0; width: 100%; }
 }
 

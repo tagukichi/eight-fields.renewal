@@ -58,8 +58,8 @@ while ( have_posts() ) :
 		</div>
 	</section>
 
-	<section class="ef-section" id="form">
-		<div class="ef-container ef-container--narrow">
+	<section class="ef-section ef-section--sand" id="form">
+		<div class="ef-container ef-container--form">
 			<div class="ef-head" data-reveal>
 				<span class="ef-eyebrow">Form</span>
 				<h2 class="ef-h2"><?php esc_html_e( 'お問い合わせフォーム', 'eight-fields' ); ?></h2>
