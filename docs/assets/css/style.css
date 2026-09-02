@@ -1291,20 +1291,27 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-req { background: #FCE9E9; color: #C0392B; }
 .ef-any { background: var(--ef-sand-d); color: var(--ef-body); }
 
-.ef-input, .ef-select, .ef-textarea {
+.ef-input, .ef-select, .ef-textarea,
+.ef-form .wpcf7-text, .ef-form .wpcf7-email, .ef-form .wpcf7-tel,
+.ef-form .wpcf7-url, .ef-form .wpcf7-number, .ef-form .wpcf7-date,
+.ef-form .wpcf7-textarea, .ef-form .wpcf7-select {
   width: 100%; padding: 14px 18px;
   border: 1px solid var(--ef-line); border-radius: 12px; background: #FBFCFD;
   font-size: 15.5px; line-height: 1.7; color: var(--ef-ink);
   transition: border-color .2s var(--ef-ease), box-shadow .2s var(--ef-ease), background-color .2s var(--ef-ease);
 }
-.ef-input::placeholder, .ef-textarea::placeholder { color: #AFBAC0; }
-.ef-input:hover, .ef-select:hover, .ef-textarea:hover { border-color: #C3D0D7; }
-.ef-input:focus, .ef-select:focus, .ef-textarea:focus {
+.ef-input::placeholder, .ef-textarea::placeholder,
+.ef-form .wpcf7-form-control::placeholder { color: #AFBAC0; }
+.ef-input:hover, .ef-select:hover, .ef-textarea:hover,
+.ef-form .wpcf7-text:hover, .ef-form .wpcf7-email:hover, .ef-form .wpcf7-tel:hover,
+.ef-form .wpcf7-textarea:hover, .ef-form .wpcf7-select:hover { border-color: #C3D0D7; }
+.ef-input:focus, .ef-select:focus, .ef-textarea:focus,
+.ef-form .wpcf7-form-control:focus {
   outline: none; background: #fff;
   border-color: var(--ef-primary); box-shadow: 0 0 0 3px rgba(28,127,168,.13);
 }
-.ef-textarea { min-height: 190px; resize: vertical; }
-.ef-select {
+.ef-textarea, .ef-form .wpcf7-textarea { min-height: 190px; resize: vertical; }
+.ef-select, .ef-form .wpcf7-select {
   appearance: none; padding-right: 46px; cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%23445A63' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 18px center; background-size: 12px;
@@ -1356,6 +1363,71 @@ input, select, textarea { font: inherit; color: inherit; }
    keeps the inline leading under an <input> from becoming a stray gap. */
 .ef-form .wpcf7-form-control-wrap { display: flex; flex-direction: column; min-width: 0; }
 
+/* --- a form written in Contact Form 7's own shape ------------------------
+
+   The theme ships a form definition that uses .ef-form__row, but a form
+   written the ordinary Contact Form 7 way wraps each field in a bare <label>
+   with no classes at all. There the label *is* the row: caption on top, field
+   beneath, a hairline between rows. Everything below styles that shape, so a
+   hand-written form lands in the same design as the shipped one.
+
+   The pill, consent and row rules elsewhere are more specific, so the theme's
+   own form is untouched by any of it. */
+.ef-form label:not(.ef-form__label):not(.ef-consent):not(.ef-choice) {
+  display: block;
+  font-size: 15px; font-weight: 700; line-height: 1.6; color: var(--ef-ink);
+}
+/* The control is already a block, so the <br> the editor's autoformatting
+   leaves between caption and field would only open an empty line. */
+.ef-form label > br { display: none; }
+
+/* Rows are separated by space, not by rules. A hand-written form goes through
+   the editor's autoformatting, which splits and merges paragraphs in ways the
+   markup does not predict, and a hairline drawn on the wrong one reads as a
+   mistake. Even spacing survives whatever comes out. */
+.ef-form form > p,
+.ef-form form > label:not(.ef-consent) { margin: 0 0 26px; }
+.ef-form form > p:last-child,
+.ef-form form > label:not(.ef-consent):last-child { margin-bottom: 0; }
+/* When autoformatting splits a caption away from its own field, the two still
+   have to read as one row. */
+.ef-form form > p:has(> label:only-child):not(:has(.wpcf7-form-control)) { margin-bottom: 10px; }
+
+/* The field itself keeps a little air under the caption. */
+.ef-form label > .wpcf7-form-control-wrap { margin-top: 10px; }
+.ef-form .mt10 { margin-top: 10px; }
+
+/* Required is marked with an inline red span in a hand-written form. Reading
+   it as the theme's badge keeps that markup working, unedited — overriding an
+   inline colour is the one thing that needs !important here. */
+.ef-form span[style*="red"] {
+  display: inline-block; margin-left: 8px;
+  padding: 4px 11px; border-radius: 999px;
+  background: #FCE9E9; color: #C0392B !important;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; line-height: 1.5;
+  vertical-align: middle;
+}
+
+/* Submit, and the "back" button a multi-step form adds. */
+.ef-form .wpcf7-submit,
+.ef-form .wpcf7-previous {
+  display: block; margin: 34px auto 0; min-width: 320px;
+  padding: 18px 34px; min-height: 56px; border: 0; border-radius: 999px;
+  font-size: 16px; font-weight: 700; letter-spacing: .04em;
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+  transition: background-color .25s var(--ef-ease), box-shadow .25s var(--ef-ease), transform .25s var(--ef-ease);
+}
+.ef-form .wpcf7-submit {
+  background: var(--ef-solar); color: var(--ef-deep);
+  box-shadow: 0 14px 28px -14px rgba(12, 46, 66, .5);
+}
+.ef-form .wpcf7-submit:hover { background: var(--ef-solar-l); transform: translateY(-2px); }
+.ef-form .wpcf7-previous {
+  margin-top: 14px;
+  background: #fff; color: var(--ef-ink); border: 1.5px solid var(--ef-line);
+}
+.ef-form .wpcf7-previous:hover { border-color: var(--ef-primary); color: var(--ef-primary); }
+
 /* Radio and checkbox groups become the same pill row as .ef-choices.
    Acceptance is deliberately excluded — its label holds a paragraph of consent
    text, which must not be squeezed into a pill. */
@@ -1367,7 +1439,7 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-form .wpcf7-checkbox .wpcf7-list-item > label {
   display: inline-flex; align-items: center; gap: 9px;
   padding: 11px 19px; border: 1px solid var(--ef-line); border-radius: 999px;
-  font-size: 14.5px; line-height: 1.5; color: var(--ef-body); cursor: pointer; background: #fff;
+  font-size: 14.5px; font-weight: 500; line-height: 1.5; color: var(--ef-body); cursor: pointer; background: #fff;
   transition: border-color .2s var(--ef-ease), background-color .2s var(--ef-ease), color .2s var(--ef-ease), box-shadow .2s var(--ef-ease);
 }
 .ef-form .wpcf7-radio .wpcf7-list-item > label:hover,
@@ -1416,7 +1488,9 @@ input, select, textarea { font: inherit; color: inherit; }
   .ef-form__row > .ef-form__label { grid-row: auto; }
   .ef-form__label { padding-top: 0; }
   .ef-consent { padding: 18px; }
-  .ef-form__submit .ef-btn { min-width: 0; width: 100%; }
+  .ef-form__submit .ef-btn,
+  .ef-form .wpcf7-submit,
+  .ef-form .wpcf7-previous { min-width: 0; width: 100%; }
 }
 
 /* Contact method cards */
