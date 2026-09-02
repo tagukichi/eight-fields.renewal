@@ -21,6 +21,10 @@
   /* Neutrals */
   --ef-ink:       #12262F;
   --ef-body:      #445A63;
+  /* Long-form reading copy — a service page's body. Larger and darker than the
+     interface text around it, so a whole page of it stays comfortable. */
+  --ef-read:      #333333;
+  --ef-read-size: 16px;
   --ef-muted:     #7C8F98;
   --ef-line:      #DCE4E9;
   --ef-line-soft: #EAF0F3;
@@ -743,7 +747,7 @@ input, select, textarea { font: inherit; color: inherit; }
   gap: clamp(28px, 4vw, 60px);
   align-items: start;
 }
-.ef-intro--solo { grid-template-columns: 1fr; max-width: 780px; }
+.ef-intro--solo { grid-template-columns: 1fr; }
 .ef-intro__media img {
   width: 100%; border-radius: var(--ef-radius);
   aspect-ratio: 4 / 5; object-fit: cover;
@@ -753,7 +757,7 @@ input, select, textarea { font: inherit; color: inherit; }
   font-size: clamp(24px, 3.2vw, 34px); line-height: 1.4; letter-spacing: .01em;
   color: var(--ef-primary-l);
 }
-.ef-intro__copy { font-size: 14.5px; line-height: 1.95; color: var(--ef-body); }
+.ef-intro__copy { font-size: var(--ef-read-size); line-height: 1.95; color: var(--ef-read); }
 .ef-intro__copy > *:first-child { margin-top: 0; }
 .ef-intro__copy > *:last-child { margin-bottom: 0; }
 /* The editor field opens with the catch line, so the first paragraph gets the
@@ -799,19 +803,16 @@ input, select, textarea { font: inherit; color: inherit; }
   letter-spacing: .16em; color: var(--ef-solar-d);
 }
 
-/* Body and picture sit side by side; with no picture the copy runs full width. */
-.ef-sec__body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 52px); align-items: center; }
+/* Body and picture sit side by side, both starting at the top of the row;
+   with no picture the copy runs the full width, as on the current site. */
+.ef-sec__body { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px, 4vw, 52px); align-items: start; }
 .ef-sec__body--solo { grid-template-columns: 1fr; }
 .ef-sec__media img { width: 100%; border-radius: var(--ef-radius); }
 .ef-sec__media--contain img {
   background: #fff; padding: 16px; border: 1px solid var(--ef-line-soft);
 }
 .ef-sec__media--left { order: -1; }
-.ef-sec__text { font-size: 14.5px; line-height: 2.05; }
-/* With no picture the copy would otherwise run the full 1180px, which is far
-   too wide to read comfortably. */
-.ef-sec__body--solo .ef-sec__text,
-.ef-sec__body--solo .ef-sec__list { max-width: 46em; }
+.ef-sec__text { font-size: var(--ef-read-size); line-height: 1.95; color: var(--ef-read); }
 .ef-sec__text > *:first-child { margin-top: 0; }
 .ef-sec__text > *:last-child { margin-bottom: 0; }
 @media (max-width: 860px) {
@@ -821,7 +822,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
 /* Bulleted points inside a section. */
 .ef-sec__list { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
-.ef-sec__list li { position: relative; padding-left: 26px; font-size: 14.5px; line-height: 1.85; }
+.ef-sec__list li { position: relative; padding-left: 26px; font-size: var(--ef-read-size); line-height: 1.9; color: var(--ef-read); }
 .ef-sec__list li::before {
   content: ""; position: absolute; left: 3px; top: .62em;
   width: 8px; height: 8px; border-radius: 50%; background: var(--ef-primary-l);
