@@ -54,45 +54,67 @@ desc: エイトフィールズ株式会社の会社概要。商号・設立・�
       <span class="ef-eyebrow">Profile</span>
       <h2 class="ef-h2">会社概要</h2>
     </div>
-    <table class="ef-table" data-reveal data-reveal-delay="1">
-      <tbody>
-        <tr><th scope="row">商号</th><td>{{NAME}}</td></tr>
-        <tr><th scope="row">設立年月日</th><td>{{FOUNDED}}</td></tr>
-        <tr><th scope="row">代表者</th><td>代表取締役　{{CEO}}</td></tr>
-        <tr>
-          <th scope="row">取扱商品</th>
-          <td>太陽光発電システム、蓄電システム、エコキュート、IHクッキングヒーター、システムバス、太陽熱温水器、水素吸入器、LEDライト、通信機器、リフォーム（外壁塗装、屋根修繕）、家庭用エアコン、ガスコンロ・ガス給湯器</td>
-        </tr>
-        <tr><th scope="row">従業員数</th><td>営業8名／工事20名（2026年1月現在）</td></tr>
-        <tr>
-          <th scope="row">事業所</th>
-          <td>〒{{ZIP}}　{{ADDRESS}}<br>TEL：{{TEL}}／FAX：{{FAX}}</td>
-        </tr>
-        <tr><th scope="row">対応エリア</th><td>東京都／千葉県／神奈川県／埼玉県／茨城県／栃木県／群馬県</td></tr>
-        <tr>
-          <th scope="row">取引先</th>
-          <td>みずほ銀行・東京信用金庫・長府産業・ニチコン・長州産業・Qセルズ・カナディアン・パナソニック・SHARP・エクソル・DMM・高島（株）・（株）ハジメ　他</td>
-        </tr>
-        <tr><th scope="row">保有資格</th><td>第二種電気工事士／瓦屋根工事技士／給水設備工事主任技術者　他</td></tr>
-        <tr><th scope="row">実績数</th><td>一万棟以上</td></tr>
-        <tr><th scope="row">アフターサービス</th><td>有り</td></tr>
-        <tr>
-          <th scope="row">オリジナルサービス</th>
-          <td>今回のご提案以外でも、ご自宅で気になる箇所、メンテナンス等すべて対応可能です。<br>
-              その理由は、営業会社＝施工会社のため。営業から施工まで一括で行うために、安心で安いとご好評頂いております。</td>
-        </tr>
-        <tr>
-          <th scope="row">グループ会社</th>
-          <td>
-            {{GROUP}}（東京都知事登録 第290199号）
-            <span class="ef-table__note">
-              新エネルギー工事：太陽光発電システム販売工事／オール電化販売工事／蓄電池・HEMS販売工事／オフグリッド設計／LED工事<br>
-              電気・水道工事：一般電気工事（住宅設備）／一般水道工事（住宅・水廻り）／エアコン工事／給排水工事／給湯器販売交換工事／ドローンによる家屋・設備調査、点検
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <ul class="ef-facts" data-reveal data-reveal-delay="1">
+      <li class="ef-fact"><span class="ef-fact__label">設立</span><span class="ef-fact__value">2023<small>年10月</small></span></li>
+      <li class="ef-fact"><span class="ef-fact__label">施工実績</span><span class="ef-fact__value">10,000<small>棟以上</small></span></li>
+      <li class="ef-fact"><span class="ef-fact__label">従業員数</span><span class="ef-fact__value">28<small>名</small></span></li>
+      <li class="ef-fact"><span class="ef-fact__label">対応エリア</span><span class="ef-fact__value">7<small>都県</small></span></li>
+    </ul>
+
+    <div class="ef-profile" data-reveal data-reveal-delay="2">
+      <div class="ef-profile__group">
+        <h3 class="ef-profile__title">会社情報</h3>
+        <table class="ef-table">
+          <tbody>
+            <tr><th scope="row">商号</th><td>{{NAME}}</td></tr>
+            <tr><th scope="row">設立年月日</th><td>{{FOUNDED}}</td></tr>
+            <tr><th scope="row">代表者</th><td>代表取締役　{{CEO}}</td></tr>
+            <tr><th scope="row">従業員数</th><td>営業8名／工事20名（2026年1月現在）</td></tr>
+            <tr>
+              <th scope="row">事業所</th>
+              <td>〒{{ZIP}}　{{ADDRESS}}<br>TEL：{{TEL}}／FAX：{{FAX}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ef-profile__group">
+        <h3 class="ef-profile__title">事業内容</h3>
+        <table class="ef-table">
+          <tbody>
+            <tr><th scope="row">取扱商品</th><td><ul class="ef-tags"><li>太陽光発電システム</li><li>蓄電システム</li><li>エコキュート</li><li>IHクッキングヒーター</li><li>システムバス</li><li>太陽熱温水器</li><li>水素吸入器</li><li>LEDライト</li><li>通信機器</li><li>リフォーム（外壁塗装、屋根修繕）</li><li>家庭用エアコン</li><li>ガスコンロ・ガス給湯器</li></ul></td></tr>
+            <tr><th scope="row">対応エリア</th><td><ul class="ef-tags"><li>東京都</li><li>千葉県</li><li>神奈川県</li><li>埼玉県</li><li>茨城県</li><li>栃木県</li><li>群馬県</li></ul></td></tr>
+            <tr><th scope="row">保有資格</th><td><ul class="ef-tags"><li>第二種電気工事士</li><li>瓦屋根工事技士</li><li>給水設備工事主任技術者</li><li class="ef-tags__more">他</li></ul></td></tr>
+            <tr><th scope="row">実績数</th><td>一万棟以上</td></tr>
+            <tr><th scope="row">アフターサービス</th><td>有り</td></tr>
+            <tr>
+              <th scope="row">オリジナルサービス</th>
+              <td>今回のご提案以外でも、ご自宅で気になる箇所、メンテナンス等すべて対応可能です。<br>
+                  その理由は、営業会社＝施工会社のため。営業から施工まで一括で行うために、安心で安いとご好評頂いております。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ef-profile__group">
+        <h3 class="ef-profile__title">取引先・グループ会社</h3>
+        <table class="ef-table">
+          <tbody>
+            <tr><th scope="row">取引先</th><td><ul class="ef-tags"><li>みずほ銀行</li><li>東京信用金庫</li><li>長府産業</li><li>ニチコン</li><li>長州産業</li><li>Qセルズ</li><li>カナディアン</li><li>パナソニック</li><li>SHARP</li><li>エクソル</li><li>DMM</li><li>高島（株）</li><li>（株）ハジメ</li><li class="ef-tags__more">他</li></ul></td></tr>
+            <tr>
+              <th scope="row">グループ会社</th>
+              <td>
+                {{GROUP}}（東京都知事登録 第290199号）
+                <span class="ef-table__note">
+                  新エネルギー工事：太陽光発電システム販売工事／オール電化販売工事／蓄電池・HEMS販売工事／オフグリッド設計／LED工事<br>
+                  電気・水道工事：一般電気工事（住宅設備）／一般水道工事（住宅・水廻り）／エアコン工事／給排水工事／給湯器販売交換工事／ドローンによる家屋・設備調査、点検
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>
 

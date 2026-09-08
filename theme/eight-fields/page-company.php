@@ -78,16 +78,32 @@ while ( have_posts() ) :
 				<span class="ef-eyebrow">Profile</span>
 				<h2 class="ef-h2"><?php esc_html_e( '会社概要', 'eight-fields' ); ?></h2>
 			</div>
-			<table class="ef-table" data-reveal data-reveal-delay="1">
-				<tbody>
-					<?php foreach ( ef_company_profile() as $ef_row ) : ?>
-						<tr>
-							<th scope="row"><?php echo esc_html( $ef_row[0] ); ?></th>
-							<td><?php echo wp_kses_post( $ef_row[1] ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
+			<ul class="ef-facts" data-reveal data-reveal-delay="1">
+				<?php foreach ( ef_company_highlights() as $ef_fact ) : ?>
+					<li class="ef-fact">
+						<span class="ef-fact__label"><?php echo esc_html( $ef_fact[0] ); ?></span>
+						<span class="ef-fact__value"><?php echo esc_html( $ef_fact[1] ); ?><small><?php echo esc_html( $ef_fact[2] ); ?></small></span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+
+			<div class="ef-profile" data-reveal data-reveal-delay="2">
+				<?php foreach ( ef_company_profile_groups() as $ef_group ) : ?>
+					<div class="ef-profile__group">
+						<h3 class="ef-profile__title"><?php echo esc_html( $ef_group['title'] ); ?></h3>
+						<table class="ef-table">
+							<tbody>
+								<?php foreach ( $ef_group['rows'] as $ef_row ) : ?>
+									<tr>
+										<th scope="row"><?php echo esc_html( $ef_row[0] ); ?></th>
+										<td><?php echo wp_kses_post( $ef_row[1] ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				<?php endforeach; ?>
+			</div>
 		</div>
 	</section>
 

@@ -897,9 +897,12 @@ input, select, textarea { font: inherit; color: inherit; }
 .ef-map__link { margin: 14px 0 0; }
 
 /* Secondary detail inside a table cell — the group company's work list. */
+/* A block of detail hanging off one row — the group company's lines of work.
+   Set apart so it does not run together with the row's own value. */
 .ef-table__note {
-  display: block; margin-top: 10px;
-  font-size: 14px; color: var(--ef-body);
+  display: block; margin-top: 14px;
+  padding: 14px 18px; border-radius: 10px; background: var(--ef-sand);
+  font-size: 13.5px; line-height: 1.95; color: var(--ef-body);
 }
 
 /* The philosophy statement on 会社概要 — a callout turned into a centred quote. */
@@ -1109,16 +1112,68 @@ input, select, textarea { font: inherit; color: inherit; }
    -------------------------------------------------------------------------- */
 .ef-table { width: 100%; border-collapse: collapse; }
 .ef-table th, .ef-table td {
-  padding: 22px 8px; border-bottom: 1px solid var(--ef-line-soft);
-  font-size: 15px; line-height: 1.9; text-align: left; vertical-align: top;
+  padding: 20px 8px; border-bottom: 1px solid var(--ef-line-soft);
+  font-size: 15.5px; line-height: 1.9; text-align: left; vertical-align: top;
 }
-.ef-table th { width: 210px; font-weight: 700; color: var(--ef-ink); }
+.ef-table th { width: 190px; font-weight: 700; color: var(--ef-ink); }
+.ef-table td { color: var(--ef-read); }
 .ef-table tr:first-child th, .ef-table tr:first-child td { border-top: 1px solid var(--ef-line-soft); }
 @media (max-width: 640px) {
   .ef-table th, .ef-table td { display: block; width: auto; padding: 0 0 6px; border: 0; }
   .ef-table th { padding-top: 20px; font-size: 13px; color: var(--ef-primary); }
   .ef-table td { padding-bottom: 20px; border-bottom: 1px solid var(--ef-line-soft); }
   .ef-table tr:first-child th { border-top: 0; }
+}
+
+/* 会社概要 — the four figures a visitor is looking for, above the tables. */
+.ef-facts {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin: 0 0 clamp(34px, 5vw, 54px); padding: 0; list-style: none;
+}
+.ef-fact {
+  padding: 20px 22px 18px;
+  border: 1px solid var(--ef-line-soft); border-radius: var(--ef-radius);
+  background: #fff;
+}
+.ef-fact__label { display: block; font-size: 12px; letter-spacing: .1em; color: var(--ef-muted); }
+.ef-fact__value {
+  display: block; margin-top: 8px;
+  font-family: var(--ef-font-en); font-variant-numeric: tabular-nums;
+  font-size: clamp(25px, 3vw, 33px); font-weight: 600; line-height: 1.15;
+  color: var(--ef-ink); white-space: nowrap;
+}
+.ef-fact__value small {
+  font-family: var(--ef-font); font-size: .42em; font-weight: 500;
+  margin-left: 4px; color: var(--ef-body);
+}
+@media (max-width: 720px) { .ef-facts { grid-template-columns: repeat(2, 1fr); } }
+
+/* 会社概要 — the rows split into short tables, each under its own heading.
+   Thirteen rows in one table read as a list to get through; three short ones
+   can be found your way around. */
+.ef-profile { display: grid; gap: clamp(30px, 4vw, 46px); }
+.ef-profile__title {
+  margin: 0; padding-bottom: 12px;
+  border-bottom: 2px solid var(--ef-primary);
+  font-size: 16px; font-weight: 700; letter-spacing: .04em; color: var(--ef-primary);
+}
+/* The heading already draws the line above the first row. */
+.ef-profile .ef-table tr:first-child th,
+.ef-profile .ef-table tr:first-child td { border-top: 0; }
+.ef-profile .ef-table tr:last-child th,
+.ef-profile .ef-table tr:last-child td { border-bottom: 0; }
+
+/* A run of items — products, areas, partners — as chips rather than one long
+   line of 読点. */
+.ef-tags { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 0; padding: 0; list-style: none; }
+.ef-tags li {
+  padding: 5px 13px; border-radius: 999px;
+  border: 1px solid var(--ef-line); background: var(--ef-sand);
+  font-size: 13.5px; line-height: 1.75; color: var(--ef-body);
+}
+.ef-tags li.ef-tags__more {
+  padding: 5px 2px; border: 0; background: none;
+  font-size: 13px; color: var(--ef-muted);
 }
 
 /* Timeline (history) */

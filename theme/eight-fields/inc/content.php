@@ -198,15 +198,144 @@ function ef_philosophy() {
 }
 
 /**
- * The 会社概要 table.
+ * Trim whitespace, including the full-width space Japanese copy uses.
+ *
+ * @param string $text Text.
+ * @return string
+ */
+function ef_trim( $text ) {
+	return (string) preg_replace( '/^[\s\x{3000}]+|[\s\x{3000}]+$/u', '', (string) $text );
+}
+
+/**
+ * A run of items separated by a mark, rendered as a wrapped list of chips.
+ *
+ * 会社概要 lists the products handled, the areas covered and the trading
+ * partners as one long run of 読点 or 中黒. Read as a sentence that is a wall
+ * of text; as chips the same content can be scanned. A separator inside
+ * parentheses belongs to its item rather than ending it, so the split follows
+ * bracket depth.
+ *
+ * A trailing 「他」 qualifies the whole list rather than being a member of it,
+ * so it is set after the chips instead of inside one.
+ *
+ * @param string $text       The run of items.
+ * @param string $separators Characters that separate them.
+ * @return string Markup, or '' when the text is a single item and nothing
+ *                would be gained.
+ */
+function ef_tag_list( $text, $separators = '、' ) {
+	$text = ef_trim( wp_strip_all_tags( (string) $text ) );
+	if ( '' === $text ) {
+		return '';
+	}
+
+	$marks = preg_split( '//u', $separators, -1, PREG_SPLIT_NO_EMPTY );
+	$chars = preg_split( '//u', $text, -1, PREG_SPLIT_NO_EMPTY );
+
+	$items = array();
+	$item  = '';
+	$depth = 0;
+
+	foreach ( $chars as $char ) {
+		if ( '（' === $char || '(' === $char ) {
+			++$depth;
+		} elseif ( '）' === $char || ')' === $char ) {
+			$depth = max( 0, $depth - 1 );
+		} elseif ( 0 === $depth && in_array( $char, $marks, true ) ) {
+			$items[] = $item;
+			$item    = '';
+			continue;
+		}
+		$item .= $char;
+	}
+	$items[] = $item;
+
+	$items = array_values( array_filter( array_map( 'ef_trim', $items ), 'strlen' ) );
+	if ( count( $items ) < 2 ) {
+		return '';
+	}
+
+	$more = '';
+	$last = $items[ count( $items ) - 1 ];
+	if ( preg_match( '/^(.*?)[\s\x{3000}]*(他|ほか|など)$/u', $last, $matches ) ) {
+		$more = $matches[2];
+		if ( '' !== ef_trim( $matches[1] ) ) {
+			$items[ count( $items ) - 1 ] = ef_trim( $matches[1] );
+		} else {
+			array_pop( $items );
+		}
+	}
+
+	$out = '<ul class="ef-tags">';
+	foreach ( $items as $one ) {
+		$out .= '<li>' . esc_html( $one ) . '</li>';
+	}
+	if ( '' !== $more ) {
+		$out .= '<li class="ef-tags__more">' . esc_html( $more ) . '</li>';
+	}
+	$out .= '</ul>';
+
+	return $out;
+}
+
+/**
+ * A list rendered as chips, falling back to the plain run when it is one item.
+ *
+ * @param string $text       The run of items.
+ * @param string $separators Characters that separate them.
+ * @return string Markup.
+ */
+function ef_tags_or_text( $text, $separators ) {
+	$tags = ef_tag_list( $text, $separators );
+	return '' !== $tags ? $tags : esc_html( ef_trim( $text ) );
+}
+
+/**
+ * The headline figures shown above the 会社概要 tables.
+ *
+ * A page of rows gives every fact the same weight. These four are the ones a
+ * visitor is actually looking for, so they are set above the tables where they
+ * can be read at a glance. The founding date follows the Customizer, so the
+ * strip cannot fall out of step with the table under it.
+ *
+ * @return array[] Rows of array( label, value, unit ).
+ */
+function ef_company_highlights() {
+	$founded = ef_info( 'founded', '2023年10月17日' );
+	$year    = $founded;
+	$month   = '';
+	if ( preg_match( '/^(\d{4})年(\d{1,2})月/u', $founded, $matches ) ) {
+		$year  = $matches[1];
+		$month = '年' . $matches[2] . '月';
+	}
+
+	return (array) apply_filters(
+		'ef_company_highlights',
+		array(
+			array( __( '設立', 'eight-fields' ), $year, $month ),
+			array( __( '施工実績', 'eight-fields' ), '10,000', __( '棟以上', 'eight-fields' ) ),
+			array( __( '従業員数', 'eight-fields' ), '28', __( '名', 'eight-fields' ) ),
+			array( __( '対応エリア', 'eight-fields' ), '7', __( '都県', 'eight-fields' ) ),
+		)
+	);
+}
+
+/**
+ * The 会社概要 tables, in groups.
+ *
+ * One table of thirteen rows reads as a list to be got through. Split into
+ * 会社情報 / 事業内容 / 取引先 the same rows become three short tables a
+ * visitor can find their way around.
  *
  * Rows whose value lives in the Customizer (商号・設立・代表者・事業所) are
  * built from it, so editing the company details in one place updates the table,
  * the footer and the access panel together.
  *
- * @return array[] Rows of array( label, value ). Values may contain markup.
+ * @return array[] Groups of array( title, rows ), each row array( label, value ).
+ *                 Values may contain markup.
  */
-function ef_company_profile() {
+function ef_company_profile_groups() {
 	$office = sprintf(
 		'〒%1$s　%2$s<br>TEL：%3$s／FAX：%4$s',
 		esc_html( ef_info( 'zip', '131-0042' ) ),
@@ -226,28 +355,72 @@ function ef_company_profile() {
 	. '</span>';
 
 	return (array) apply_filters(
-		'ef_company_profile',
+		'ef_company_profile_groups',
 		array(
-			array( __( '商号', 'eight-fields' ), esc_html( get_bloginfo( 'name' ) ) ),
-			array( __( '設立年月日', 'eight-fields' ), esc_html( ef_info( 'founded', '2023年10月17日' ) ) ),
-			array( __( '代表者', 'eight-fields' ), esc_html( sprintf( __( '代表取締役　%s', 'eight-fields' ), ef_info( 'ceo', '金山 準' ) ) ) ),
-			array( __( '取扱商品', 'eight-fields' ), esc_html__( '太陽光発電システム、蓄電システム、エコキュート、IHクッキングヒーター、システムバス、太陽熱温水器、水素吸入器、LEDライト、通信機器、リフォーム（外壁塗装、屋根修繕）、家庭用エアコン、ガスコンロ・ガス給湯器', 'eight-fields' ) ),
-			array( __( '従業員数', 'eight-fields' ), esc_html__( '営業8名／工事20名（2026年1月現在）', 'eight-fields' ) ),
-			array( __( '事業所', 'eight-fields' ), $office ),
-			array( __( '対応エリア', 'eight-fields' ), esc_html__( '東京都／千葉県／神奈川県／埼玉県／茨城県／栃木県／群馬県', 'eight-fields' ) ),
-			array( __( '取引先', 'eight-fields' ), esc_html__( 'みずほ銀行・東京信用金庫・長府産業・ニチコン・長州産業・Qセルズ・カナディアン・パナソニック・SHARP・エクソル・DMM・高島（株）・（株）ハジメ　他', 'eight-fields' ) ),
-			array( __( '保有資格', 'eight-fields' ), esc_html__( '第二種電気工事士／瓦屋根工事技士／給水設備工事主任技術者　他', 'eight-fields' ) ),
-			array( __( '実績数', 'eight-fields' ), esc_html__( '一万棟以上', 'eight-fields' ) ),
-			array( __( 'アフターサービス', 'eight-fields' ), esc_html__( '有り', 'eight-fields' ) ),
 			array(
-				__( 'オリジナルサービス', 'eight-fields' ),
-				esc_html__( '今回のご提案以外でも、ご自宅で気になる箇所、メンテナンス等すべて対応可能です。', 'eight-fields' )
-					. '<br>'
-					. esc_html__( 'その理由は、営業会社＝施工会社のため。営業から施工まで一括で行うために、安心で安いとご好評頂いております。', 'eight-fields' ),
+				'title' => __( '会社情報', 'eight-fields' ),
+				'rows'  => array(
+					array( __( '商号', 'eight-fields' ), esc_html( get_bloginfo( 'name' ) ) ),
+					array( __( '設立年月日', 'eight-fields' ), esc_html( ef_info( 'founded', '2023年10月17日' ) ) ),
+					array( __( '代表者', 'eight-fields' ), esc_html( sprintf( __( '代表取締役　%s', 'eight-fields' ), ef_info( 'ceo', '金山 準' ) ) ) ),
+					array( __( '従業員数', 'eight-fields' ), esc_html__( '営業8名／工事20名（2026年1月現在）', 'eight-fields' ) ),
+					array( __( '事業所', 'eight-fields' ), $office ),
+				),
 			),
-			array( __( 'グループ会社', 'eight-fields' ), $group ),
+			array(
+				'title' => __( '事業内容', 'eight-fields' ),
+				'rows'  => array(
+					array(
+						__( '取扱商品', 'eight-fields' ),
+						ef_tags_or_text( __( '太陽光発電システム、蓄電システム、エコキュート、IHクッキングヒーター、システムバス、太陽熱温水器、水素吸入器、LEDライト、通信機器、リフォーム（外壁塗装、屋根修繕）、家庭用エアコン、ガスコンロ・ガス給湯器', 'eight-fields' ), '、' ),
+					),
+					array(
+						__( '対応エリア', 'eight-fields' ),
+						ef_tags_or_text( __( '東京都／千葉県／神奈川県／埼玉県／茨城県／栃木県／群馬県', 'eight-fields' ), '／/' ),
+					),
+					array(
+						__( '保有資格', 'eight-fields' ),
+						ef_tags_or_text( __( '第二種電気工事士／瓦屋根工事技士／給水設備工事主任技術者　他', 'eight-fields' ), '／/' ),
+					),
+					array( __( '実績数', 'eight-fields' ), esc_html__( '一万棟以上', 'eight-fields' ) ),
+					array( __( 'アフターサービス', 'eight-fields' ), esc_html__( '有り', 'eight-fields' ) ),
+					array(
+						__( 'オリジナルサービス', 'eight-fields' ),
+						esc_html__( '今回のご提案以外でも、ご自宅で気になる箇所、メンテナンス等すべて対応可能です。', 'eight-fields' )
+							. '<br>'
+							. esc_html__( 'その理由は、営業会社＝施工会社のため。営業から施工まで一括で行うために、安心で安いとご好評頂いております。', 'eight-fields' ),
+					),
+				),
+			),
+			array(
+				'title' => __( '取引先・グループ会社', 'eight-fields' ),
+				'rows'  => array(
+					array(
+						__( '取引先', 'eight-fields' ),
+						ef_tags_or_text( __( 'みずほ銀行・東京信用金庫・長府産業・ニチコン・長州産業・Qセルズ・カナディアン・パナソニック・SHARP・エクソル・DMM・高島（株）・（株）ハジメ　他', 'eight-fields' ), '・' ),
+					),
+					array( __( 'グループ会社', 'eight-fields' ), $group ),
+				),
+			),
 		)
 	);
+}
+
+/**
+ * Every 会社概要 row as one flat list.
+ *
+ * Kept for anything that wants the table without its grouping.
+ *
+ * @return array[] Rows of array( label, value ). Values may contain markup.
+ */
+function ef_company_profile() {
+	$rows = array();
+	foreach ( ef_company_profile_groups() as $group ) {
+		foreach ( $group['rows'] as $row ) {
+			$rows[] = $row;
+		}
+	}
+	return (array) apply_filters( 'ef_company_profile', $rows );
 }
 
 /**
