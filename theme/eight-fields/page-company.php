@@ -27,6 +27,14 @@ while ( have_posts() ) :
 		)
 	);
 	ef_breadcrumbs();
+
+	// A 会社概要 page carried over from an older site keeps its details as lines
+	// of 「ラベル：値」 in the editor. Those rows are read into the table below,
+	// so the same information is not printed twice — once as a list and once as
+	// the table.
+	$ef_groups    = ef_profile_groups_for_page( get_the_ID() );
+	$ef_from_body = (bool) ef_body_profile_rows( get_the_ID() );
+	$ef_show_body = ! $ef_from_body && '' !== trim( get_the_content() );
 	?>
 
 	<!-- PHILOSOPHY -->
@@ -42,7 +50,7 @@ while ( have_posts() ) :
 
 		</div>
 
-		<?php if ( trim( get_the_content() ) ) : ?>
+		<?php if ( $ef_show_body ) : ?>
 			<div class="ef-mt-64">
 				<?php get_template_part( 'template-parts/content-body' ); ?>
 			</div>
@@ -88,9 +96,11 @@ while ( have_posts() ) :
 			</ul>
 
 			<div class="ef-profile" data-reveal data-reveal-delay="2">
-				<?php foreach ( ef_company_profile_groups() as $ef_group ) : ?>
+				<?php foreach ( $ef_groups as $ef_group ) : ?>
 					<div class="ef-profile__group">
-						<h3 class="ef-profile__title"><?php echo esc_html( $ef_group['title'] ); ?></h3>
+						<?php if ( '' !== $ef_group['title'] ) : ?>
+							<h3 class="ef-profile__title"><?php echo esc_html( $ef_group['title'] ); ?></h3>
+						<?php endif; ?>
 						<table class="ef-table">
 							<tbody>
 								<?php foreach ( $ef_group['rows'] as $ef_row ) : ?>

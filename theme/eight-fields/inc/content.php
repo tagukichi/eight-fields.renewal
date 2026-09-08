@@ -407,6 +407,178 @@ function ef_company_profile_groups() {
 }
 
 /**
+ * A value rendered as chips when it is plainly a list, as text otherwise.
+ *
+ * Used for rows that come from the page body, where there is no telling in
+ * advance which of them are enumerations.
+ *
+ * @param string $value Row value.
+ * @return string Markup.
+ */
+function ef_maybe_tags( $value ) {
+	$value = ef_trim( $value );
+
+	// A sentence is prose even when it contains a 読点.
+	if ( preg_match( '/[。\r\n]/u', $value ) ) {
+		return esc_html( $value );
+	}
+
+	foreach ( array( '、', '／/', '・' ) as $separators ) {
+		$found = 0;
+		foreach ( preg_split( '//u', $separators, -1, PREG_SPLIT_NO_EMPTY ) as $mark ) {
+			$found += substr_count( $value, $mark );
+		}
+		if ( $found < 2 ) {
+			continue;
+		}
+		$tags = ef_tag_list( $value, $separators );
+		if ( '' !== $tags ) {
+			return $tags;
+		}
+	}
+
+	return esc_html( $value );
+}
+
+/**
+ * The 会社概要 rows a page's own body is holding, when it holds a list at all.
+ *
+ * A 会社概要 page carried over from an older site usually keeps its details as
+ * lines of 「ラベル：値」 in the editor. Printed as they are they are the wall
+ * of text this template exists to replace, and the theme's own table beside
+ * them says the same thing twice. Read here instead, the editor's rows become
+ * the designed table, so the client's copy stays the source and nothing is
+ * duplicated.
+ *
+ * Returns nothing unless the body really is such a list — a page of prose is
+ * left alone to be printed as prose.
+ *
+ * @param int|null $post_id Page ID. Defaults to the current post.
+ * @return array[] Rows of array( label, value ), or an empty array.
+ */
+function ef_body_profile_rows( $post_id = null ) {
+	$post_id = $post_id ? $post_id : get_the_ID();
+	if ( ! $post_id ) {
+		return array();
+	}
+
+	$raw = (string) get_post_field( 'post_content', $post_id );
+	if ( '' === ef_trim( wp_strip_all_tags( $raw ) ) && function_exists( 'ef_siteorigin_text' ) ) {
+		$raw = ef_siteorigin_text( $post_id );
+	}
+	if ( '' === ef_trim( $raw ) ) {
+		return array();
+	}
+
+	// Every block end and every <br> is a line break; the rest is text.
+	$text = preg_replace( '#<(br|/p|/div|/li|/tr|/h[1-6]|/td)[^>]*>#i', "\n", $raw );
+	$text = wp_strip_all_tags( $text );
+	$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+
+	$rows  = array();
+	$other = 0;
+
+	foreach ( preg_split( '/\R/u', $text ) as $line ) {
+		$line = ef_trim( $line );
+		if ( '' === $line ) {
+			continue;
+		}
+
+		if ( preg_match( '/^([^\s\/.：:]{2,24})[：:][\s\x{3000}]*(.+)$/u', $line, $matches ) ) {
+			$value = ef_trim( $matches[2] );
+			// A URL is not a labelled row.
+			if ( '' !== $value && 0 !== strpos( $value, '//' ) ) {
+				$rows[] = array( ef_trim( $matches[1] ), $value );
+				continue;
+			}
+		}
+
+		// A short heading above the list — 「会社概要」 — is not a stray line.
+		if ( ! $rows && mb_strlen( $line ) <= 12 ) {
+			continue;
+		}
+		++$other;
+	}
+
+	// Take the section over only when the body really is a table of rows.
+	if ( count( $rows ) < 3 || $other * 3 > count( $rows ) ) {
+		return array();
+	}
+
+	return (array) apply_filters( 'ef_body_profile_rows', $rows, $post_id );
+}
+
+/**
+ * Sort loose 会社概要 rows into the same groups the theme's own table uses.
+ *
+ * A row whose label is not recognised keeps its place at the end rather than
+ * being dropped, so nothing the editor wrote disappears.
+ *
+ * @param array[] $rows Rows of array( label, value ).
+ * @return array[] Groups of array( title, rows ).
+ */
+function ef_group_profile_rows( $rows ) {
+	$map = array(
+		'会社情報'             => array( '商号', '社名', '会社名', '名称', '設立', '創業', '資本金', '代表', '役員', '従業員', '社員', 'スタッフ', '事業所', '所在地', '本社', '支店', '電話', 'TEL', 'FAX' ),
+		'事業内容'             => array( '事業', '取扱', '商品', '商材', 'サービス', 'エリア', '資格', '許可', '登録', '実績', '施工', 'アフター' ),
+		'取引先・グループ会社' => array( '取引', '銀行', 'グループ', '関連会社', '加盟' ),
+	);
+
+	$groups = array();
+	foreach ( array_keys( $map ) as $title ) {
+		$groups[ $title ] = array();
+	}
+	$groups['その他'] = array();
+
+	foreach ( $rows as $row ) {
+		$label = (string) $row[0];
+		$found = 'その他';
+
+		foreach ( $map as $title => $keywords ) {
+			foreach ( $keywords as $keyword ) {
+				if ( false !== strpos( $label, $keyword ) ) {
+					$found = $title;
+					break 2;
+				}
+			}
+		}
+
+		$groups[ $found ][] = array( $label, ef_maybe_tags( $row[1] ) );
+	}
+
+	$out = array();
+	foreach ( $groups as $title => $group_rows ) {
+		if ( $group_rows ) {
+			$out[] = array(
+				'title' => $title,
+				'rows'  => $group_rows,
+			);
+		}
+	}
+
+	// One group is the whole table; a heading over it would say nothing.
+	if ( 1 === count( $out ) ) {
+		$out[0]['title'] = '';
+	}
+
+	return $out;
+}
+
+/**
+ * The groups the 会社概要 template should show.
+ *
+ * The page's own rows win when it has them, so editing the page edits the
+ * table. With an empty page the theme's own set is used.
+ *
+ * @param int|null $post_id Page ID.
+ * @return array[] Groups of array( title, rows ).
+ */
+function ef_profile_groups_for_page( $post_id = null ) {
+	$rows = ef_body_profile_rows( $post_id );
+	return $rows ? ef_group_profile_rows( $rows ) : ef_company_profile_groups();
+}
+
+/**
  * Every 会社概要 row as one flat list.
  *
  * Kept for anything that wants the table without its grouping.

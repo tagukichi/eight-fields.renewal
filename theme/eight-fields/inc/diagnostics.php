@@ -131,6 +131,60 @@ function ef_diag_services() {
 }
 
 /**
+ * Which template each of the designed pages resolves to, and where its content
+ * comes from.
+ *
+ * "The table did not appear" and "this page looks different" almost always come
+ * down to one of two things: another template is being applied, or the page's
+ * own body is taking precedence over the theme's. Both are invisible from the
+ * admin, so they are reported here.
+ *
+ * @return array[] Rows of array( slug, title, edit, template, source ).
+ */
+function ef_diag_pages() {
+	$slugs = array( 'home', 'company', 'greeting', 'news', 'contact' );
+	$rows  = array();
+
+	foreach ( $slugs as $slug ) {
+		$page = get_page_by_path( $slug );
+		if ( ! $page ) {
+			$rows[] = array(
+				'slug'     => $slug,
+				'title'    => '',
+				'edit'     => '',
+				'template' => '',
+				'source'   => '',
+			);
+			continue;
+		}
+
+		$template = (string) get_page_template_slug( $page->ID );
+		if ( '' === $template ) {
+			// The front page has its own template ahead of every page-*.php.
+			$guess = ( (int) get_option( 'page_on_front' ) === $page->ID ) ? 'front-page.php' : 'page-' . $slug . '.php';
+			$template = locate_template( $guess ) ? $guess : 'page.php';
+		}
+
+		$source = '';
+		if ( 'company' === $slug ) {
+			$source = ef_body_profile_rows( $page->ID )
+				? __( '固定ページ本文（「ラベル：値」の行を表にしています）', 'eight-fields' )
+				: __( 'テーマ内蔵（inc/content.php）', 'eight-fields' );
+		}
+
+		$rows[] = array(
+			'slug'     => $slug,
+			'title'    => get_the_title( $page ),
+			'edit'     => (string) get_edit_post_link( $page->ID, '' ),
+			'template' => $template,
+			'source'   => $source,
+		);
+	}
+
+	return $rows;
+}
+
+/**
  * The concrete next steps, worked out from the site's current state.
  *
  * The tables below say what is true; this says what to do about it, so the
@@ -238,7 +292,25 @@ function ef_render_diagnostics_page() {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'サイト診断', 'eight-fields' ); ?></h1>
-		<p><?php esc_html_e( 'サービスページの表示がおかしいときに、原因の切り分けに使う画面です。この画面は状態を読み取るだけで、何も変更しません。', 'eight-fields' ); ?></p>
+		<p><?php esc_html_e( '表示がおかしいときに、原因の切り分けに使う画面です。この画面は状態を読み取るだけで、何も変更しません。', 'eight-fields' ); ?></p>
+
+		<?php
+		// Which build is actually installed. Uploading a theme zip over an
+		// existing copy is easy to get wrong, and a page cache will keep serving
+		// the previous version of the site, so "the change did not take" is
+		// usually answered here.
+		$ef_theme = wp_get_theme( 'eight-fields' );
+		?>
+		<p style="font-size:13px;color:#50575e">
+			<?php
+			printf(
+				/* translators: 1: theme name, 2: version number */
+				esc_html__( 'いま動いているテーマ：%1$s バージョン %2$s', 'eight-fields' ),
+				esc_html( $ef_theme->get( 'Name' ) ),
+				'<strong>' . esc_html( $ef_theme->get( 'Version' ) ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+			);
+			?>
+		</p>
 
 		<?php $ef_todo = ef_diag_todo(); ?>
 		<?php if ( $ef_todo ) : ?>
@@ -287,6 +359,37 @@ function ef_render_diagnostics_page() {
 				</ul>
 			</div>
 		<?php endif; ?>
+
+		<h2><?php esc_html_e( '固定ページの状態', 'eight-fields' ); ?></h2>
+		<p><?php esc_html_e( 'テンプレートが想定と違うと、そのページだけデザインが当たりません。会社概要の表は、固定ページ本文に「ラベル：値」の行があればそちらを、無ければテーマ内蔵の内容を使います。', 'eight-fields' ); ?></p>
+		<table class="widefat striped" style="max-width:900px;margin-bottom:28px">
+			<thead>
+				<tr>
+					<th style="width:130px"><?php esc_html_e( 'スラッグ', 'eight-fields' ); ?></th>
+					<th><?php esc_html_e( 'ページ', 'eight-fields' ); ?></th>
+					<th style="width:200px"><?php esc_html_e( 'テンプレート', 'eight-fields' ); ?></th>
+					<th><?php esc_html_e( '会社概要の表の出どころ', 'eight-fields' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( ef_diag_pages() as $ef_page ) : ?>
+					<tr>
+						<td><code><?php echo esc_html( $ef_page['slug'] ); ?></code></td>
+						<td>
+							<?php if ( '' === $ef_page['title'] ) : ?>
+								<span style="color:#b32d2e"><?php esc_html_e( 'ページがありません', 'eight-fields' ); ?></span>
+							<?php elseif ( $ef_page['edit'] ) : ?>
+								<a href="<?php echo esc_url( $ef_page['edit'] ); ?>"><?php echo esc_html( $ef_page['title'] ); ?></a>
+							<?php else : ?>
+								<?php echo esc_html( $ef_page['title'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td><code><?php echo esc_html( $ef_page['template'] ); ?></code></td>
+						<td><?php echo esc_html( $ef_page['source'] ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 
 		<h2><?php esc_html_e( 'サービス各ページの状態', 'eight-fields' ); ?></h2>
 		<p><?php esc_html_e( '「テンプレート」が single-service.php 以外になっている場合、テーマのデザインは使われません。ページビルダーが独自のテンプレートを適用していないかご確認ください。', 'eight-fields' ); ?></p>
