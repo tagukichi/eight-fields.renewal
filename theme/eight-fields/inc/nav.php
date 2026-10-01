@@ -229,108 +229,160 @@ class EF_Drawer_Walker extends Walker_Nav_Menu {
 }
 
 /**
- * Hang the services under the サービス item when the menu has no children.
+ * What should hang under a top-level menu item that has no sub-menu of its own.
  *
- * The design's header opens a list of the six services on hover. A menu built
- * by hand usually has サービス as a single flat item, so rather than asking the
- * editor to drag six children into place, the services are added here at render
- * time. A menu that already has its own children is left exactly as it is.
+ * WordPress menus are a structure in their own right: making a page a child of
+ * another page does nothing to the menu, and the editor has to drag the item
+ * into place as well. Two cases are common enough here to be worth doing
+ * automatically, so that building the site the obvious way gives the design's
+ * dropdown without a second step:
+ *
+ * - サービス, which opens the six services, as the design has it;
+ * - a page whose children are published pages — 会社概要 with a 会社案内 under
+ *   it, say.
+ *
+ * An item that already has its own sub-menu in the menu is left alone: what the
+ * editor arranged by hand wins over anything worked out here.
+ *
+ * @param WP_Post $item Top-level menu item.
+ * @return WP_Post[] The posts to hang under it, newest structure first.
+ */
+function ef_nav_auto_children_for( $item ) {
+	if ( post_type_exists( 'service' ) ) {
+		$archive    = get_post_type_archive_link( 'service' );
+		$is_service = ( 'post_type_archive' === $item->type && 'service' === $item->object )
+			|| ( $archive && ! empty( $item->url ) && untrailingslashit( $item->url ) === untrailingslashit( $archive ) );
+
+		if ( $is_service ) {
+			return get_posts(
+				array(
+					'post_type'      => 'service',
+					'posts_per_page' => -1,
+					'orderby'        => array(
+						'menu_order' => 'ASC',
+						'date'       => 'ASC',
+					),
+				)
+			);
+		}
+	}
+
+	if ( 'post_type' === $item->type && 'page' === $item->object && ! empty( $item->object_id ) ) {
+		return get_posts(
+			array(
+				'post_type'      => 'page',
+				'post_parent'    => (int) $item->object_id,
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'orderby'        => array(
+					'menu_order' => 'ASC',
+					'title'      => 'ASC',
+				),
+			)
+		);
+	}
+
+	return array();
+}
+
+/**
+ * One menu item standing in for a post, in the shape the walkers read.
+ *
+ * @param WP_Post $post      The post the item points at.
+ * @param int     $parent_id Menu item ID it hangs under.
+ * @param int     $queried   The post being viewed, if any.
+ * @return stdClass
+ */
+function ef_nav_child_item( $post, $parent_id, $queried ) {
+	$child                        = new stdClass();
+	$child->ID                    = (int) $post->ID;
+	$child->db_id                 = (int) $post->ID;
+	$child->menu_item_parent      = (string) $parent_id;
+	$child->object_id             = (int) $post->ID;
+	$child->object                = $post->post_type;
+	$child->type                  = 'post_type';
+	$child->type_label            = '';
+	$child->title                 = get_the_title( $post );
+	$child->url                   = get_permalink( $post );
+	$child->target                = '';
+	$child->attr_title            = '';
+	$child->description           = '';
+	$child->xfn                   = '';
+	$child->post_parent           = (int) $post->post_parent;
+	$child->menu_order            = (int) $post->menu_order;
+	$child->classes               = array( '' );
+	$child->current               = ( $queried === (int) $post->ID );
+	$child->current_item_ancestor = false;
+	$child->current_item_parent   = false;
+
+	if ( $child->current ) {
+		$child->classes[] = 'current-menu-item';
+	}
+
+	return $child;
+}
+
+/**
+ * Give every top-level item without a sub-menu the children it implies.
  *
  * @param array    $items Menu items.
  * @param stdClass $args  Menu args.
  * @return array
  */
-function ef_nav_service_children( $items, $args ) {
+function ef_nav_auto_children( $items, $args ) {
 	if ( empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
 		return $items;
 	}
-	if ( ! post_type_exists( 'service' ) ) {
-		return $items;
+
+	// WordPress keys the items by menu order, from 1 and with gaps. Inserting by
+	// position needs positions, so the keys are dropped; the walker builds the
+	// tree from each item's parent, not from the keys.
+	$items = array_values( $items );
+
+	$has_own = array();
+	foreach ( $items as $item ) {
+		if ( ! empty( $item->menu_item_parent ) ) {
+			$has_own[ (int) $item->menu_item_parent ] = true;
+		}
 	}
 
-	$archive = get_post_type_archive_link( 'service' );
+	$queried = is_singular() ? get_queried_object_id() : 0;
+	$inserts = array();
 
-	$parent_id = 0;
-	$parent_at = 0;
 	foreach ( $items as $index => $item ) {
-		if ( ! empty( $item->menu_item_parent ) ) {
+		if ( ! empty( $item->menu_item_parent ) || isset( $has_own[ (int) $item->ID ] ) ) {
 			continue;
 		}
-		$is_service = ( 'post_type_archive' === $item->type && 'service' === $item->object )
-			|| ( $archive && ! empty( $item->url ) && untrailingslashit( $item->url ) === untrailingslashit( $archive ) );
-		if ( $is_service ) {
-			$parent_id = (int) $item->ID;
-			$parent_at = $index;
-			break;
-		}
-	}
 
-	if ( ! $parent_id ) {
-		return $items;
-	}
-
-	// Their own sub-menu wins.
-	foreach ( $items as $item ) {
-		if ( (int) $item->menu_item_parent === $parent_id ) {
-			return $items;
-		}
-	}
-
-	$services = get_posts(
-		array(
-			'post_type'      => 'service',
-			'posts_per_page' => -1,
-			'orderby'        => array(
-				'menu_order' => 'ASC',
-				'date'       => 'ASC',
-			),
-		)
-	);
-	if ( ! $services ) {
-		return $items;
-	}
-
-	$current  = is_singular( 'service' ) ? get_queried_object_id() : 0;
-	$children = array();
-
-	foreach ( $services as $service ) {
-		$child                        = new stdClass();
-		$child->ID                    = (int) $service->ID;
-		$child->db_id                 = (int) $service->ID;
-		$child->menu_item_parent      = (string) $parent_id;
-		$child->object_id             = (int) $service->ID;
-		$child->object                = 'service';
-		$child->type                  = 'post_type';
-		$child->type_label            = '';
-		$child->title                 = get_the_title( $service );
-		$child->url                   = get_permalink( $service );
-		$child->target                = '';
-		$child->attr_title            = '';
-		$child->description           = '';
-		$child->xfn                   = '';
-		$child->post_parent           = 0;
-		$child->menu_order            = (int) $service->menu_order;
-		$child->classes               = array( '' );
-		$child->current               = ( $current === (int) $service->ID );
-		$child->current_item_ancestor = false;
-		$child->current_item_parent   = false;
-
-		if ( $child->current ) {
-			$child->classes[]                       = 'current-menu-item';
-			$items[ $parent_at ]->current_item_parent = true;
-			$items[ $parent_at ]->classes[]           = 'current-menu-parent';
+		$posts = ef_nav_auto_children_for( $item );
+		if ( ! $posts ) {
+			continue;
 		}
 
-		$children[] = $child;
+		$children = array();
+		foreach ( $posts as $post ) {
+			$child = ef_nav_child_item( $post, (int) $item->ID, $queried );
+			if ( $child->current ) {
+				$items[ $index ]->current_item_parent = true;
+				$items[ $index ]->classes[]           = 'current-menu-parent';
+			}
+			$children[] = $child;
+		}
+
+		$items[ $index ]->classes[] = 'menu-item-has-children';
+		$inserts[ $index + 1 ]      = $children;
 	}
 
-	$items[ $parent_at ]->classes[] = 'menu-item-has-children';
-
-	array_splice( $items, $parent_at + 1, 0, $children );
+	// From the end, so the positions worked out above stay valid as the array
+	// grows underneath them.
+	krsort( $inserts );
+	foreach ( $inserts as $at => $children ) {
+		array_splice( $items, $at, 0, $children );
+	}
 
 	return $items;
 }
-add_filter( 'wp_nav_menu_objects', 'ef_nav_service_children', 10, 2 );
+add_filter( 'wp_nav_menu_objects', 'ef_nav_auto_children', 10, 2 );
 
 /**
  * Shown when no menu has been assigned to the `primary` location yet.
@@ -339,68 +391,96 @@ add_filter( 'wp_nav_menu_objects', 'ef_nav_service_children', 10, 2 );
  */
 function ef_nav_fallback( $args ) {
 	$drawer = isset( $args['menu_class'] ) && false !== strpos( $args['menu_class'], 'drawer' );
-	$items  = array(
-		array( __( '会社概要', 'eight-fields' ), home_url( '/company/' ), 'COMPANY' ),
-		array( __( 'ごあいさつ', 'eight-fields' ), home_url( '/greeting/' ), 'GREETING' ),
-		array( __( 'サービス', 'eight-fields' ), get_post_type_archive_link( 'service' ), 'SERVICE' ),
-		array( __( 'お知らせ', 'eight-fields' ), home_url( '/news/' ), 'NEWS' ),
-		array( __( 'お問い合わせ', 'eight-fields' ), home_url( '/contact/' ), 'CONTACT' ),
-	);
 
-	$services = get_posts(
-		array(
-			'post_type'      => 'service',
-			'posts_per_page' => -1,
-			'orderby'        => 'menu_order',
-			'order'          => 'ASC',
-		)
+	// label, url, English label, page slug (サービス has an archive, not a page).
+	$items = array(
+		array( __( '会社概要', 'eight-fields' ), home_url( '/company/' ), 'COMPANY', 'company' ),
+		array( __( 'ごあいさつ', 'eight-fields' ), home_url( '/greeting/' ), 'GREETING', 'greeting' ),
+		array( __( 'サービス', 'eight-fields' ), get_post_type_archive_link( 'service' ), 'SERVICE', '' ),
+		array( __( 'お知らせ', 'eight-fields' ), home_url( '/news/' ), 'NEWS', 'news' ),
+		array( __( 'お問い合わせ', 'eight-fields' ), home_url( '/contact/' ), 'CONTACT', 'contact' ),
 	);
 
 	echo '<ul class="' . esc_attr( $args['menu_class'] ) . '">';
+
 	foreach ( $items as $item ) {
-		$is_service = 'SERVICE' === $item[2];
+		list( $label, $url, $en, $slug ) = $item;
+
+		// The same two cases the assigned menu gets: the services, and a page's
+		// own published children.
+		if ( '' === $slug ) {
+			$children = get_posts(
+				array(
+					'post_type'      => 'service',
+					'posts_per_page' => -1,
+					'orderby'        => 'menu_order',
+					'order'          => 'ASC',
+				)
+			);
+		} else {
+			$page     = get_page_by_path( $slug );
+			$children = $page ? get_posts(
+				array(
+					'post_type'      => 'page',
+					'post_parent'    => $page->ID,
+					'post_status'    => 'publish',
+					'posts_per_page' => -1,
+					'orderby'        => array(
+						'menu_order' => 'ASC',
+						'title'      => 'ASC',
+					),
+				)
+			) : array();
+		}
 
 		if ( ! $drawer ) {
-			if ( $is_service && $services ) {
-				echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $item[1] ) . '">'
-					. esc_html( $item[0] ) . ef_icon( 'caret', false ) . '</a>'
-					. '<ul class="ef-nav__sub">';
-				foreach ( $services as $service ) {
-					$svg  = ef_service_icon( $service->post_name );
-					$icon = $svg ? '<span class="ef-ico">' . $svg . '</span>' : '';
-					echo '<li><a class="ef-nav__sublink" href="' . esc_url( get_permalink( $service ) ) . '">'
-						. $icon . esc_html( get_the_title( $service ) ) . '</a></li>';
-				}
-				echo '</ul></li>';
+			if ( ! $children ) {
+				echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $url ) . '">'
+					. esc_html( $label ) . '</a></li>';
 				continue;
 			}
 
-			echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $item[1] ) . '">'
-				. esc_html( $item[0] ) . '</a></li>';
-			continue;
-		}
-
-		if ( $is_service && $services ) {
-			echo '<li><div class="ef-drawer__row">'
-				. '<a class="ef-drawer__link" href="' . esc_url( $item[1] ) . '"><span>'
-				. esc_html( $item[0] ) . '<small>' . esc_html( $item[2] ) . '</small></span></a>'
-				. '<button class="ef-drawer__toggle" type="button" data-drawer-toggle'
-				. ' aria-expanded="false" aria-controls="ef-dsub-service">'
-				. '<span class="ef-drawer__caret"></span>'
-				. '<span class="ef-sr">' . esc_html__( 'サービスのサブメニューを開閉', 'eight-fields' ) . '</span>'
-				. '</button></div>'
-				. '<div class="ef-drawer__sub" id="ef-dsub-service" hidden><div><ul class="ef-drawer__sublist">';
-			foreach ( $services as $service ) {
-				echo '<li><a class="ef-drawer__sublink" href="' . esc_url( get_permalink( $service ) ) . '">'
-					. esc_html( get_the_title( $service ) ) . '</a></li>';
+			echo '<li class="ef-nav__item"><a class="ef-nav__link" href="' . esc_url( $url ) . '">'
+				. esc_html( $label ) . ef_icon( 'caret', false ) . '</a>'
+				. '<ul class="ef-nav__sub">';
+			foreach ( $children as $child ) {
+				$svg  = 'service' === $child->post_type ? ef_service_icon( $child->post_name ) : '';
+				$icon = $svg ? '<span class="ef-ico">' . $svg . '</span>' : '';
+				echo '<li><a class="ef-nav__sublink" href="' . esc_url( get_permalink( $child ) ) . '">'
+					. $icon . esc_html( get_the_title( $child ) ) . '</a></li>';
 			}
-			echo '</ul></div></div></li>';
+			echo '</ul></li>';
 			continue;
 		}
 
-		echo '<li><a class="ef-drawer__link" href="' . esc_url( $item[1] ) . '"><span>'
-			. esc_html( $item[0] ) . '<small>' . esc_html( $item[2] ) . '</small></span>'
-			. ef_icon( 'arrow', false ) . '</a></li>';
+		if ( ! $children ) {
+			echo '<li><a class="ef-drawer__link" href="' . esc_url( $url ) . '"><span>'
+				. esc_html( $label ) . '<small>' . esc_html( $en ) . '</small></span>'
+				. ef_icon( 'arrow', false ) . '</a></li>';
+			continue;
+		}
+
+		$panel = 'ef-dsub-' . ( '' === $slug ? 'service' : $slug );
+		/* translators: %s: menu item label */
+		$toggle = sprintf( __( '%sのサブメニューを開閉', 'eight-fields' ), $label );
+
+		echo '<li><div class="ef-drawer__row">'
+			. '<a class="ef-drawer__link" href="' . esc_url( $url ) . '"><span>'
+			. esc_html( $label ) . '<small>' . esc_html( $en ) . '</small></span></a>'
+			. '<button class="ef-drawer__toggle" type="button" data-drawer-toggle'
+			. ' aria-expanded="false" aria-controls="' . esc_attr( $panel ) . '">'
+			. '<span class="ef-drawer__caret"></span>'
+			. '<span class="ef-sr">' . esc_html( $toggle ) . '</span>'
+			. '</button></div>'
+			. '<div class="ef-drawer__sub" id="' . esc_attr( $panel ) . '" hidden><div><ul class="ef-drawer__sublist">';
+		foreach ( $children as $child ) {
+			$svg  = 'service' === $child->post_type ? ef_service_icon( $child->post_name ) : '';
+			$icon = $svg ? '<span class="ef-ico">' . $svg . '</span>' : '';
+			echo '<li><a class="ef-drawer__sublink" href="' . esc_url( get_permalink( $child ) ) . '">'
+				. $icon . esc_html( get_the_title( $child ) ) . '</a></li>';
+		}
+		echo '</ul></div></div></li>';
 	}
+
 	echo '</ul>';
 }
