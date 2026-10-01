@@ -88,6 +88,7 @@ function ef_icon( $name, $echo = true ) {
 		'chat'  => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.4c0 4-4 7.2-9 7.2a10.7 10.7 0 0 1-2.6-.3L4.5 20.5l1-3.7A6.9 6.9 0 0 1 3 11.4C3 7.4 7 4.2 12 4.2s9 3.2 9 7.2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.6" cy="11.4" r="1.15" fill="currentColor"/><circle cx="12" cy="11.4" r="1.15" fill="currentColor"/><circle cx="15.4" cy="11.4" r="1.15" fill="currentColor"/></svg>',
 		'bulb'  => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.2 18h5.6M10 21h4M12 2.8a6.2 6.2 0 0 0-3.6 11.25c.6.43.95 1.1.95 1.83V16h5.3v-.12c0-.73.35-1.4.95-1.83A6.2 6.2 0 0 0 12 2.8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		'check' => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#3B9C6D"/><path d="m7.5 12.3 3 3 6-6.6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+		'pdf'   => '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 2.8h7.2L19 8.6V21a1.2 1.2 0 0 1-1.2 1.2H6A1.2 1.2 0 0 1 4.8 21V4A1.2 1.2 0 0 1 6 2.8Z" fill="currentColor"/><path d="M13.2 2.8 19 8.6h-5.8V2.8Z" fill="#fff" fill-opacity=".45"/><path d="M7.6 17.6v-4h1.6a1.2 1.2 0 0 1 0 2.4H7.6m4.3 1.6v-4h1.1a2 2 0 0 1 0 4h-1.1Zm4.4 0v-4h2.1m-2.1 2.1h1.7" stroke="#fff" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 	);
 
 	$svg = isset( $icons[ $name ] ) ? $icons[ $name ] : '';
@@ -291,6 +292,99 @@ function ef_map_block() {
 	return trim( ob_get_clean() );
 }
 add_shortcode( 'ef_map', 'ef_map_block' );
+
+/**
+ * A PDF shown in the page, with the file's own links beside it.
+ *
+ * WordPress on its own turns an uploaded PDF into a link; to read it without
+ * leaving the page it has to be embedded. `[ef_pdf id="123"]` does that, in any
+ * editor — block, classic or a page builder — so a page can show a 会社案内 or a
+ * 施工事例集 inline.
+ *
+ * A phone browser cannot be relied on to render an embedded PDF (iOS shows the
+ * first page and refuses to scroll it), so below the desktop breakpoint the
+ * frame is dropped by the stylesheet and the buttons carry the page instead.
+ * That is why the links are always rendered, not only as a fallback inside the
+ * object element.
+ *
+ * @param array $atts Shortcode attributes.
+ * @return string Markup, or '' when there is no file to show.
+ */
+function ef_pdf_block( $atts = array() ) {
+	$atts = shortcode_atts(
+		array(
+			'id'     => '',
+			'url'    => '',
+			'title'  => '',
+			'height' => 800,
+		),
+		$atts,
+		'ef_pdf'
+	);
+
+	$id  = (int) $atts['id'];
+	$url = $id ? (string) wp_get_attachment_url( $id ) : esc_url_raw( (string) $atts['url'] );
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$name = (string) $atts['title'];
+	if ( '' === $name ) {
+		$name = $id ? get_the_title( $id ) : '';
+	}
+	if ( '' === $name ) {
+		$name = wp_basename( wp_parse_url( $url, PHP_URL_PATH ) );
+	}
+
+	// The size tells a visitor on a phone what they are about to download.
+	$size = '';
+	if ( $id ) {
+		$path = get_attached_file( $id );
+		if ( $path && file_exists( $path ) ) {
+			$size = size_format( filesize( $path ) );
+		}
+	}
+
+	$height = max( 320, (int) $atts['height'] );
+
+	// `view=FitH` opens at page width rather than at whatever zoom the viewer
+	// remembers from the last PDF someone looked at.
+	$embed = $url . '#view=FitH';
+
+	ob_start();
+	?>
+	<figure class="ef-pdf" style="--ef-pdf-height:<?php echo (int) $height; ?>px">
+		<div class="ef-pdf__frame">
+			<object data="<?php echo esc_url( $embed ); ?>" type="application/pdf">
+				<iframe src="<?php echo esc_url( $embed ); ?>"
+					title="<?php echo esc_attr( $name ); ?>" loading="lazy"></iframe>
+			</object>
+		</div>
+		<p class="ef-pdf__note">
+			<?php esc_html_e( 'この画面ではPDFをページ内に表示できないため、下のボタンからご覧ください。', 'eight-fields' ); ?>
+		</p>
+		<figcaption class="ef-pdf__bar">
+			<span class="ef-pdf__name">
+				<?php ef_icon( 'pdf' ); ?>
+				<span><?php echo esc_html( $name ); ?></span>
+				<?php if ( '' !== $size ) : ?>
+					<span class="ef-pdf__size"><?php echo esc_html( $size ); ?></span>
+				<?php endif; ?>
+			</span>
+			<span class="ef-pdf__actions">
+				<a class="ef-btn ef-btn--outline ef-btn--sm" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener">
+					<?php esc_html_e( '別のタブで開く', 'eight-fields' ); ?>
+				</a>
+				<a class="ef-btn ef-btn--dark ef-btn--sm" href="<?php echo esc_url( $url ); ?>" download>
+					<?php esc_html_e( 'ダウンロード', 'eight-fields' ); ?>
+				</a>
+			</span>
+		</figcaption>
+	</figure>
+	<?php
+	return trim( ob_get_clean() );
+}
+add_shortcode( 'ef_pdf', 'ef_pdf_block' );
 
 /**
  * The modifier class for a service's card image.

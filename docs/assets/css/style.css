@@ -896,6 +896,66 @@ input, select, textarea { font: inherit; color: inherit; }
 }
 .ef-map__link { margin: 14px 0 0; }
 
+/* A PDF shown in the page — the [ef_pdf] shortcode, and WordPress's own File
+   block when the editor reaches for that instead.
+
+   Below the desktop breakpoint the frame is dropped: a phone browser cannot be
+   relied on to render an embedded PDF (iOS shows the first page and will not
+   scroll it), and a dead grey rectangle is worse than a button that works. */
+.ef-pdf, .wp-block-file {
+  margin: 0 0 clamp(26px, 4vw, 40px);
+  border: 1px solid var(--ef-line-soft); border-radius: var(--ef-radius-lg);
+  background: #fff; overflow: hidden; box-shadow: var(--ef-shadow-sm);
+}
+.ef-pdf__frame { height: var(--ef-pdf-height, 800px); background: var(--ef-sand-d); }
+.ef-pdf__frame > object,
+.ef-pdf__frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+.ef-pdf__bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  padding: 14px 18px; border-top: 1px solid var(--ef-line-soft);
+}
+.ef-pdf__name {
+  display: flex; align-items: center; gap: 9px; min-width: 0;
+  font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ef-ink);
+}
+.ef-pdf__name > svg { width: 20px; height: 20px; flex: none; color: #C0392B; }
+.ef-pdf__size { flex: none; font-weight: 500; color: var(--ef-muted); }
+.ef-pdf__actions { display: flex; gap: 10px; margin-left: auto; }
+.ef-pdf__note { display: none; }
+
+@media (max-width: 780px) {
+  .ef-pdf__frame { display: none; }
+  .ef-pdf__note {
+    display: block; margin: 0;
+    padding: 16px 18px 0; font-size: 13px; line-height: 1.85; color: var(--ef-muted);
+  }
+  .ef-pdf__bar { border-top: 0; }
+  .ef-pdf__actions { width: 100%; margin-left: 0; }
+  .ef-pdf__actions .ef-btn { flex: 1; }
+}
+
+/* WordPress's File block, given the same card. Its embed is an <object> with
+   an inline height the editor sets, so only the chrome is restyled here. */
+.wp-block-file { display: flex; flex-wrap: wrap; align-items: center; padding: 0; font-size: 14px; }
+.wp-block-file__embed { flex: 1 0 100%; width: 100%; margin: 0; border: 0; background: var(--ef-sand-d); }
+.wp-block-file > a:not(.wp-block-file__button) {
+  flex: 1 1 auto; min-width: 0; padding: 15px 18px;
+  font-weight: 700; color: var(--ef-ink); text-decoration: none;
+}
+.wp-block-file__button {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none; margin: 0 18px 0 0; padding: 11px 22px; min-height: 44px;
+  border-radius: 999px; background: var(--ef-primary); color: #fff;
+  font-size: 14px; font-weight: 700; letter-spacing: .04em; text-decoration: none;
+  box-shadow: 0 8px 22px rgba(28,127,168,.25);
+  transition: background-color .25s var(--ef-ease), transform .25s var(--ef-ease);
+}
+.wp-block-file__button:hover { background: var(--ef-primary-d); color: #fff; transform: translateY(-2px); }
+@media (max-width: 780px) {
+  .wp-block-file__embed { display: none; }
+}
+
 /* Secondary detail inside a table cell — the group company's work list. */
 /* A block of detail hanging off one row — the group company's lines of work.
    Set apart so it does not run together with the row's own value. */
