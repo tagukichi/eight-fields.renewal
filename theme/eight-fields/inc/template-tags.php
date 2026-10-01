@@ -301,11 +301,12 @@ add_shortcode( 'ef_map', 'ef_map_block' );
  * editor — block, classic or a page builder — so a page can show a 会社案内 or a
  * 施工事例集 inline.
  *
- * A phone browser cannot be relied on to render an embedded PDF (iOS shows the
- * first page and refuses to scroll it), so below the desktop breakpoint the
- * frame is dropped by the stylesheet and the buttons carry the page instead.
- * That is why the links are always rendered, not only as a fallback inside the
- * object element.
+ * The pages are drawn by the theme's own viewer rather than handed to the
+ * browser's PDF plugin, because that plugin is a desktop thing: on a phone an
+ * embedded PDF shows its first page and will not scroll, or is swapped for a
+ * download prompt. Drawing the pages means the file reads the same everywhere.
+ * When the viewer cannot run, the browser's embed and the buttons below it
+ * take over.
  *
  * @param array $atts Shortcode attributes.
  * @return string Markup, or '' when there is no file to show.
@@ -359,22 +360,24 @@ function ef_pdf_block( $atts = array() ) {
 		$class .= ' ef-pdf--full';
 	}
 
-	// `view=FitH` opens at page width rather than at whatever zoom the viewer
-	// remembers from the last PDF someone looked at.
-	$embed = $url . '#view=FitH';
+	ef_needs_pdf_viewer( true );
 
 	ob_start();
 	?>
-	<figure class="<?php echo esc_attr( $class ); ?>" style="--ef-pdf-height:<?php echo (int) $height; ?>px">
-		<div class="ef-pdf__frame">
-			<object data="<?php echo esc_url( $embed ); ?>" type="application/pdf">
-				<iframe src="<?php echo esc_url( $embed ); ?>"
-					title="<?php echo esc_attr( $name ); ?>" loading="lazy"></iframe>
-			</object>
+	<figure class="<?php echo esc_attr( $class ); ?>"
+		style="--ef-pdf-height:<?php echo (int) $height; ?>px"
+		data-ef-pdf="<?php echo esc_url( $url ); ?>">
+		<div class="ef-pdf__pages" data-ef-pdf-pages>
+			<p class="ef-pdf__loading"><?php esc_html_e( 'PDFを読み込んでいます…', 'eight-fields' ); ?></p>
 		</div>
-		<p class="ef-pdf__note">
-			<?php esc_html_e( 'この画面ではPDFをページ内に表示できないため、下のボタンからご覧ください。', 'eight-fields' ); ?>
-		</p>
+		<noscript>
+			<div class="ef-pdf__frame">
+				<object data="<?php echo esc_url( $url . '#view=FitH' ); ?>" type="application/pdf">
+					<iframe src="<?php echo esc_url( $url . '#view=FitH' ); ?>"
+						title="<?php echo esc_attr( $name ); ?>" loading="lazy"></iframe>
+				</object>
+			</div>
+		</noscript>
 		<figcaption class="ef-pdf__bar">
 			<span class="ef-pdf__name">
 				<?php ef_icon( 'pdf' ); ?>
@@ -397,6 +400,57 @@ function ef_pdf_block( $atts = array() ) {
 	return trim( ob_get_clean() );
 }
 add_shortcode( 'ef_pdf', 'ef_pdf_block' );
+
+/**
+ * Whether this request has a PDF on it, so the viewer is loaded only there.
+ *
+ * The library is over a megabyte; every other page on the site should not pay
+ * for it. The shortcode sets the flag while the content filters run, which is
+ * before `wp_footer` enqueues.
+ *
+ * @param bool $needed Set the flag.
+ * @return bool
+ */
+function ef_needs_pdf_viewer( $needed = false ) {
+	static $wanted = false;
+	if ( $needed ) {
+		$wanted = true;
+	}
+	return $wanted;
+}
+
+/**
+ * Load the viewer, once, on a page that has a PDF on it.
+ */
+function ef_enqueue_pdf_viewer() {
+	if ( ! ef_needs_pdf_viewer() ) {
+		return;
+	}
+
+	$base = get_theme_file_uri( '/assets/js/vendor/pdfjs/' );
+
+	wp_enqueue_script(
+		'ef-pdf-viewer',
+		get_theme_file_uri( '/assets/js/pdf-viewer.js' ),
+		array(),
+		EF_THEME_VERSION,
+		true
+	);
+
+	wp_add_inline_script(
+		'ef-pdf-viewer',
+		'window.EF_PDFJS=' . wp_json_encode(
+			array(
+				'lib'    => $base . 'pdf.min.mjs',
+				'worker' => $base . 'pdf.worker.min.mjs',
+				'cmaps'  => $base . 'cmaps/',
+				'fonts'  => $base . 'standard_fonts/',
+			)
+		) . ';',
+		'before'
+	);
+}
+add_action( 'wp_footer', 'ef_enqueue_pdf_viewer', 1 );
 
 /**
  * The modifier class for a service's card image.
