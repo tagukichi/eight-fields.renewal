@@ -317,6 +317,7 @@ function ef_pdf_block( $atts = array() ) {
 			'url'    => '',
 			'title'  => '',
 			'height' => 800,
+			'width'  => '',
 		),
 		$atts,
 		'ef_pdf'
@@ -347,13 +348,24 @@ function ef_pdf_block( $atts = array() ) {
 
 	$height = max( 320, (int) $atts['height'] );
 
+	// A page's body sits in a reading column, which is narrower than a landscape
+	// A4 wants to be. `wide` breaks out to the site's full container width and
+	// `full` to the window, both still centred on the column they sit in.
+	$width = strtolower( trim( (string) $atts['width'] ) );
+	$class = 'ef-pdf';
+	if ( 'wide' === $width ) {
+		$class .= ' ef-pdf--wide';
+	} elseif ( 'full' === $width ) {
+		$class .= ' ef-pdf--full';
+	}
+
 	// `view=FitH` opens at page width rather than at whatever zoom the viewer
 	// remembers from the last PDF someone looked at.
 	$embed = $url . '#view=FitH';
 
 	ob_start();
 	?>
-	<figure class="ef-pdf" style="--ef-pdf-height:<?php echo (int) $height; ?>px">
+	<figure class="<?php echo esc_attr( $class ); ?>" style="--ef-pdf-height:<?php echo (int) $height; ?>px">
 		<div class="ef-pdf__frame">
 			<object data="<?php echo esc_url( $embed ); ?>" type="application/pdf">
 				<iframe src="<?php echo esc_url( $embed ); ?>"
